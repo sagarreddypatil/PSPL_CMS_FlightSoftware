@@ -1,0 +1,24 @@
+{
+  "folders": [
+    {
+      "path": "Lower VDAQ"
+    },
+    {
+      "path": "Libraries"
+    },
+    {
+      "path": "FlashSizing"
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.cpptools",
+      "platformio.platformio-ide",
+      "xaver.clang-format",
+      "notskm.clang-tidy"
+    ]
+  }
+}
