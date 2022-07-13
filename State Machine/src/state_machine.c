@@ -8,6 +8,12 @@ We came in hate for Blue Origin
 Starting this project was kinda like this: https://youtu.be/vFUx_KC1bHQ?t=77
 */
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <stdio.h>
 #include "../lib/state_machine.h"
 
@@ -21,34 +27,28 @@ int main(int argc, char* argv[]) {
     */
     // Initialize the state byte in the safe state
     State state = init_state;
-    
 
-    if(state.safe && !state.finished) {
+    while(1 == 1) {
         print_state(state);
+        update_state(&state);
+        Sleep(1000);
     }
 
-    state.danger = true;
-
-    if(state.safe && state.danger) {
-        state.safe = false;
-        state.record = true;
-        print_state(state);
-    }
-
-    state.finished = true;
-
-    if(state.finished) {
-        state.safe = true;
-        state.danger = false;
-        state.record = false;
-        print_state(state);
-    }
-
+    return EXIT_SUCCESS;
 }
 
 void print_state(State state) {
-    printf("\nSafe: %d\n", state.safe);
-    printf("Danger: %d\n", state.danger);
-    printf("Recording: %d\n", state.record);
-    printf("Finished: %d\n\n", state.finished);
+    char* state_names[NUM_STATES] = {"State 0: ", "State 1: ", "State 2: ", "State 3: "};
+    state_t states[NUM_STATES] = {state.generic_state0, state.generic_state1, state.generic_state2, state.generic_state3};
+    for(uint8_t state_idx = 0; state_idx < NUM_STATES; state_idx++) {
+        printf("%s%d\n", state_names[state_idx], states[state_idx]);
+    }
+    printf("\n");
+}
+
+void update_state(State* state) {
+    state->generic_state0 -= 1;
+    state->generic_state1 += 1;
+    state->generic_state2 -= 1;
+    state->generic_state3 += 1;
 }
