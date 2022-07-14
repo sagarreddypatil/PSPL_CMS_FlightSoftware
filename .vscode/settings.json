@@ -5,7 +5,8 @@
         "stdint.h": "c",
         "stdio.h": "c",
         "windows.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "spi.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

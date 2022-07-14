@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+        "io.h": "c",
+        "sfr_defs.h": "c",
+        "inttypes.h": "c",
+        "common.h": "c",
+        "portpins.h": "c",
+        "iom328p.h": "c",
+        "spi.h": "c",
+        "stdio.h": "c",
+        "builtins.h": "c",
+        "delay.h": "c",
+        "stdint.h": "c",
+        "twi.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
+}
