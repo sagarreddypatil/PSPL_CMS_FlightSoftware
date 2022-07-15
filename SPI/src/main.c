@@ -20,5 +20,5 @@ int main() {
     stdin  = &uart_input;
 
     printf("\nThis standard printf function can print stuff through the serial port now!\n");
-    printf("Printing to serial is still really slow, so only use this for debugging stuff.\n");
+    printf("Serial speed is dependent on baud rate so faster == better but faster also == less stable.\n");
 }
