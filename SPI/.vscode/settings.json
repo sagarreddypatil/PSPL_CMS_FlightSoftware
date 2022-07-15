@@ -11,7 +11,8 @@
         "builtins.h": "c",
         "delay.h": "c",
         "stdint.h": "c",
-        "twi.h": "c"
+        "twi.h": "c",
+        "setbaud.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

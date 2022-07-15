@@ -6,19 +6,19 @@ Here Big Cameron from the planet Earth first started coding CMS, July 10th, 2022
 We came in hate for Blue Origin
 
 Starting this project was kinda like this: https://youtu.be/vFUx_KC1bHQ?t=77
-*/
 
+atmega328p datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf
+*/
+#include <stdio.h>
 #include "spi.h"
+#include "uart.h"
 
 int main() {
-    init_spi();
-    uint8_t data;
+    uart_init();
 
-    while(1 == 1) {
-        command_spi(0b10101010);
-        sleep_ms(500);
-        data = read_spi();
-        sleep_ms(500);
-        print_byte(data);
-    }
+    stdout = &uart_output;
+    stdin  = &uart_input;
+
+    printf("\nThis standard printf function can print stuff through the serial port now!\n");
+    printf("Printing to serial is still really slow, so only use this for debugging stuff.\n");
 }

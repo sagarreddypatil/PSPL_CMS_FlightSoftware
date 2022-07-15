@@ -1,38 +1,46 @@
-#include <stdio.h>
-#include <stdint.h>
 #include "spi.h"
 
-extern uint8_t reverse_byte[];
+// http://www.rjhcoding.com/avrc-spi.php
 
-void init_spi() {
-    DDRB = (1 << SCK) | (1 << CS) | (1 << MOSI);
-}
+void spi_init(uint8_t data_order, uint8_t spi_mode, uint8_t sck_speed) {
+    SPI_DDR = ((1 << DDB2) | (1 << DDB1) | (1 << DDB0)); //spi pins on port b MOSI SCK,SS outputs
+    SPCR = ((1 << SPE) | (1 << MSTR));  // SPI enable, Master, SPI mode 0, clock speed = F_CLK / 4
 
-void command_spi(uint8_t command_byte) {
-    // Reverse the bits in the byte (0001 --> 1000)
-    command_byte = reverse_byte[command_byte];
+    // Set the data register to either read MSB first (0) or LSB first (1)
+    SPCR |= (data_order << DORD);
 
-    // Send the command_byte over SPI starting from most significant bit (MSB)
-    for(uint8_t bit_pos = 7; bit_pos >= 0; bit_pos--) {
-        // Set MOSI
-        PORTB = (command_byte % 2) << MOSI;
-        print_byte(PORTB);
-        // Set MOSI and Clock
-        PORTB |= 1 << SCK;
-        print_byte(PORTB);
-        command_byte /= 2;
+    // Set the SPCR register according to what SPI mode the user has requested
+    SPCR |= (((spi_mode & 1) << CPHA) | (((spi_mode & 2) >> 1) << CPOL));
+
+    // Set the SPI clock speed, TODO: there's for sure a cleaner way to do this
+    uint8_t spi_double_speed = ((((sck_speed & 2) >> 1) << SPI2X) | (((sck_speed & 8) >> 3) << SPI2X) | (((sck_speed & 32) >> 5) << SPI2X));
+    if(spi_double_speed) {
+        SPSR = (spi_double_speed << SPI2X);
+        sck_speed *= 2;
+    }
+    if(sck_speed >= 64) {
+        SPCR |= (1 << SPR1);
+    }
+    if(sck_speed == 16 || sck_speed == 128) {
+        SPCR |= (1 << SPR0);
     }
 }
 
-uint8_t read_spi() {
-    uint8_t read_byte = 0;
-    for(uint8_t bit_pos = 7; bit_pos >= 0; bit_pos--) {
-        // Set all to 0
-        PORTB = 0;
-        print_byte(PORTB);
-        // Set Clock
-        PORTB |= 1 << SCK;
-        print_byte(PORTB);
-        read_byte += (PINB >> MISO) << bit_pos;
-    }
+void spi_transmit(uint8_t data) {
+    SPI_DATA_REGISTER = data; // Slap our byte into the SPI register, this bad boy can hold 8 bits!
+    while(!SPI_INTERRUPT); // Wait for transmission complete by looking at the SPI interrupt
+}
+
+uint8_t spi_receive() {
+    SPI_DATA_REGISTER = 0x00; // Transmit zero (could be anything)
+    while(!SPI_INTERRUPT); // Wait for the transmission to be complete by looking at the SPI interrupt
+    return SPI_DATA_REGISTER; // Slap the byte our slave gave us into the SPI register, you get the rest
+}
+
+void spi_select(uint8_t slave_select) {
+    SPI_DDR &= ~(1 << slave_select); // Toggle the requested slave select low
+}
+
+void spi_deselct(uint8_t slave_select) {
+    SPI_DDR |= (1 << slave_select); // Toggle the requested slave select high
 }
