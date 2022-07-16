@@ -11,15 +11,15 @@ atmega328p datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-781
 */
 #include "spi.h"
 #include "uart.h"
+#include "constants.h"
 
 int main() {
     uart_init();
-
     // Set stdio to the serial connection
     FILE uart_io = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_WRITE);
     stdin = stdout = &uart_io;
 
-    printf("\nThis standard printf function can print stuff through the serial port now!\n");
+    printf("\nBecause of the hard work of your glorious leader, BIG CAMERON, this standard printf function can print stuff through the serial port now!\n");
     printf("Serial speed is dependent on baud rate so faster == better but faster also == less stable.\n");
     printf("Current speed is %ldbps, techincally you can get 2Mbps but the current version of that is kinda buggy.\n", BAUD);
 

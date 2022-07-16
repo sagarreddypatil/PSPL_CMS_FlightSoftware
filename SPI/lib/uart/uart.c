@@ -1,8 +1,5 @@
 #include "uart.h"
 
-// https://github.com/tuupola/avr_demo/tree/master/blog/simple_usart
-// https://www.appelsiini.net/2011/simple-usart-with-avr-libc/
-
 void uart_init() {
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
