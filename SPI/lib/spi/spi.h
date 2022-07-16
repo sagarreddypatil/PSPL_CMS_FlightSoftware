@@ -19,8 +19,15 @@
 #define SPI_MODE2 2
 #define SPI_MODE3 3
 
-// SPI Speed
-#define SPI_SPEED 128
+// SPI Clock Speeds
+#define SPI_SPEED0 0
+#define SPI_SPEED1 1
+#define SPI_SPEED2 2
+#define SPI_SPEED3 3
+#define SPI_SPEED4 4
+#define SPI_SPEED5 5
+#define SPI_SPEED6 6
+#define SPI_SPEED7 7
 
 // Useful definitions to make stuff easier to read
 #define SPI_DATA_REGISTER SPDR
@@ -35,8 +42,8 @@ void spi_select(uint8_t);
 // Send a command byte over the SPI bus
 void spi_transmit(uint8_t);
 
-// Read a byte from the SPI bus
-uint8_t spi_receive();
+// Read X bytes (up to 8) from the SPI bus
+uint64_t spi_receive(uint8_t);
 
 // Deselect an SPI slave
 void spi_deselect(uint8_t);

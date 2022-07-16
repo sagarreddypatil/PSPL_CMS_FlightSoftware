@@ -3,6 +3,9 @@
 
 #include "spi.h"
 
+#define READ 1 << 7
+#define WRITE 0 << 7
+
 #define HUMIDITY    0xFD
 #define PRESSURE    0xF7
 #define TEMPERATURE 0xFA
