@@ -13,7 +13,12 @@
         "stdint.h": "c",
         "twi.h": "c",
         "setbaud.h": "c",
-        "uart.h": "c"
+        "uart.h": "c",
+        "iom32u4.h": "c",
+        "timer.h": "c",
+        "atomic.h": "c",
+        "bme280.h": "c",
+        "interrupt.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

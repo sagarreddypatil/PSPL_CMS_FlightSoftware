@@ -11,7 +11,7 @@ atmega328p datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-781
 */
 #include "spi.h"
 #include "uart.h"
-#include "constants.h"
+#include "bme280.h"
 
 int main() {
     uart_init();
@@ -23,7 +23,10 @@ int main() {
     printf("Serial speed is dependent on baud rate so faster == better but faster also == less stable.\n");
     printf("Current speed is %ldbps, techincally you can get 2Mbps but the current version of that is kinda buggy.\n", BAUD);
 
-    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
-    printf("\nSPI Data Register (SPCR): 0x%x\n", SPCR);
-    printf("SPI Pin Select Register (SPI_DDR): 0x%x\n", SPI_DDR);
+    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED4);
+    bme280_init(PORTB, BME_SS);
+
+    while(1 == 1) {
+        printf("SPI Data Register: 0x%lX\n", bme280_humidity());
+    }
 }

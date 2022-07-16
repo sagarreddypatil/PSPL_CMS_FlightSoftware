@@ -1,15 +1,20 @@
 #include "bme280.h"
 
-// datasheet https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
+// Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
+
+void bme280_init(uint8_t port, uint8_t slave_select) {
+    port |= (1 << pin);
+}
 
 uint16_t bme280_humidity() {
-    uint16_t data;
+    uint16_t data = 0;
 
     spi_select(BME_SS);
 
-    spi_transmit(READ + HUMIDITY);
+    spi_transmit(READ(HUMIDITY));
 
-    data = spi_receive(2);
+    data = (data << 8) + spi_receive();
+    data = (data << 8) + spi_receive();
 
     spi_deselect(BME_SS);
 
@@ -17,13 +22,15 @@ uint16_t bme280_humidity() {
 }
 
 uint32_t bme280_pressure() {
-    uint32_t data;
+    uint32_t data = 0;
 
     spi_select(BME_SS);
 
-    spi_transmit(READ + PRESSURE);
+    spi_transmit(READ(PRESSURE));
 
-    data = spi_receive(3);
+    data = (data << 8) + spi_receive();
+    data = (data << 8) + spi_receive();
+    data = (data << 8) + spi_receive();
 
     spi_deselect(BME_SS);
 
@@ -31,13 +38,15 @@ uint32_t bme280_pressure() {
 }
 
 uint32_t bme280_temeperature() {
-    uint32_t data;
+    uint32_t data = 0;
 
     spi_select(BME_SS);
 
-    spi_transmit(READ + TEMPERATURE);
+    spi_transmit(READ(TEMPERATURE));
 
-    data = spi_receive(3);
+    data = (data << 8) + spi_receive();
+    data = (data << 8) + spi_receive();
+    data = (data << 8) + spi_receive();
 
     spi_deselect(BME_SS);
 

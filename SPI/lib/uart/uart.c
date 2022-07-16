@@ -6,7 +6,7 @@ void uart_init() {
     
     UCSR0A |= (USE_2X << U2X0);
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00); // Transmit 8 bit data
-    UCSR0B = (1 << RXEN0) | (1 << TXEN0);   // Enable RX and TX
+    UCSR0B = (1 << RXEN0) | (1 << TXEN0); // Enable RX and TX
 }
 
 void uart_putchar(char c, FILE *stream) {

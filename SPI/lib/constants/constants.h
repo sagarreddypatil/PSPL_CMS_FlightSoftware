@@ -7,10 +7,8 @@
     SPI
 */
 
-// SPI Data Direction Register
-#define SPI_DDR DDRB
-
 // SPI pins
+#define SS PINB2
 #define MOSI PINB3
 #define MISO PINB4
 #define SCK PINB5

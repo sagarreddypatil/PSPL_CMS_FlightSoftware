@@ -2,6 +2,7 @@
 #define SPI_H
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "constants.h"
 
 // Useful definitions to make stuff easier to read
@@ -17,8 +18,8 @@ void spi_select(uint8_t);
 // Send a command byte over the SPI bus
 void spi_transmit(uint8_t);
 
-// Read X bytes (up to 8) from the SPI bus
-uint64_t spi_receive(uint8_t);
+// Read a byte from the SPI bus
+uint8_t spi_receive();
 
 // Deselect an SPI slave
 void spi_deselect(uint8_t);
