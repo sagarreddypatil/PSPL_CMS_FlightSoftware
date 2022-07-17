@@ -1,10 +1,16 @@
 #include "uart.h"
 
-void uart_init(uint32_t baud_rate) {
+/*
+Initialize UART
+
+Args:
+    uint32_t baud_rate: the baud rate that we want to run UART at, can be up to 2mbps
+*/
+void uart_init(uint32_t baudrate) {
     // 19.10.5 and 19.11: Set baud rate
-    baud_rate = BAUDRATE(baud_rate / 2);
-    UBRR0H = (baud_rate >> 8);
-    UBRR0L = baud_rate;
+    baudrate = BAUDRATE(baudrate / 2);
+    UBRR0H = (baudrate >> 8);
+    UBRR0L = baudrate;
 
     // 19.10.2: Enable 2X mode
     UCSR0A = (1 << U2X0);
@@ -14,6 +20,12 @@ void uart_init(uint32_t baud_rate) {
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00) | (1 << USBS0);
 }
 
+/*
+Transmit a byte over UART
+
+Args:
+    uint8_t data_byte: the byte we want to send over UART (duh doi)
+*/
 void uart_transmit(uint8_t data_byte) {
     // 19.10.2: Wait for the data register to be empty
     while(!(UCSR0A & (1 << UDRE0)));
@@ -21,6 +33,12 @@ void uart_transmit(uint8_t data_byte) {
     UDR0 = data_byte;
 }
 
+/*
+Receive a byte from UART
+
+Returns:
+    uint8_t: contents of the UART data register
+*/
 uint8_t uart_receive() {
     // 19.10.2: Wait for new data to come in
     while(!(UCSR0A & (1 << RXC0)));
@@ -28,6 +46,9 @@ uint8_t uart_receive() {
     return UDR0;
 }
 
+/*
+Operates exactly like printf except outputs over UART
+*/
 void uart_printf(const char* str, ...) {
     va_list valist;
 
