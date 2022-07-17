@@ -33,14 +33,4 @@
 #define SPI_SPEED6 6
 #define SPI_SPEED7 7
 
-/*
-    UART
-*/
-
-// Set Baud Rate
-#ifndef BAUD
-#define BAUD 115200
-#endif
-#include <util/setbaud.h>
-
 #endif

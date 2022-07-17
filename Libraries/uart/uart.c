@@ -16,7 +16,7 @@ void uart_init(uint32_t baud_rate) {
 
 void uart_transmit(uint8_t data_byte) {
     // 19.10.2: Wait for the data register to be empty
-    while(!(UCSR0A & (1 << RXC0)));
+    while(!(UCSR0A & (1 << UDRE0)));
     // 19.10.1: Send the data
     UDR0 = data_byte;
 }
@@ -40,7 +40,6 @@ void uart_printf(const char* str, ...) {
     // Put the string out one character at a time
     uint8_t str_len = strlen(formatted_str);
     for(int str_idx = 0; str_idx < str_len; str_idx++) {
-        while(!(UCSR0A & (1 << UDRE0)));
-        UDR0 = formatted_str[str_idx];
+        uart_transmit(formatted_str[str_idx]);
     }
 }
