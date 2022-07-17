@@ -15,9 +15,14 @@ https://youtu.be/4gHivrcJ-YY?t=45
 #include "spi.h"
 #include "uart.h"
 #include "bme280.h"
+#include "timer.h"
 
 int main() {
     uart_init();
+
+    TCCR1B = (0 << CS12) | (0 << CS11) | (1 << CS10);
+    TIMSK1 = (1 << TOIE1);
+
     // Set stdio to the serial connection
     FILE uart_io = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
     stdin = stdout = &uart_io;
@@ -30,7 +35,16 @@ int main() {
     bme280_init(PORTB, BME_SS);
 
     while(1 == 1) {
+        uint16_t start = ((TCNT1H << 8) + TCNT1L);
+        uint16_t end = ((TCNT1H << 8) + TCNT1L);
+        printf("%d, %d\n", start, end);
+    }
+
+    /*
+    while(1 == 1) {
+        printf("128 bit (16 byte) data type length: %d bits, %d bytes\n", sizeof(data) * 8, sizeof(data));
         getchar();
         printf("SPI Data Register: 0x%lX\n", bme280_humidity());
     }
+    */
 }

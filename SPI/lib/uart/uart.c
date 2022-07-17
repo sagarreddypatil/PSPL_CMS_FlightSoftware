@@ -1,6 +1,7 @@
 #include "uart.h"
 
 void uart_init() {
+    // Set the two bytes of the Baud rate register to our baud rate
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
     

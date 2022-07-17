@@ -10,17 +10,9 @@
 #define SPI_INTERRUPT (SPSR & (1 << SPIF))
 
 void spi_init(uint8_t, uint8_t, uint8_t);
-
-// Select an SPI slave
 void spi_select(uint8_t, uint8_t);
-
-// Send a command byte over the SPI bus
 void spi_transmit(uint8_t);
-
-// Read a byte from the SPI bus
 uint8_t spi_receive();
-
-// Deselect an SPI slave
 void spi_deselect(uint8_t, uint8_t);
 
 #endif

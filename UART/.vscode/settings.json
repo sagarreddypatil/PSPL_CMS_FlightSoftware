@@ -19,7 +19,8 @@
         "atomic.h": "c",
         "bme280.h": "c",
         "interrupt.h": "c",
-        "constants.h": "c"
+        "constants.h": "c",
+        "string.h": "c"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
