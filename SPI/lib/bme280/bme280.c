@@ -3,12 +3,12 @@
 // Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
 
 void bme280_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
-    slave_init(data_direction, port, slave_select);
+    spi_slave_init(data_direction, port, slave_select);
 
-    spi_select(&PORTB, SS);
+    spi_select(port, slave_select);
     spi_transmit(WRITE(0xF4));
     spi_transmit(0x37);
-    spi_deselect(&PORTB, SS);
+    spi_deselect(port, slave_select);
 }
 
 uint8_t bme280_id() {
@@ -59,7 +59,7 @@ uint32_t bme280_pressure() {
 uint32_t bme280_temeperature() {
     uint32_t data = 0;
 
-    spi_select(&PORTB, SS);
+    spi_select(&PORTB, BME_SS);
 
     spi_transmit(READ(TEMPERATURE));
 
@@ -67,7 +67,7 @@ uint32_t bme280_temeperature() {
     data = (data << 8) + spi_receive();
     data = (data << 8) + spi_receive();
 
-    spi_deselect(&PORTB, SS);
+    spi_deselect(&PORTB, BME_SS);
 
     return data;
 }
