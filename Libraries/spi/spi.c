@@ -1,4 +1,5 @@
 #include "spi.h"
+#include "uart.h"
 
 /*
 Initialize the SPI Bus
@@ -61,22 +62,35 @@ uint8_t spi_receive() {
 Toggle the slave select pin low, aka activate the slave
 
 Args:
-    uint8_t port: which port is the slave connected to? (PORTB, PORTC, PORTD)
+    volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 */
-void spi_select(uint8_t port, uint8_t slave_select) {
+void spi_select(volatile uint8_t *port, uint8_t slave_select) {
     // Toggle the requested slave select low (active low)
-    port &= ~(1 << slave_select);
+    *port &= ~(1 << SS);
 }
 
 /*
 Toggle the slave select pin high, aka deactivate the slave
 
 Args:
-    uint8_t port: which port is the slave connected to? (PORTB, PORTC, PORTD)
+    volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 */
-void spi_deselect(uint8_t port, uint8_t slave_select) {
+void spi_deselect(volatile uint8_t *port, uint8_t slave_select) {
     // Toggle the requested slave select high
-    port |= (1 << slave_select);
+    *port |= (1 << slave_select);
+}
+
+/*
+Initialize the slave select pin for a new slave device
+
+Args:
+    volatile uint8_t *data_direction: DDRB, DDRC or DDRD, these are the "data direction" registers for each port
+    volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
+    uint8_t slave_select: which pin is the slave connected to? (0-7)
+*/
+void slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
+    *data_direction |= (1 << slave_select);
+    *port |= (1 << slave_select);
 }

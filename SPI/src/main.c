@@ -13,17 +13,14 @@ https://youtu.be/4gHivrcJ-YY?t=45
 */
 #include "spi.h"
 #include "uart.h"
+#include "bme280.h"
 
 int main() {
     uart_init(2000000);
-
-    TCCR1B = (0 << CS12) | (0 << CS11) | (1 << CS10);
-    TIMSK1 = (1 << TOIE1);
-
-    uart_printf("\nBecause of the hard work of your glorious leader, BIG CAMERON, this standard printf function can print stuff through the serial port now!\n");
-    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED4);
+    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
+    bme280_init(&DDRB, &PORTB, SS);
 
     while(1 == 1) {
-        uart_printf("0x%X\n", spi_receive());
+        uart_printf("Temperature: %ld\n", bme280_temeperature());
     }
 }
