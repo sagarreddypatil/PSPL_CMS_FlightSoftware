@@ -17,10 +17,13 @@ https://youtu.be/4gHivrcJ-YY?t=45
 
 int main() {
     uart_init(2000000);
-    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED4);
+    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
     bme280_init(&DDRB, &PORTB, BME_SS);
 
+    uint32_t temp;
+
     while(1 == 1) {
-        uart_printf("Temperature: %ld\n", bme280_temeperature());
+        temp = bme280_temeperature();
+        uart_printf("Temperature: %lX\n", temp);
     }
 }

@@ -13,21 +13,20 @@
 #define SPI_MSB 0
 #define SPI_LSB 1
 
-// SPI Modes
+// Table 17-2, 17-3 and 17-4: SPI Modes
 #define SPI_MODE0 0
 #define SPI_MODE1 1
 #define SPI_MODE2 2
 #define SPI_MODE3 3
 
-// SPI Clock Speeds
-#define SPI_SPEED0 0
-#define SPI_SPEED1 1
-#define SPI_SPEED2 2
-#define SPI_SPEED3 3
-#define SPI_SPEED4 4
-#define SPI_SPEED5 5
-#define SPI_SPEED6 6
-#define SPI_SPEED7 7
+// Table 17-5: SPI Clock Speeds from fastest to slowest
+#define SPI_SPEED0 4 // f_osc/2
+#define SPI_SPEED1 0 // f_osc/4
+#define SPI_SPEED2 5 // f_osc/8
+#define SPI_SPEED3 1 // f_osc/16
+#define SPI_SPEED4 6 // f_osc/32
+#define SPI_SPEED5 2 // f_osc/64
+#define SPI_SPEED6 3 // f_osc/128
 
 #define SPI_DATA_REGISTER SPDR
 #define SPI_INTERRUPT (SPSR & (1 << SPIF))
