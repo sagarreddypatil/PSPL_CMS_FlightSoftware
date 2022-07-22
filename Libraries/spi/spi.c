@@ -14,7 +14,6 @@ void spi_init(uint8_t data_order, uint8_t spi_mode, uint8_t sck_speed) {
     DDRB = ((1 << MOSI) | (1 << SCK) | (1 << SS)); 
 
     // 18.5.1: Configure the SPI bus to be whatever the user requested
-    SPCR = 0;
     SPCR = (
         (1 << SPE) |
         (1 << MSTR) |
@@ -24,10 +23,11 @@ void spi_init(uint8_t data_order, uint8_t spi_mode, uint8_t sck_speed) {
         ((spi_mode & 1) << CPHA) |
         (((spi_mode & 2) >> 1) << CPOL) |
 
-        (((sck_speed & 4) >> 2) << SPI2X) |
         (((sck_speed & 2) >> 1) << SPR1) |
         ((sck_speed & 1) << SPR0)
     );
+    SPSR = (((sck_speed & 4) >> 2) << SPI2X);
+    uart_printf("SPCR: 0x%X SPSR: 0x%X\n", SPCR, SPSR);
 }
 
 /*

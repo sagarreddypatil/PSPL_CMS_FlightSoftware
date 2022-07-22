@@ -1,4 +1,6 @@
 #include "bme280.h"
+#include "uart.h"
+#include "timer.h"
 
 // Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
 
@@ -14,13 +16,13 @@ void bme280_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8
 uint8_t bme280_id() {
     uint8_t id;
 
-    spi_select(&PORTB, SS);
+    spi_select(&PORTB, BME_SS);
 
     spi_transmit(READ(ID));
 
     id = spi_receive();
 
-    spi_deselect(&PORTB, SS);
+    spi_deselect(&PORTB, BME_SS);
 
     return id;
 }
@@ -57,13 +59,13 @@ uint32_t bme280_pressure() {
 }
 
 uint32_t bme280_temeperature() {
-    uint32_t data = 0;
+    uint32_t data;
 
     spi_select(&PORTB, BME_SS);
 
     spi_transmit(READ(TEMPERATURE));
 
-    data = (data << 8) + spi_receive();
+    data = spi_receive();
     data = (data << 8) + spi_receive();
     data = (data << 8) + spi_receive();
 

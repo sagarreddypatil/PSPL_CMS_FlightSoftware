@@ -20,16 +20,14 @@ int main() {
     uart_init(2000000);
     spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
     bme280_init(&DDRB, &PORTB, BME_SS);
-    timer_init();
 
     uint32_t temp;
-    uint64_t start;
     uint64_t finish;
 
     while(1 == 1) {
-        start = timer_micros();
+        timer_init();
         temp = bme280_temeperature();
         finish = timer_micros();
-        uart_printf("Temperature: %lX\tTook %d uS\n", temp, finish - start);
+        uart_printf("Temperature: %lX\tTook %d uS\n", temp, finish);
     }
 }
