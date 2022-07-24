@@ -25,6 +25,11 @@ void timer_init() {
     sei();
 }
 
+void timer_delay(uint32_t microseconds) {
+    uint64_t start = timer_micros();
+    while(timer_micros() < start + microseconds);
+}
+
 /*
 Return the time in microseconds since timer_init() was last called
 

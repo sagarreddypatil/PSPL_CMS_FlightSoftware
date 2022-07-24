@@ -1,5 +1,4 @@
 #include "spi.h"
-#include "uart.h"
 
 /*
 Initialize the SPI Bus
@@ -26,8 +25,9 @@ void spi_init(uint8_t data_order, uint8_t spi_mode, uint8_t sck_speed) {
         (((sck_speed & 2) >> 1) << SPR1) |
         ((sck_speed & 1) << SPR0)
     );
+
+    // 18.5.2: Configure the SPI 2x speed if we want that
     SPSR = (((sck_speed & 4) >> 2) << SPI2X);
-    uart_printf("SPCR: 0x%X SPSR: 0x%X\n", SPCR, SPSR);
 }
 
 /*
@@ -47,7 +47,7 @@ void spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, ui
 Transmit a single byte over the SPI bus
 
 Args:
-    uint8_t data_byte: the byte that we want to send
+    uint8_t data_byte: the byte that we want to sends
 */
 void spi_transmit(uint8_t data_byte) {
     // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
