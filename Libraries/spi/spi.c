@@ -38,9 +38,15 @@ Args:
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 */
-void spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
+struct spi_slave spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
+    struct spi_slave slave;
+    slave.port = port;
+    slave.slave_select = slave_select;
+
     *data_direction |= (1 << slave_select);
     *port |= (1 << slave_select);
+
+    return slave;
 }
 
 /*
@@ -79,9 +85,9 @@ Args:
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 */
-void spi_select(volatile uint8_t *port, uint8_t slave_select) {
+void spi_select(struct spi_slave slave) {
     // Toggle the requested slave select low (active low)
-    *port &= ~(1 << slave_select);
+    *slave.port &= ~(1 << slave.slave_select);
 }
 
 /*
@@ -91,7 +97,7 @@ Args:
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 */
-void spi_deselect(volatile uint8_t *port, uint8_t slave_select) {
+void spi_deselect(struct spi_slave slave) {
     // Toggle the requested slave select high
-    *port |= (1 << slave_select);
+    *slave.port |= (1 << slave.slave_select);
 }
