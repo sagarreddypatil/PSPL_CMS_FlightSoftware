@@ -1,8 +1,35 @@
+Skip to content
+Search or jump to…
+Pulls
+Issues
+Marketplace
+Explore
+ 
+@cameronw2002 
+Purdue-Space-Program
+/
+PSPL_CMS_Avionics_Code
+Private
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+Settings
+PSPL_CMS_Avionics_Code/Libraries/spi/spi.c
+@cameronw2002
+cameronw2002 minor changes
+Latest commit 2bc3f3c yesterday
+ History
+ 1 contributor
+93 lines (74 sloc)  2.66 KB
+
 #include "spi.h"
 
 /*
 Initialize the SPI Bus
-
 Args:
     uint8_t data_order: is data going to be MSB (0) or LSB (1)?
     uint8_t spi_mode: what SPI mode does the slave device need? (0, 1, 2, 3)
@@ -32,11 +59,12 @@ void spi_init(uint8_t data_order, uint8_t spi_mode, uint8_t sck_speed) {
 
 /*
 Initialize the slave select pin for a new slave device
-
 Args:
     volatile uint8_t *data_direction: DDRB, DDRC or DDRD, these are the "data direction" registers for each port
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
+Returns:
+    struct spi_slave: struct that contains useful data about the specific slave that we just initialized
 */
 struct spi_slave spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
     struct spi_slave slave;
@@ -51,39 +79,24 @@ struct spi_slave spi_slave_init(volatile uint8_t *data_direction, volatile uint8
 
 /*
 Transmit a single byte over the SPI bus
-
 Args:
     uint8_t data_byte: the byte that we want to sends
+Returns:
+    uint8_t: the byte we read over the SPI bus
 */
-void spi_transmit(uint8_t data_byte) {
+uint8_t spi_transaction(uint8_t data_byte) {
     // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
-    SPI_DATA_REGISTER = data_byte;
+    SPDR = data_byte;
     // Wait for transmission complete by looking at the SPI interrupt
     while(!SPI_INTERRUPT);
-}
-
-
-/*
-Receive a single byte over the SPI bus
-
-Returns:
-    uint8_t: the contents of the data register, aka the byte we want
-*/
-uint8_t spi_receive() {
-    // 18.5.3: Transmit BC for Big Cameron, doesn't really matter what's here
-    SPI_DATA_REGISTER = 0xBC;
-    // Wait for the transmission to be complete by looking at the SPI interrupt
-    while(!SPI_INTERRUPT);
     // Return the byte that we just recieved over SPI
-    return SPI_DATA_REGISTER;
+    return SPDR;
 }
 
 /*
 Toggle the slave select pin low, aka activate the slave
-
 Args:
-    volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
-    uint8_t slave_select: which pin is the slave connected to? (0-7)
+    struct spi_slave slave: the slave devices spi_slave struct
 */
 void spi_select(struct spi_slave slave) {
     // Toggle the requested slave select low (active low)
@@ -92,10 +105,8 @@ void spi_select(struct spi_slave slave) {
 
 /*
 Toggle the slave select pin high, aka deactivate the slave
-
 Args:
-    volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
-    uint8_t slave_select: which pin is the slave connected to? (0-7)
+    struct spi_slave slave: the slave devices spi_slave struct
 */
 void spi_deselect(struct spi_slave slave) {
     // Toggle the requested slave select high

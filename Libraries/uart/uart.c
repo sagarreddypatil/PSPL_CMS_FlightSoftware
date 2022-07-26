@@ -50,6 +50,7 @@ uint8_t uart_receive() {
 Operates exactly like printf except outputs over UART
 */
 void uart_printf(const char* str, ...) {
+    // Variable argument list
     va_list valist;
 
     // Format the string using vspringf

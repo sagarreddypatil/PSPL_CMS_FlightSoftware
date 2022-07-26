@@ -25,6 +25,12 @@ void timer_init() {
     sei();
 }
 
+/*
+Delay for the number of microseconds requested
+
+Args:
+    uint32_t microseconds: how many microseconds to idle for
+*/
 void timer_delay(uint32_t microseconds) {
     uint64_t start = timer_micros();
     while(timer_micros() < start + microseconds);

@@ -14,18 +14,14 @@ https://youtu.be/4gHivrcJ-YY?t=45
 #include "spi.h"
 #include "uart.h"
 #include "timer.h"
+#include "flash.h"
 
 int main() {
     uart_init(2000000);
     spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
     timer_init();
+    
+    flash_t flash_0;
 
-    uint64_t time;
-
-    while(1 == 1) {
-        timer_init();
-        timer_delay(500);
-        time = timer_micros();
-        uart_printf("%ld uS\n", time);
-    }
+    flash_0 = flash_init(&DDRB, &PORTB, 2)
 }
