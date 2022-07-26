@@ -1,31 +1,3 @@
-Skip to content
-Search or jump to…
-Pulls
-Issues
-Marketplace
-Explore
- 
-@cameronw2002 
-Purdue-Space-Program
-/
-PSPL_CMS_Avionics_Code
-Private
-Code
-Issues
-Pull requests
-Actions
-Projects
-Security
-Insights
-Settings
-PSPL_CMS_Avionics_Code/Libraries/spi/spi.c
-@cameronw2002
-cameronw2002 minor changes
-Latest commit 2bc3f3c yesterday
- History
- 1 contributor
-93 lines (74 sloc)  2.66 KB
-
 #include "spi.h"
 
 /*
