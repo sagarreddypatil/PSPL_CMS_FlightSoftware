@@ -40,12 +40,12 @@ SPI Slave Struct
 typedef struct {
     volatile uint8_t *port;
     uint8_t slave_select;
-} spi_slave;
+} spi_slave_t;
 
 void spi_init(uint8_t, uint8_t, uint8_t);
-spi_slave spi_slave_init(volatile uint8_t*, volatile uint8_t*, uint8_t);
+spi_slave_t spi_slave_init(volatile uint8_t*, volatile uint8_t*, uint8_t);
 void spi_transaction(void *, void *, uint8_t);
-void spi_select(spi_slave);
-void spi_deselect(spi_slave);
+void spi_select(spi_slave_t);
+void spi_deselect(spi_slave_t);
 
 #endif

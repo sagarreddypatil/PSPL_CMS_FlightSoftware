@@ -14,13 +14,11 @@
 // Other useful constants
 #define UINT16_MAX 65535
 
-struct flash_info {
-  struct spi_slave slave;
+typedef struct{
+  spi_slave_t slave;
   uint16_t page;
   uint16_t column;
-};
-
-typedef struct flash_info flash_t;
+} flash_t;
 
 void flash_reset(flash_t);
 

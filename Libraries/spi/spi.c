@@ -38,10 +38,10 @@ Args:
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
 Returns:
-    spi_slave: struct that contains useful data about the specific slave that we just initialized
+    spi_slave_t: struct that contains useful data about the specific slave that we just initialized
 */
-spi_slave spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
-    spi_slave slave;
+spi_slave_t spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
+    spi_slave_t slave;
     slave.port = port;
     slave.slave_select = slave_select;
 
@@ -62,12 +62,7 @@ Args:
 void spi_transaction(void *transmit, void *recieve, uint8_t len) {
     for(uint8_t data_idx = 0; data_idx < len; data_idx++) {
         // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
-        if(transmit != NULL) {
-            SPDR = *(uint8_t*)(transmit + data_idx);
-        }
-        else {
-            SPDR = 0xBC;
-        }
+        SPDR = *(uint8_t*)(transmit + data_idx);
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);
         // Fetch the byte that we just recieved over SPI
@@ -81,9 +76,9 @@ void spi_transaction(void *transmit, void *recieve, uint8_t len) {
 Toggle the slave select pin low, aka activate the slave
 
 Args:
-    spi_slave slave: the slave devices spi_slave struct
+    spi_slave_t slave: the slave devices spi_slave_t struct
 */
-void spi_select(spi_slave slave) {
+void spi_select(spi_slave_t slave) {
     // Toggle the requested slave select low (active low)
     *slave.port &= ~(1 << slave.slave_select);
 }
@@ -92,9 +87,9 @@ void spi_select(spi_slave slave) {
 Toggle the slave select pin high, aka deactivate the slave
 
 Args:
-    spi_slave slave: the slave devices spi_slave struct
+    spi_slave_t slave: the slave devices spi_slave_t struct
 */
-void spi_deselect(spi_slave slave) {
+void spi_deselect(spi_slave_t slave) {
     // Toggle the requested slave select high
     *slave.port |= (1 << slave.slave_select);
 }

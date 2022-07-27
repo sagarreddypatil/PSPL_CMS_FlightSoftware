@@ -19,7 +19,7 @@ https://youtu.be/4gHivrcJ-YY?t=45
 int main() {
     uart_init(2000000);
     spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
-    spi_slave bme = bme280_init(&DDRB, &PORTB, BME_SS);
+    spi_slave_t bme = bme280_init(&DDRB, &PORTB, BME_SS);
 
     uint32_t temp;
     uint64_t finish;
