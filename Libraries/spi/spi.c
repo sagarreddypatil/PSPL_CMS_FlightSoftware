@@ -1,4 +1,5 @@
 #include "spi.h"
+#include "uart.h"
 
 /*
 Initialize the SPI Bus
@@ -54,15 +55,16 @@ Transmit a single byte over the SPI bus
 Args:
     uint8_t data_byte: the byte that we want to sends
 Returns:
-    uint8_t: the byte we read over the SPI bus
 */
-uint8_t spi_transaction(uint8_t data_byte) {
-    // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
-    SPDR = data_byte;
-    // Wait for transmission complete by looking at the SPI interrupt
-    while(!SPI_INTERRUPT);
-    // Return the byte that we just recieved over SPI
-    return SPDR;
+void spi_transaction(void *transmit, void *recieve, uint8_t len) {
+    for(uint8_t data_idx = 0; data_idx < len; data_idx++) {
+        // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
+        SPDR = *(uint8_t*)(transmit + data_idx);
+        // Wait for transmission complete by looking at the SPI interrupt
+        while(!SPI_INTERRUPT);
+        // Return the byte that we just recieved over SPI
+        *(uint8_t*)(recieve + data_idx) = SPDR;
+    }
 }
 
 /*

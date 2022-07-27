@@ -8,72 +8,27 @@ struct spi_slave bme280_init(volatile uint8_t *data_direction, volatile uint8_t 
     struct spi_slave bme;
     bme = spi_slave_init(data_direction, port, slave_select);
 
+    uint16_t command;
+    command = (WRITE(0xF4) << 8);
+    command += 0x37;
+
+    uint16_t returned;
+
     spi_select(bme);
-    
-    spi_transaction(WRITE(0xF4));
-    spi_transaction(0x37);
+
+    spi_transaction(&command, &returned, sizeof(command)); 
     
     spi_deselect(bme);
 
     return bme;
 }
 
-uint8_t bme280_id(struct spi_slave bme) {
-    uint8_t id;
-
-    spi_select(bme);
-
-    spi_transaction(READ(ID));
-
-    id = spi_transaction(0x00);
-
-    spi_deselect(bme);
-
-    return id;
-}
-
-uint16_t bme280_humidity(struct spi_slave bme) {
-    uint16_t data = 0;
-
-    spi_select(bme);
-
-    spi_transaction(READ(HUMIDITY));
-
-    data = spi_transaction(0x00);
-    data = (data << 8) + spi_transaction(0x00);
-
-    spi_deselect(bme);
-
-    return data;
-}
-
-uint32_t bme280_pressure(struct spi_slave bme) {
-    uint32_t data = 0;
-
-    spi_select(bme);
-
-    spi_transaction(READ(PRESSURE));
-
-    data = spi_transaction(0x00);
-    data = (data << 8) + spi_transaction(0x00);
-    data = (data << 8) + spi_transaction(0x00);
-
-    spi_deselect(bme);
-
-    return data;
-}
-
 uint32_t bme280_temeperature(struct spi_slave bme) {
     uint32_t data;
+    uint32_t commands = READ(TEMPERATURE);
 
     spi_select(bme);
-
-    spi_transaction(READ(TEMPERATURE));
-
-    data = spi_transaction(0x00);
-    data = (data << 8) + spi_transaction(0x00);
-    data = (data << 8) + spi_transaction(0x00);
-
+    spi_transaction(&commands, &data, 4);
     spi_deselect(bme);
 
     return data;

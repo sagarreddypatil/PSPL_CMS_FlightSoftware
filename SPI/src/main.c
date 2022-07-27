@@ -16,6 +16,8 @@ https://youtu.be/4gHivrcJ-YY?t=45
 #include "bme280.h"
 #include "timer.h"
 
+#define SWAP(num) ((num>>24)&0xff) | ((num<<8)&0xff0000) | ((num>>8)&0xff00) | ((num<<24)&0xff000000)
+
 int main() {
     struct spi_slave bme;
 
@@ -30,6 +32,6 @@ int main() {
         timer_init();
         temp = bme280_temeperature(bme);
         finish = timer_micros();
-        uart_printf("Temperature: %lX\tTook %d uS\n", temp, finish);
+        uart_printf("Temperature: %8lX\tTook %d uS\n", (SWAP(temp)) >> 8, finish);
     }
 }

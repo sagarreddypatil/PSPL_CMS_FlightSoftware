@@ -36,13 +36,13 @@ SPI Slave Struct
     uint8_t slave_select: what slave select pin this device uses (0-7)
 */
 struct spi_slave {
-  volatile uint8_t *port;
-  uint8_t slave_select;
+    volatile uint8_t *port;
+    uint8_t slave_select;
 };
 
 void spi_init(uint8_t, uint8_t, uint8_t);
 struct spi_slave spi_slave_init(volatile uint8_t*, volatile uint8_t*, uint8_t);
-uint8_t spi_transaction(uint8_t);
+void spi_transaction(void *, void *, uint8_t);
 void spi_select(struct spi_slave);
 void spi_deselect(struct spi_slave);
 
