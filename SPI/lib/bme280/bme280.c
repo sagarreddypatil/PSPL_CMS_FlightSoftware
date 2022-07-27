@@ -4,32 +4,27 @@
 
 // Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bme280-ds002.pdf
 
-struct spi_slave bme280_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
-    struct spi_slave bme;
-    bme = spi_slave_init(data_direction, port, slave_select);
-
-    uint16_t command;
-    command = (WRITE(0xF4) << 8);
-    command += 0x37;
-
-    uint16_t returned;
+spi_slave bme280_init(volatile uint8_t *data_direction, volatile uint8_t *port, uint8_t slave_select) {
+    spi_slave bme = spi_slave_init(data_direction, port, slave_select);
+    
+    uint16_t init_command = 0xA374;
 
     spi_select(bme);
-
-    spi_transaction(&command, &returned, sizeof(command)); 
-    
+    spi_transaction(&init_command, NULL, sizeof(init_command));
     spi_deselect(bme);
-
+    
     return bme;
 }
 
-uint32_t bme280_temeperature(struct spi_slave bme) {
-    uint32_t data;
-    uint32_t commands = READ(TEMPERATURE);
+uint32_t bme280_temeperature(spi_slave bme) {
+    uint32_t temp;
+    uint32_t commands = 0xFA;
 
     spi_select(bme);
-    spi_transaction(&commands, &data, 4);
+    spi_transaction(&commands, &temp, sizeof(commands));
     spi_deselect(bme);
 
-    return data;
+    temp = ((SWAP(temp)) & 0x00FFFFFF) >> 4;
+
+    return temp;
 }

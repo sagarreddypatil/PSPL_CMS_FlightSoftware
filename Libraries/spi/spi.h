@@ -1,6 +1,7 @@
 #ifndef SPI_H
 #define SPI_H
 
+#include <stdlib.h>
 #include <avr/io.h>
 
 // SPI pins
@@ -28,6 +29,7 @@
 #define SPI_SPEED5 2 // f_osc/64
 #define SPI_SPEED6 3 // f_osc/128
 
+// 18.5.2: Macro to check the SPI interrupt flag
 #define SPI_INTERRUPT (SPSR & (1 << SPIF))
 
 /*
@@ -35,15 +37,15 @@ SPI Slave Struct
     volatile uint8_t *port: what port this device uses (PORTB, PORTC, PORTD)
     uint8_t slave_select: what slave select pin this device uses (0-7)
 */
-struct spi_slave {
+typedef struct {
     volatile uint8_t *port;
     uint8_t slave_select;
-};
+} spi_slave;
 
 void spi_init(uint8_t, uint8_t, uint8_t);
-struct spi_slave spi_slave_init(volatile uint8_t*, volatile uint8_t*, uint8_t);
+spi_slave spi_slave_init(volatile uint8_t*, volatile uint8_t*, uint8_t);
 void spi_transaction(void *, void *, uint8_t);
-void spi_select(struct spi_slave);
-void spi_deselect(struct spi_slave);
+void spi_select(spi_slave);
+void spi_deselect(spi_slave);
 
 #endif
