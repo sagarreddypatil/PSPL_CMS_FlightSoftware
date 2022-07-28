@@ -21,7 +21,7 @@
 #define SPI_MODE3 3
 
 // Table 18-5: SPI Clock Speeds from fastest to slowest
-#define SPI_SPEED0 4 // f_osc/2
+#define SPI_SPEED_PLAID 4 // f_osc/2
 #define SPI_SPEED1 0 // f_osc/4
 #define SPI_SPEED2 5 // f_osc/8
 #define SPI_SPEED3 1 // f_osc/16
