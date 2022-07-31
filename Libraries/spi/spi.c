@@ -37,6 +37,7 @@ Args:
     volatile uint8_t *data_direction: DDRB, DDRC or DDRD, these are the "data direction" registers for each port
     volatile uint8_t *port: which port is the slave connected to? (PORTB, PORTC, PORTD)
     uint8_t slave_select: which pin is the slave connected to? (0-7)
+
 Returns:
     spi_slave_t: struct that contains useful data about the specific slave that we just initialized
 */
@@ -64,6 +65,9 @@ void spi_transaction(void *transmit, void *recieve, uint8_t len) {
         // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
         if(transmit != NULL) {
             SPDR = *(uint8_t*)(transmit + data_idx);
+        }
+        else {
+            SPDR = 0xBC;
         }
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);

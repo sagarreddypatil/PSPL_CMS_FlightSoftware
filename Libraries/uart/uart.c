@@ -49,14 +49,14 @@ uint8_t uart_receive() {
 /*
 Operates exactly like printf except outputs over UART
 */
-void uart_printf(const char* str, ...) {
+int uart_printf(const char* str, ...) {
     // Variable argument list
     va_list valist;
 
     // Format the string using vspringf
     va_start(valist, str);
     char formatted_str[strlen(str) + 20];
-    vsprintf(formatted_str, str, valist);
+    int ret = vsprintf(formatted_str, str, valist);
     va_end(valist);
 
     // Put the string out one character at a time
@@ -64,4 +64,6 @@ void uart_printf(const char* str, ...) {
     for(int str_idx = 0; str_idx < str_len; str_idx++) {
         uart_transmit(formatted_str[str_idx]);
     }
+
+    return ret;
 }

@@ -10,6 +10,6 @@
 void uart_init(uint32_t);
 void uart_transmit(uint8_t);
 uint8_t uart_receive();
-void uart_printf(const char*, ...);
+int uart_printf(const char*, ...);
 
 #endif
