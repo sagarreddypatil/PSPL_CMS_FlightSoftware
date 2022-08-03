@@ -5,5 +5,9 @@
 
 int main() {
     uart_init(2000000);
-    uart_printf("Hello");
+    timer_init();
+
+    spi_slave_t adc = adc_init(&DDRB, &PORTB, PINB0);
+
+    uart_printf("Done!\n");
 }

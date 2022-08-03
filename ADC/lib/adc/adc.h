@@ -5,7 +5,43 @@
 #include <stdbool.h>
 #include "spi.h"
 
+// 4 analog channels on the ADC
+#define ADC_CHANNEL_COUNT 4
+
+// 12 bytes and 6 words per SPI frame (assuming 16 bit word size)
+#define ADC_FRAME_SIZE 12
+#define ADC_WORDS_PER_FRAME 6
+
+// ADS130 Registers
+#define ADC_ID_REGISTER 0x00
+#define ADC_MODE_REGISTER 0x02
+#define ADC_CLOCK_REGISTER 0x03
+#define ADC_GAIN_REGISTER 0x04
+#define ADC_CH0_CFG_REGISTER 0x09
+#define ADC_CH1_CFG_REGISTER 0x0E
+#define ADC_CH2_CFG_REGISTER 0x13
+#define ADC_CH3_CFG_REGISTER 0x18
+
+// ADS130 commands (16 bit)
+#define ADC_NULL_COMMAND 0x0000
+#define ADC_RESET_COMMAND 0x0011
+#define ADC_STANDBY_COMMAND 0x0022
+#define ADC_WAKEUP_COMMAND 0x0033
+#define ADC_LOCK_COMMAND 0x0555
+#define ADC_UNLOCK_COMMAND 0x0655
+#define ADC_RREG_COMMAND 0xA000 
+#define ADC_WREG_COMMAND 0x6000 
+#define ADC_MODE_COMMAND 0x0010 
+#define ADC_CLOCK_COMMAND 0x0F0E 
+#define ADC_GAIN_COMMAND 0x0000 
+
+// Format a read register command
+#define FORMAT_RREG(address, num) (ADC_RREG_COMMAND + ((uint16_t)(address << 7)) + num)
+// Format a write register command
+#define FORMAT_WREG(address, num) (ADC_WREG_COMMAND + ((uint16_t)(address << 7)) + num)
+
 spi_slave_t adc_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
-uint32_t adc_data(uint8_t);
+uint16_t * adc_data(spi_slave_t);
+void adc_write_register(spi_slave_t, uint8_t, uint16_t);
 
 #endif

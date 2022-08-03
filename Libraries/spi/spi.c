@@ -1,4 +1,5 @@
 #include "spi.h"
+#include "uart.h"
 
 /*
 Initialize the SPI Bus
@@ -63,11 +64,12 @@ Args:
 void spi_transaction(void *transmit, void *recieve, uint8_t len) {
     for(uint8_t data_idx = 0; data_idx < len; data_idx++) {
         // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
+        uart_printf("Stuff is happening in here\n");
         if(transmit != NULL) {
             SPDR = *(uint8_t*)(transmit + data_idx);
         }
         else {
-            SPDR = 0xBC;
+            SPDR = 0x00;
         }
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);

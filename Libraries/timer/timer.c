@@ -11,6 +11,8 @@ ISR(TIMER1_OVF_vect) {
 void timer_init() {
     // 15.11.2: Temporarily disable Timer 0
     TCCR1B = 0x00;
+    // Set the interrupt counter to 0
+    interrupt_count = 0;
     // 15.11.4: Set the timer to 0
     TCNT1 = 0x00;
     // 15.11.9: Clear the timer overflow flag
@@ -32,8 +34,8 @@ Args:
     uint32_t microseconds: how many microseconds to idle for
 */
 void timer_delay(uint32_t microseconds) {
-    uint64_t start = timer_micros();
-    while(timer_micros() < start + microseconds);
+    uint64_t finish = timer_micros() + microseconds;
+    while(timer_micros() < finish);
 }
 
 /*
