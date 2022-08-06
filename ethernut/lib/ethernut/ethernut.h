@@ -28,11 +28,11 @@
 #define ETH_SHAR_4 0x000D
 #define ETH_SHAR_5 0x000E
 // Source IP Address Register
-#define ETH_SUBR 0x000F
-#define ETH_SUBR_0 0x000F
-#define ETH_SUBR_1 0x0010
-#define ETH_SUBR_2 0x0011
-#define ETH_SUBR_3 0x0012
+#define ETH_SIPR 0x000F
+#define ETH_SIPR_0 0x000F
+#define ETH_SIPR_1 0x0010
+#define ETH_SIPR_2 0x0011
+#define ETH_SIPR_3 0x0012
 // Interrupt Low Level Timer
 #define ETH_INTLEVEL 0x0013
 #define ETH_INTLEVEL_0 0x0013
@@ -210,7 +210,10 @@
 // Macro to form the ethernut control byte
 #define ETH_CONTROL_BYTE(block, r_w, spi_op_mode) (((block) << 3) | ((r_w) << 2) | (spi_op_mode))
 
+// Macro to reverse a 16 bit number to be MSB first
+#define ETH_REVERSE(num) (((num & 0xFF00) >> 8) + ((num & 0x00FF) << 8))
+
 spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
-void ethernut_write(spi_slave_t, uint16_t, uint8_t, uint8_t);
+void ethernut_frame(spi_slave_t, uint16_t, uint8_t, uint8_t, uint8_t *, uint8_t);
 
 #endif

@@ -66,7 +66,7 @@ void spi_transaction(void *command, void *recieve, uint8_t len) {
         if(command != NULL) {
             SPDR = *(((uint8_t *)(command)) + data_idx);
         } else {
-            SPDR = 0x00;
+            SPDR = 0xBC;
         }
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);
