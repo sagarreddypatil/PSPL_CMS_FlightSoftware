@@ -1,5 +1,4 @@
 #include "spi.h"
-#include "uart.h"
 
 /*
 Initialize the SPI Bus
@@ -57,25 +56,23 @@ spi_slave_t spi_slave_init(volatile uint8_t *data_direction, volatile uint8_t *p
 Transmit a single byte over the SPI bus
 
 Args:
-    void *transmit: pointer to the data that we want to send to the SPI slave
+    void *command: pointer to the data that we want to send to the SPI slave
     void *revieve: pointer to where we want to store the data from the SPI slave
     uint8_t len: length, in bytes, of the entire SPI transaction
 */
-void spi_transaction(void *transmit, void *recieve, uint8_t len) {
+void spi_transaction(void *command, void *recieve, uint8_t len) {
     for(uint8_t data_idx = 0; data_idx < len; data_idx++) {
         // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
-        uart_printf("Stuff is happening in here\n");
-        if(transmit != NULL) {
-            SPDR = *(uint8_t*)(transmit + data_idx);
-        }
-        else {
+        if(command != NULL) {
+            SPDR = *((uint8_t*)(command) + data_idx);
+        } else {
             SPDR = 0x00;
         }
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);
         // Fetch the byte that we just recieved over SPI
         if(recieve != NULL) {
-            *(uint8_t*)(recieve + data_idx) = SPDR;
+            *((uint8_t*)(recieve) + data_idx) = SPDR;
         }
     }
 }
