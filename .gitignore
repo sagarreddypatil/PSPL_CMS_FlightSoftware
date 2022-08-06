@@ -123,12 +123,7 @@ Temporary Items
 *.icloud
 
 ### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
+.vscode
 
 # Local History for Visual Studio Code
 .history/
@@ -172,5 +167,7 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+.pio
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,visualstudiocode,c++,c
