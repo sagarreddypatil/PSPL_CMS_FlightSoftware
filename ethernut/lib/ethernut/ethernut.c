@@ -15,10 +15,6 @@ void ethernut_write(spi_slave_t eth, uint16_t eth_register, uint8_t command_byte
     command[3] = data;
 
     spi_select(eth);
-
     spi_transaction(command, NULL, 4);
-
     spi_deselect(eth);
 }
-
-ethernut_write(eth, ETH_MR, 0x13, 0x13);

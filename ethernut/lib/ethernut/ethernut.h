@@ -211,5 +211,6 @@
 #define ETH_CONTROL_BYTE(block, r_w, spi_op_mode) (((block) << 3) | ((r_w) << 2) | (spi_op_mode))
 
 spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
+void ethernut_write(spi_slave_t, uint16_t, uint8_t, uint8_t);
 
 #endif
