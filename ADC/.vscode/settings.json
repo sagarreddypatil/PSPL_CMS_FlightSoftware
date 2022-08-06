@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "spi.h": "c",
-        "adc.h": "c"
+        "adc.h": "c",
+        "io.h": "c",
+        "stdlib.h": "c",
+        "uart.h": "c",
+        "stdbool.h": "c"
     }
 }
