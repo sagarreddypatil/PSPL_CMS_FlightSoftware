@@ -1,2 +1,9 @@
-#include "spi.h"
-// Big Cameron Was Here
+#include <avr/io.h>
+
+int main(void) {
+  /* Setup */
+
+  while (1) {
+    /* Loop */
+  }
+}
