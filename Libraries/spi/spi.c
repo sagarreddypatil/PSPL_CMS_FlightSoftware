@@ -64,15 +64,15 @@ void spi_transaction(void *command, void *recieve, uint8_t len) {
     for(uint8_t data_idx = 0; data_idx < len; data_idx++) {
         // 18.5.3: Slap our byte into the SPI register, this bad boy can hold 8 bits!
         if(command != NULL) {
-            SPDR = *((uint8_t*)(command) + data_idx);
+            SPDR = *(((uint8_t *)(command)) + data_idx);
         } else {
-            SPDR = 0x00;
+            SPDR = 0xBC;
         }
         // Wait for transmission complete by looking at the SPI interrupt
         while(!SPI_INTERRUPT);
         // Fetch the byte that we just recieved over SPI
         if(recieve != NULL) {
-            *((uint8_t*)(recieve) + data_idx) = SPDR;
+            *(((uint8_t *)(recieve)) + data_idx) = SPDR;
         }
     }
 }
