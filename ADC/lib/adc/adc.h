@@ -44,6 +44,6 @@
 spi_slave_t adc_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
 void adc_data(spi_slave_t, uint16_t *);
 void adc_write_register(spi_slave_t, uint8_t, uint16_t);
-void adc_print_frame(uint16_t *, uint16_t *);
+void adc_print_frame(spi_slave_t, uint16_t *, uint16_t *);
 
 #endif
