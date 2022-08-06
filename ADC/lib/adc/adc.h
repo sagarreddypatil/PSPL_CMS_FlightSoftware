@@ -1,3 +1,6 @@
+// Using the ADS130B04
+// Datasheet: https://www.ti.com/lit/ds/symlink/ads130b04-q1.pdf?HQS=dis-mous-null-mousermode-dsf-pf-null-wwe&ts=1659723067109&ref_url=https%253A%252F%252Fwww.mouser.com%252F
+
 #ifndef ADC_H
 #define ADC_H
 
