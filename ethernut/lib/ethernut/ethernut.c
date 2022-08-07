@@ -48,7 +48,7 @@ void ethernut_recieve(spi_slave_t eth, uint8_t *data, uint8_t len) {
     ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_READ, &eth_read_pointer, sizeof(eth_read_pointer));
     ethernut_frame(eth, eth_read_pointer, ETH_SOCK_0_RX_BUFF, ETH_READ, data, len);
     eth_read_pointer += len;
-    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_WRITE, &eth_read_pointer, sizeof(eth_read_point));
+    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_WRITE, &eth_read_pointer, sizeof(eth_read_pointer));
 }
 
 void ethernut_frame(spi_slave_t eth, uint16_t eth_register, uint8_t block_select, uint8_t r_w, void *data, uint8_t len) {
