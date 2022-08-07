@@ -4,24 +4,43 @@
 #include <stdbool.h>
 #include "spi.h"
 
-// Flash SPI Instructions
-#define FLASH_RESET_COMMAND 0xFF
-#define FLASH_WRITE_ENABLE 0x06
-#define FLASH_WRITE_DISABLE 0x04
-#define FLASH_LOAD_PROGRAM 0x02
-#define FLASH_RANDOM_LOAD_PROGRAM 0x84
-#define FLASH_READ_STATUS_COMMAND 0x0F
-#define FLASH_WRITE_STATUS_COMMAND 0x0F
+// Flash Commands
+#define FLASH_RESET_CMD 0xFF
+#define FLASH_ID_CMD 0x9F
+#define FLASH_R_STATUS_CMD 0x0F
+#define FLASH_W_STATUS_CMD 0x1F
+#define FLASH_W_EN_CMD 0x06
+#define FLASH_W_DIS_CMD 0x04
+#define FLASH_W_BBM_CMD 0xA1
+#define FLASH_R_BBM_CMD 0xA5
+#define FLASH_ECC_FAIL_CMD 0xA9
+#define FLASH_BLOCK_ERASE_CMD 0xD8
+#define FLASH_PROGRAM_LOAD_CMD 0x02
+#define FLASH_RAND_PROGRAM_CMD 0x84
+#define FLASH_PROGRAM_EXEC_CMD 0x10
+#define FLASH_PAGE_READ_CMD 0x13
+#define FLASH_READ_CMD 0x03
+#define FLASH_FAST_READ 0x0B
 
-// Other useful constants
-#define UINT16_MAX 0xFFFF
+// Other useful flash constants
+#define FLASH_COL_SIZE 0x7FF
+#define FLASH_MAX_PAGE 0xFFFF
 
-typedef struct{
+typedef struct {
   spi_slave_t slave;
   uint16_t page;
   uint16_t column;
 } flash_t;
 
+flash_t flash_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
 void flash_reset(flash_t);
+void flash_enable(flash_t);
+void flash_disable(flash_t);
+uint8_t flash_read_status(flash_t, uint8_t);
+void flash_write_status(flash_t, uint8_t, uint8_t);
+void flash_block_erase(flash_t, uint16_t);
+void flash_load_program(flash_t, void *, uint8_t, bool);
+void flash_program_exec(flash_t);
+void flash_command(flash_t, uint8_t *, uint8_t *, uint8_t);
 
 #endif

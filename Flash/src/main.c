@@ -23,5 +23,5 @@ int main() {
     
     flash_t flash;
 
-    flash = flash_init(&DDRB, &PORTB, 2)
+    flash = flash_init(&DDRB, &PORTB, PINB0);
 }
