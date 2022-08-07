@@ -5,7 +5,8 @@
 int main() {
     uart_init(2000000);
     spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED_PLAID);
-    spi_slave_t eth = ethernut_init(&DDRB, &PORTB, PINB0);
+    uint32_t ipv4 = 0xBCBCBC01;
+    spi_slave_t eth = ethernut_init(&DDRB, &PORTB, PINB0, ipv4);
 
     uint64_t finish;
 

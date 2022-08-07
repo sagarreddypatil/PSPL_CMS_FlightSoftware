@@ -1,6 +1,7 @@
 #ifndef ETHERNUT_H
 #define ETHERNUT_H
 
+#include <stdbool.h>
 #include "spi.h"
 
 // Common register addresses (Section 3.1)
@@ -94,6 +95,7 @@
 #define ETH_SOCK_CR 0x0001
 // Socket Interrupt
 #define ETH_SOCK_IR 0x0002
+#define ETH_RECV 0x04
 // Socket Status
 #define ETH_SOCK_SR 0x0003
 // Socket Source Port
@@ -213,7 +215,8 @@
 // Macro to reverse a 16 bit number to be MSB first
 #define ETH_REVERSE(num) (((num & 0xFF00) >> 8) + ((num & 0x00FF) << 8))
 
-spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
-void ethernut_frame(spi_slave_t, uint16_t, uint8_t, uint8_t, uint8_t *, uint8_t);
+spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t, uint32_t);
+bool ethernut_isdata(spi_slave_t);
+void ethernut_frame(spi_slave_t, uint16_t, uint8_t, uint8_t, void *, uint8_t);
 
 #endif
