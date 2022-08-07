@@ -96,6 +96,7 @@
 // Socket Interrupt
 #define ETH_SOCK_IR 0x0002
 #define ETH_RECV 0x04
+#define ETH_SEND_OK 0x10
 // Socket Status
 #define ETH_SOCK_SR 0x0003
 // Socket Source Port
@@ -209,6 +210,11 @@
 #define ETH_2_BYTE_LEN 2
 #define ETH_4_BYTE_LEN 3
 
+// Other useful ethernet constants
+
+// Our port
+#define ETH_PORT 0xBCBC
+
 // Macro to form the ethernut control byte
 #define ETH_CONTROL_BYTE(block, r_w, spi_op_mode) (((block) << 3) | ((r_w) << 2) | (spi_op_mode))
 
@@ -217,8 +223,9 @@
 
 spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t, uint32_t);
 bool ethernut_isdata(spi_slave_t);
-void ethernut_recieve(spi_slave_t, uint8_t *, uint8_t);
-void ethernut_transmit(spi_slave_t, uint8_t *, uint8_t);
+bool ethernut_issent(spi_slave_t);
+void ethernut_recieve(spi_slave_t, void *, uint8_t);
+void ethernut_transmit(spi_slave_t, void *, uint8_t, uint32_t);
 void ethernut_frame(spi_slave_t, uint16_t, uint8_t, uint8_t, void *, uint8_t);
 
 #endif
