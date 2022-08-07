@@ -217,6 +217,8 @@
 
 spi_slave_t ethernut_init(volatile uint8_t *, volatile uint8_t *, uint8_t, uint32_t);
 bool ethernut_isdata(spi_slave_t);
+void ethernut_recieve(spi_slave_t, uint8_t *, uint8_t);
+void ethernut_transmit(spi_slave_t, uint8_t *, uint8_t);
 void ethernut_frame(spi_slave_t, uint16_t, uint8_t, uint8_t, void *, uint8_t);
 
 #endif

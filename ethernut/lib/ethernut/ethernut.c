@@ -43,12 +43,32 @@ bool ethernut_isdata(spi_slave_t eth) {
 }
 
 void ethernut_recieve(spi_slave_t eth, uint8_t *data, uint8_t len) {
-    uint16_t eth_read_pointer;
+    uint16_t eth_rx_pointer;
 
-    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_READ, &eth_read_pointer, sizeof(eth_read_pointer));
-    ethernut_frame(eth, eth_read_pointer, ETH_SOCK_0_RX_BUFF, ETH_READ, data, len);
-    eth_read_pointer += len;
-    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_WRITE, &eth_read_pointer, sizeof(eth_read_pointer));
+    // Get the point to read from in the RX Buffer
+    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_READ, &eth_rx_pointer, sizeof(eth_rx_pointer));
+    // Read the data from the RX buffer
+    ethernut_frame(eth, eth_rx_pointer, ETH_SOCK_0_RX_BUFF, ETH_READ, data, len);
+    // Add the length of the data that we just read from the RX buffer
+    eth_rx_pointer += len;
+    // Update the RX buffer
+    ethernut_frame(eth, ETH_SOCK_RX_RD, ETH_SOCK_0_REG, ETH_WRITE, &eth_rx_pointer, sizeof(eth_rx_pointer));
+}
+
+void ethernut_transmit(spi_slave_t eth, uint8_t *data, uint8_t len) {
+    uint16_t eth_tx_pointer;
+    uint8_t eth_send_command = 0x20;
+
+    spi_select(eth);
+    
+    // Get the point to write to the TX Buffer
+    ethernut_frame(eth, ETH_SOCK_TX_RD, ETH_SOCK_0_REG, ETH_READ, &eth_tx_pointer, sizeof(eth_tx_pointer));
+    // Write the data to the TX buffer
+    ethernut_frame(eth, eth_tx_pointer, ETH_SOCK_0_TX_BUFF, ETH_WRITE, data, len);
+    // Send the data
+    ethernut_frame(eth, ETH_SOCK_CR, ETH_SOCK_0_REG, ETH_WRITE, &eth_send_command, sizeof(eth_send_command));
+
+    spi_deselect(eth);
 }
 
 void ethernut_frame(spi_slave_t eth, uint16_t eth_register, uint8_t block_select, uint8_t r_w, void *data, uint8_t len) {
