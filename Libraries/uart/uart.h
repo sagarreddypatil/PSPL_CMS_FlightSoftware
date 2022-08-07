@@ -5,6 +5,8 @@
 #include <avr/io.h>
 #include <string.h>
 
+#define STR_BUFFER 50
+
 #define BAUDRATE(N) ((F_CPU / (16 * N)) - 1)
 
 void uart_init(uint32_t);

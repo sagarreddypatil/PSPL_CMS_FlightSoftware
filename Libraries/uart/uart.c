@@ -52,15 +52,16 @@ Operates exactly like printf except outputs over UART
 int uart_printf(const char* str, ...) {
     // Variable argument list
     va_list valist;
+    size_t str_len = strlen(str);
 
     // Format the string using vspringf
     va_start(valist, str);
-    char formatted_str[strlen(str) + 20];
+    char formatted_str[str_len + STR_BUFFER];
     int ret = vsprintf(formatted_str, str, valist);
     va_end(valist);
 
     // Put the string out one character at a time
-    uint8_t str_len = strlen(formatted_str);
+    str_len = strlen(formatted_str);
     for(int str_idx = 0; str_idx < str_len; str_idx++) {
         uart_transmit(formatted_str[str_idx]);
     }
