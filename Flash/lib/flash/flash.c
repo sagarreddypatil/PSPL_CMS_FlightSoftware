@@ -33,8 +33,7 @@ void flash_load_program(flash_t flash, void *data, uint8_t data_len, bool is_ran
 
     if(is_random) {
         command = RANDOM_LOAD_PROGRAM;
-    }
-    else {
+    } else {
         command = LOAD_PROGRAM;
     }
 

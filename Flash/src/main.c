@@ -18,10 +18,10 @@ https://youtu.be/4gHivrcJ-YY?t=45
 
 int main() {
     uart_init(2000000);
-    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED0);
+    spi_init(SPI_MSB, SPI_MODE0, SPI_SPEED_PLAID);
     timer_init();
     
-    flash_t flash_0;
+    flash_t flash;
 
-    flash_0 = flash_init(&DDRB, &PORTB, 2)
+    flash = flash_init(&DDRB, &PORTB, 2)
 }
