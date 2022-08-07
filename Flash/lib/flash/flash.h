@@ -5,14 +5,16 @@
 #include "spi.h"
 
 // Flash SPI Instructions
-#define RESET_COMMAND 0xFF
-#define WRITE_ENABLE 0x06
-#define WRITE_DISABLE 0x04
-#define LOAD_PROGRAM 0x02
-#define RANDOM_LOAD_PROGRAM 0x84
+#define FLASH_RESET_COMMAND 0xFF
+#define FLASH_WRITE_ENABLE 0x06
+#define FLASH_WRITE_DISABLE 0x04
+#define FLASH_LOAD_PROGRAM 0x02
+#define FLASH_RANDOM_LOAD_PROGRAM 0x84
+#define FLASH_READ_STATUS_COMMAND 0x0F
+#define FLASH_WRITE_STATUS_COMMAND 0x0F
 
 // Other useful constants
-#define UINT16_MAX 65535
+#define UINT16_MAX 0xFFFF
 
 typedef struct{
   spi_slave_t slave;
