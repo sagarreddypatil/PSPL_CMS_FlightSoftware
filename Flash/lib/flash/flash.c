@@ -35,6 +35,26 @@ void flash_disable(flash_t flash) {
     spi_deselect(flash.slave);
 }
 
+void flash_write_bbm(flash_t flash, uint16_t lba, uint16_t pba) {
+    uint8_t command = FLASH_W_BBM_CMD;
+
+    spi_select(flash.slave);
+    spi_transaction(&command, NULL, sizeof(command));
+    spi_transaction(&lba, NULL, sizeof(lba));
+    spi_transaction(&pba, NULL, sizeof(pba));
+    spi_deselect(flash.slave);
+}
+
+void flash_read_bbm(flash_t flash, uint16_t *bbm) {
+    uint8_t command = FLASH_R_BBM_CMD;
+
+    spi_select(flash.slave);
+    spi_transaction(&command, NULL, sizeof(command));
+    spi_transaction(NULL, NULL, sizeof(uint8_t));
+    spi_transaction(NULL, bbm, FLASH_BBM_LEN);
+    spi_deselect(flash.slave);
+}
+
 uint8_t flash_read_status(flash_t flash, uint8_t status_register) {
     uint8_t command = FLASH_R_STATUS_CMD;
     uint8_t value;
@@ -68,7 +88,7 @@ void flash_block_erase(flash_t flash, uint16_t page) {
     spi_deselect(flash.slave);
 }
 
-void flash_load_program(flash_t flash, void *data, uint8_t len, bool is_rand) {
+void flash_load_program(flash_t *flash, void *data, uint8_t len, bool is_rand) {
     uint8_t command;
     if(is_rand) {
         command = FLASH_RAND_PROGRAM_CMD;
@@ -76,34 +96,39 @@ void flash_load_program(flash_t flash, void *data, uint8_t len, bool is_rand) {
         command = FLASH_PROGRAM_LOAD_CMD;
     }
 
-    if((flash.column + len) > FLASH_COL_SIZE) {
+    if((flash->column + len) > FLASH_COL_SIZE) {
         flash_program_exec(flash);
-        flash.column = 0;
+        flash->column = 0;
     }
 
-    spi_select(flash.slave);
+    spi_select(flash->slave);
     spi_transaction(&command, NULL, sizeof(command));
-    spi_transaction(&flash.column, NULL, sizeof(flash.column));
+    spi_transaction(&(flash->column), NULL, sizeof(flash->column));
     spi_transaction(data, NULL, len);
-    spi_deselect(flash.slave);
+    spi_deselect(flash->slave);
 
-    flash.column += len;
+    flash->column += len;
 }
 
-void flash_program_exec(flash_t flash) {
+void flash_program_exec(flash_t *flash) {
     uint8_t command = FLASH_PROGRAM_EXEC_CMD;
 
-    spi_select(flash.slave);
+    spi_select(flash->slave);
     spi_transaction(&command, NULL, sizeof(command));
     spi_transaction(NULL, NULL, sizeof(uint8_t));
-    spi_transaction(&flash.page, NULL, sizeof(flash.page));
-    spi_deselect(flash.slave);
+    spi_transaction(&(flash->page), NULL, sizeof(flash->page));
+    spi_deselect(flash->slave);
 
-    flash.page++;
+    flash->page++;
 }
 
 void flash_command(flash_t flash, uint8_t *command, uint8_t *recieve, uint8_t len) {
     spi_select(flash.slave);
     spi_transaction(command, recieve, len);
     spi_deselect(flash.slave);
+}
+
+bool flash_isbusy(flash_t flash) {
+    uint8_t status = flash_read_status(flash, FLASH_STATUS_REG);
+    return ((bool)(status & FLASH_BUSY));
 }

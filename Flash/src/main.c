@@ -24,4 +24,12 @@ int main() {
     flash_t flash;
 
     flash = flash_init(&DDRB, &PORTB, PINB0);
+
+    while(1 == 1) {
+        uint8_t data = 0xBC;
+        flash_load_program(&flash, &data, sizeof(data), false);
+        if(flash.page % 0x100 == 0) {
+            uart_printf("Page: 0x%04X, Column: 0x%04X\n", flash.page, flash.column);
+        }
+    }
 }

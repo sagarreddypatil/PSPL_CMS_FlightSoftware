@@ -4,6 +4,12 @@
 #include <stdbool.h>
 #include "spi.h"
 
+// Flash Status Registers
+#define FLASH_PROTECTION_REG 0xA0
+#define FLASH_CONFIG_REG 0xB0
+#define FLASH_STATUS_REG 0xC0
+#define FLASH_BUSY 0x01
+
 // Flash Commands
 #define FLASH_RESET_CMD 0xFF
 #define FLASH_ID_CMD 0x9F
@@ -25,6 +31,7 @@
 // Other useful flash constants
 #define FLASH_COL_SIZE 0x7FF
 #define FLASH_MAX_PAGE 0xFFFF
+#define FLASH_BBM_LEN 20
 
 typedef struct {
   spi_slave_t slave;
@@ -36,11 +43,14 @@ flash_t flash_init(volatile uint8_t *, volatile uint8_t *, uint8_t);
 void flash_reset(flash_t);
 void flash_enable(flash_t);
 void flash_disable(flash_t);
+void flash_write_bbm(flash_t, uint16_t, uint16_t);
+void flash_read_bbm(flash_t, uint16_t *);
 uint8_t flash_read_status(flash_t, uint8_t);
 void flash_write_status(flash_t, uint8_t, uint8_t);
 void flash_block_erase(flash_t, uint16_t);
-void flash_load_program(flash_t, void *, uint8_t, bool);
-void flash_program_exec(flash_t);
+void flash_load_program(flash_t *, void *, uint8_t, bool);
+void flash_program_exec(flash_t *);
 void flash_command(flash_t, uint8_t *, uint8_t *, uint8_t);
+bool flash_isbusy(flash_t);
 
 #endif
