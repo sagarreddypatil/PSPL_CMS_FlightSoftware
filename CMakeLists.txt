@@ -16,5 +16,10 @@ add_compile_options(-Wall # copied from example
     -Wno-maybe-uninitialized
 )
 
-add_subdirectory(blink)
+set(STDLIB pico_stdlib hardware_spi hardware_gpio)
+
+include_directories(libs/)
+
+add_subdirectory(libs)
+
 add_subdirectory(emu)

@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.txt": "raw",
+    "stdlib.h": "c"
+  }
+}
