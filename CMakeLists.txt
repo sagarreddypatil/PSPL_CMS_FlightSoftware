@@ -1,25 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
-include(pico-sdk/pico_sdk_init.cmake)
+set(PICO_SDK_FETCH_FROM_GIT on)
 
-project(cms_flightsoftware)
-set(CMAKE_C_STANDARD 17)
+include(pico_sdk_import.cmake)
 
-set(CMS_FLIGHTSOFTWARE_PATH ${PROJECT_SOURCE_DIR})
+project(CMS_Avionics_Code)
 
-# initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
-
-add_compile_options(-Wall # copied from example
-    -Wno-format # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
-    -Wno-unused-function # we have some for the docs that aren't called
-    -Wno-maybe-uninitialized
-)
-
-set(STDLIB pico_stdlib hardware_spi hardware_gpio)
-
-include_directories(libs/)
-
-add_subdirectory(libs)
-
-add_subdirectory(emu)
