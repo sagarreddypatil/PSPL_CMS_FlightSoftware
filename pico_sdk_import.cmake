@@ -38,14 +38,14 @@ if(NOT PICO_SDK_PATH)
             FetchContent_Declare(
                 pico_sdk
                 GIT_REPOSITORY https://github.com/raspberrypi/pico-sdk
-                GIT_TAG master
+                GIT_TAG 1.4.0
                 GIT_SUBMODULES_RECURSE FALSE
             )
         else()
             FetchContent_Declare(
                 pico_sdk
                 GIT_REPOSITORY https://github.com/raspberrypi/pico-sdk
-                GIT_TAG master
+                GIT_TAG 1.4.0
             )
         endif()
 
