@@ -1,7 +1,7 @@
 {
   "files.associations": {
-    "*.txt": "raw",
-    "stdlib.h": "c"
+    "CMakeLists.txt": "cmake",
+    ".h": "c"
   },
   "cmake.configureOnEdit": false
 }
