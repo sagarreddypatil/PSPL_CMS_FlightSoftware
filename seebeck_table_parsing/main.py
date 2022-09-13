@@ -37,6 +37,14 @@ table = np.array([temps, vals]).T
 
 import pandas as pd
 
-df = pd.DataFrame(table, columns=["Temperature", "Seebeck Coefficient"])
+df = pd.DataFrame(table, columns=["Temperature", "Voltage"])
+df = df.sort_values(by="Temperature")
 
 df.to_csv("seebeck_table.csv", index=False)
+
+# Calculate Size
+
+int_sz = 4
+float_sz = 4
+
+print(f"Size of table: {len(df) * (int_sz + float_sz)} bytes")
