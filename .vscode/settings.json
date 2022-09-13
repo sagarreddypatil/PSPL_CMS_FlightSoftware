@@ -1,7 +1,8 @@
 {
   "files.associations": {
     "CMakeLists.txt": "cmake",
-    ".h": "c"
+    ".h": "c",
+    "example.h": "c"
   },
   "cmake.configureOnEdit": false
 }
