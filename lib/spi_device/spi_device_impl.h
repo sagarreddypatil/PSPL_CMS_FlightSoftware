@@ -5,19 +5,19 @@
 #include <pico/stdlib.h>
 #include <hardware/spi.h>
 
-#define SPI_MODE0()                      \
+#define SPI_MODE0                        \
     static spi_cpol_t cpol = SPI_CPOL_0; \
     static spi_cpha_t cpha = SPI_CPHA_0;
 
-#define SPI_MODE1()                      \
+#define SPI_MODE1                        \
     static spi_cpol_t cpol = SPI_CPOL_0; \
     static spi_cpha_t cpha = SPI_CPHA_1;
 
-#define SPI_MODE2()                      \
+#define SPI_MODE2                        \
     static spi_cpol_t cpol = SPI_CPOL_1; \
     static spi_cpha_t cpha = SPI_CPHA_0;
 
-#define SPI_MODE3()                      \
+#define SPI_MODE3                        \
     static spi_cpol_t cpol = SPI_CPOL_1; \
     static spi_cpha_t cpha = SPI_CPHA_1;
 
