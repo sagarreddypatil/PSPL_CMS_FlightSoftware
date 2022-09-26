@@ -21,6 +21,12 @@ set(stdlibs pico_stdlib hardware_gpio hardware_spi)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+add_compile_options(
+    -Wall # Enable all warnings
+    -Werror # Treat warnings as errors
+    -O3 # I am speed
+)
+
 # ---------- Libraries  ----------
 subdirlist(libs ${CMAKE_SOURCE_DIR}/lib)
 
@@ -31,10 +37,11 @@ foreach(libname ${libs})
     add_library(${libname} ${srcs} ${hdrs})
     target_link_libraries(${libname} ${stdlibs})
 
-    target_include_directories(${libname} PUBLIC ${CMAKE_SOURCE_DIR}/lib/${libname})
+    # target_include_directories(${libname} PUBLIC ${CMAKE_SOURCE_DIR}/lib/${libname})
+    include_directories(${CMAKE_SOURCE_DIR}/lib/${libname}) # this is kinda dangerous, libraries cannot depend on each other, but can reference headers
 endforeach()
 
-# # ---------- Boards  ----------
+# ---------- Boards  ----------
 set(boards
     emu
 )
@@ -44,7 +51,7 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
-    target_link_libraries(${board} ${stdlibs} ${libs})
+    target_link_libraries(${board} ${stdlibs} ${libs} ${hals})
 
     pico_enable_stdio_usb(${board} 1)
     pico_enable_stdio_uart(${board} 0)
