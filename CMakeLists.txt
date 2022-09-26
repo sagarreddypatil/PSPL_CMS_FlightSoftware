@@ -51,7 +51,7 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
-    target_link_libraries(${board} ${stdlibs} ${libs} ${hals})
+    target_link_libraries(${board} ${stdlibs} ${libs})
 
     pico_enable_stdio_usb(${board} 1)
     pico_enable_stdio_uart(${board} 0)
