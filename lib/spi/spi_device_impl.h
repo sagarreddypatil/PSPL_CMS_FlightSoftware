@@ -28,8 +28,12 @@
   }
 
 #define SPI_TRANSFER(src, dst, len) spi_write_read_blocking(spi, src, dst, len)
-#define SPI_WRITE(src, len) spi_write_blocking(spi, src, len)
-#define SPI_READ(dst, len) spi_read_blocking(spi, 0, dst, len)
 #define SPI_TRANSFER16(src, dst, len) spi_write16_read16_blocking(spi, src, dst, len)
+
+#define SPI_WRITE(src, len) spi_write_blocking(spi, src, len)
+#define SPI_WRITE16(src, len) spi_write16_blocking(spi, src, len)
+
+#define SPI_READ(dst, len) spi_read_blocking(spi, 0, dst, len)
+#define SPI_READ16(dst, len) spi_read16_blocking(spi, 0, dst, len)
 
 #endif  // SPI_DEVICE_IMPL_H
