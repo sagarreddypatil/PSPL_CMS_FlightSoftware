@@ -22,7 +22,7 @@ const uint8_t max31856_sr = 0x0F;      // Fault Status Register
 
 SPI_INITFUNC(max31856)
 
-inline void max31856_rreg(SPI_PORT, uint8_t reg, void *data, size_t len);
-inline void max31856_wreg(SPI_PORT, uint8_t reg, void *data, size_t len);
-inline void max31856_get_temp(SPI_PORT);
-inline void max31856_get_junction_temp(SPI_PORT);
+inline void max31856_rreg(SPI_DEVICE_PARAM, uint8_t reg, void *data, size_t len);
+inline void max31856_wreg(SPI_DEVICE_PARAM, uint8_t reg, void *data, size_t len);
+inline int32_t max31856_get_temp(SPI_DEVICE_PARAM);
+inline int16_t max31856_get_junction_temp(SPI_DEVICE_PARAM);

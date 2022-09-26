@@ -11,7 +11,7 @@ SPI_INITFUNC_IMPL(max31856, baudrate)
 #define READ(x) (x & 0x7F)
 #define WRITE(x) (x | 0x80)
 
-void max31856_rreg(SPI_PORT, uint8_t reg, void *data, size_t len) {
+void max31856_rreg(SPI_DEVICE_PARAM, uint8_t reg, void *data, size_t len) {
   uint8_t src[len + 1];
   uint8_t dst[len + 1];
 
@@ -21,7 +21,7 @@ void max31856_rreg(SPI_PORT, uint8_t reg, void *data, size_t len) {
   memcpy(data, dst + 1, len);
 }
 
-void max31856_wreg(SPI_PORT, uint8_t reg, void *data, size_t len) {
+void max31856_wreg(SPI_DEVICE_PARAM, uint8_t reg, void *data, size_t len) {
   uint8_t src[len + 1];
 
   src[0] = WRITE(reg);  // first byte is the register address, with MSB 1 for write
@@ -30,8 +30,29 @@ void max31856_wreg(SPI_PORT, uint8_t reg, void *data, size_t len) {
   SPI_WRITE(src, len + 1);
 }
 
-void max31856_get_temp(SPI_PORT) {
+int32_t max31856_get_temp(SPI_DEVICE_PARAM) {
+  uint8_t data[3];
+  max31856_rreg(SPI_DEVICE, max31856_ltcbh, data, 3);  // read ltcbh, ltcbm, ltctl into buffer
+
+  /*
+   * The integers we read are two's complement signed, so we place read bits in
+   * the most significant bits of the integer, and then shift the integer right
+   * to automatically sign extend.
+   */
+  uint32_t temp = (data[0] << 24) | (data[1] << 16) | (data[2] << 8);
+
+  // Only 19 bits of the 24 we read are used. So only first 19 bits of the 32-bit int are used
+  temp >>= (32 - 19);
+
+  return temp;
 }
 
-void max31856_get_junction_temp(SPI_PORT) {
+int16_t max31856_get_junction_temp(SPI_DEVICE_PARAM) {
+  // same process as before, but less shenanigans because this is just a usual 16-bit signed integer
+  uint8_t data[2];
+  max31856_rreg(SPI_DEVICE, max31856_cjth, data, 2);
+
+  uint16_t temp = (data[0] << 8) | data[1];  // to deal with endianness
+
+  return temp;
 }
