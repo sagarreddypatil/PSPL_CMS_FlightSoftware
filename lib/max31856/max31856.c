@@ -5,7 +5,7 @@
 SPI_MODE3;  // Mode 1 or 3 allowed, we're using 1
 
 // const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
-const uint baudrate = 10000000;  // Slower baud rate, as a treat
+const uint baudrate = 500 * 1000;  // 5 MHz, max for MAX31856
 SPI_INITFUNC_IMPL(max31856, baudrate)
 
 // MSB is 0 for read, 1 for write
@@ -45,7 +45,7 @@ void max31856_wreg(SPI_DEVICE_PARAM, uint8_t reg, void *data, size_t len) {
 
 int32_t max31856_get_tc_temp(SPI_DEVICE_PARAM) {
   uint8_t data[3];
-  max31856_rreg(SPI_DEVICE, max31856_ltcbh, data, 3);  // read ltcbh, ltcbm, ltctl into buffer
+  max31856_rreg(spi, max31856_ltcbh, data, 3);  // read ltcbh, ltcbm, ltctl into buffer
 
   /*
    * The integers we read are two's complement signed, so we place read bits in
@@ -63,9 +63,9 @@ int32_t max31856_get_tc_temp(SPI_DEVICE_PARAM) {
 int16_t max31856_get_cj_temp(SPI_DEVICE_PARAM) {
   // same process as before, but less shenanigans because this is just a usual 16-bit signed integer
   uint8_t data[2];
-  max31856_rreg(SPI_DEVICE, max31856_cjth, data, 2);
+  max31856_rreg(spi, max31856_cjth, data, 2);
 
-  uint16_t temp = (data[0] << 8) | data[1];  // to deal with endianness
+  int16_t temp = (data[0] << 8) | data[1];  // to deal with endianness
 
   return temp;
 }
