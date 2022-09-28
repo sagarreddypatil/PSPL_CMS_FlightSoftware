@@ -2,6 +2,25 @@
 #include <spi_device_impl.h>
 #include <string.h>
 
+/*
+ * README!!!
+ *
+ * Quick summary of how this chip works
+ * Basically there are 16 registers addressed from 0x00 to 0x0F
+ * The register address definitions are in the header file
+ * The registers are each 1 byte.
+ *
+ * In order to read or write to a register, the first byte in the SPI transmission needs to be the register address
+ * If the most significant bit of the register address is 0, then the chip will read the register
+ * If it's 1, then the chip will write to the register
+ *
+ * If you command the chip to read, it'll ignore any subsequent bytes in the transmission, and will respond with the register value
+ * If you keep cycling the clock after one register value is sent, it'll send the values stored in subsequent registers, for however many bytes you read
+ * The end of a transmission is marked by driving CS(chip select) high.
+ *
+ * Writing follows the same pattern, except the chip doesn't respond with anything. You just write a byte or multiple bytes, and then drive CS high.
+ */
+
 SPI_MODE3;  // Mode 1 or 3 allowed, we're using 1
 
 // const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
