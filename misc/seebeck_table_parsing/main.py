@@ -31,14 +31,15 @@ with open("positive_parts.txt", "r") as f:
 import numpy as np
 
 temps = np.array(list(lut.keys()))
-vals = np.array(list(lut.values()))
+volts = np.array(list(lut.values()))
 
-table = np.array([temps, vals]).T
+table = np.array([volts, temps]).T
+table = table[table[:, 0].argsort()]
 
 import pandas as pd
 
-df = pd.DataFrame(table, columns=["Temperature", "Voltage"])
-df = df.sort_values(by="Temperature")
+df = pd.DataFrame(table, columns=["Voltage (mV)", "Temperature (deg C)"])
+df = df.sort_values(by="Temperature (deg C)")
 
 df.to_csv("seebeck_table.csv", index=False)
 
@@ -48,3 +49,20 @@ int_sz = 4
 float_sz = 4
 
 print(f"Size of table: {len(df) * (int_sz + float_sz)} bytes")
+
+# generate C code
+
+adc_fsr_v = 2.4
+pga = 1
+actual_fsr = adc_fsr_v / pga
+
+adc_res = 2**16
+volts_per_lsb = actual_fsr / adc_res
+
+volts_lsb = volts / volts_per_lsb
+
+with open("k_type_lut.h", "w") as f:
+    f.write("static const int16_t k_type_lut[] = {")
+    for i in range(len(volts_lsb)):
+        f.write(f"{int(volts_lsb[i])}, ")
+    f.write("};")
