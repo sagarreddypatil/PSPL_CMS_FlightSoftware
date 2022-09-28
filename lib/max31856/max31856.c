@@ -23,8 +23,7 @@
 
 SPI_MODE3;  // Mode 1 or 3 allowed, we're using 1
 
-// const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
-const uint baudrate = 500 * 1000;  // 5 MHz, max for MAX31856
+const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
 SPI_INITFUNC_IMPL(max31856, baudrate)
 
 // MSB is 0 for read, 1 for write
