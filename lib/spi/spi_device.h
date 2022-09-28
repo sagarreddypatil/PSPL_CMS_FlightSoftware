@@ -3,6 +3,7 @@
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
 
+/// @brief Struct to hold SPI device parameters, i.e., SPI hardware pointer and CS pin
 typedef struct {
   spi_inst_t *spi_inst;
   uint cs;

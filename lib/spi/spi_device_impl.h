@@ -4,18 +4,24 @@
 #include <pico/stdlib.h>
 #include <spi_device.h>
 
+/// @brief Initialize CS pin as output and set it high
+/// @param cs_pin
 static inline void cs_init(uint cs_pin) {
   gpio_init(cs_pin);
   gpio_put(cs_pin, 1);
   gpio_set_dir(cs_pin, GPIO_OUT);
 }
 
+/// @brief Set CS pin low to enable
+/// @param cs_pin
 static inline void cs_select(uint cs_pin) {
   asm volatile("nop \n nop \n nop");  // from pico examples, dunno why but monkey see monkey do
   gpio_put(cs_pin, 0);
   asm volatile("nop \n nop \n nop");
 }
 
+/// @brief Set CS pin high to disable
+/// @param cs_pin
 static void cs_deselect(uint cs_pin) {
   asm volatile("nop \n nop \n nop");
   gpio_put(cs_pin, 1);
