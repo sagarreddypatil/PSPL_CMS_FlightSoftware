@@ -59,6 +59,7 @@ foreach(board ${boards})
     pico_enable_stdio_uart(${board} 0)
 
     pico_set_binary_type(${board} copy_to_ram) # run full program from flash
+    pico_set_float_implementation(${board} none)
 
     pico_add_uf2_output(${board})
 
