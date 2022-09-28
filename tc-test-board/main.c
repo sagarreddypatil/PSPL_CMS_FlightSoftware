@@ -27,16 +27,22 @@ int main() {
   gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
   gpio_put(PICO_DEFAULT_LED_PIN, 1);
 
-  while (true) {       // Main loop
-    uint8_t data[17];  // for reading all the registers
+  while (true) {  // Main loop
+    // uint8_t data[17];  // for reading all the registers
 
-    max31856_rreg(tc_spi, 0, data + 1, 16);
+    uint8_t cr0   = max31856_rreg_byte(tc_spi, max31856_cr0);
+    uint8_t cr1   = max31856_rreg_byte(tc_spi, max31856_cr1);
+    int tc_temp   = max31856_get_tc_temp(tc_spi);
+    short cj_temp = max31856_get_cj_temp(tc_spi);
+    uint8_t sr    = max31856_rreg_byte(tc_spi, max31856_sr);
 
     // print all values, one per line
     printf("the actual baud: %d\n", actual_baud);
-    for (int i = 1; i < 16; i++) {
-      printf("%02x\n", data[i]);
-    }
+    printf("cr0: 0x%02x\n", cr0);
+    printf("cr1: 0x%02x\n", cr1);
+    printf("tc_temp: %d\n", tc_temp);
+    printf("cj_temp: %d\n", cj_temp);
+    printf("sr: 0x%02x\n", sr);
 
     sleep_ms(100);
     gpio_put(PICO_DEFAULT_LED_PIN, 1);
