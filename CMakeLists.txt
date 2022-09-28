@@ -49,8 +49,8 @@ set(boards
 )
 
 foreach(board ${boards})
-    file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/${board}/*.c)
-    file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/${board}/*.h)
+    file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/src/${board}/*.c)
+    file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
     target_link_libraries(${board} ${stdlibs} ${libs})
@@ -59,6 +59,7 @@ foreach(board ${boards})
     pico_enable_stdio_uart(${board} 0)
 
     pico_add_uf2_output(${board})
+
     set_target_properties(${board}
         PROPERTIES
 
