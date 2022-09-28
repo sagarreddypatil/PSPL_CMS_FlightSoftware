@@ -5,21 +5,21 @@
 #include <pico/stdlib.h>
 #include <spi_device.h>
 
-#define SPI_MODE0                      \
-  static spi_cpol_t cpol = SPI_CPOL_0; \
-  static spi_cpha_t cpha = SPI_CPHA_0;
+#define SPI_MODE0                            \
+  static const spi_cpol_t cpol = SPI_CPOL_0; \
+  static const spi_cpha_t cpha = SPI_CPHA_0;
 
-#define SPI_MODE1                      \
-  static spi_cpol_t cpol = SPI_CPOL_0; \
-  static spi_cpha_t cpha = SPI_CPHA_1;
+#define SPI_MODE1                            \
+  static const spi_cpol_t cpol = SPI_CPOL_0; \
+  static const spi_cpha_t cpha = SPI_CPHA_1;
 
-#define SPI_MODE2                      \
-  static spi_cpol_t cpol = SPI_CPOL_1; \
-  static spi_cpha_t cpha = SPI_CPHA_0;
+#define SPI_MODE2                            \
+  static const spi_cpol_t cpol = SPI_CPOL_1; \
+  static const spi_cpha_t cpha = SPI_CPHA_0;
 
-#define SPI_MODE3                      \
-  static spi_cpol_t cpol = SPI_CPOL_1; \
-  static spi_cpha_t cpha = SPI_CPHA_1;
+#define SPI_MODE3                            \
+  static const spi_cpol_t cpol = SPI_CPOL_1; \
+  static const spi_cpha_t cpha = SPI_CPHA_1;
 
 #define SPI_INITFUNC_IMPL(name, baud)                  \
   void name##_set(spi_inst_t *spi) {                   \

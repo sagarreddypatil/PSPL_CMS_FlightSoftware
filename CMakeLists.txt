@@ -43,7 +43,9 @@ endforeach()
 
 # ---------- Boards  ----------
 set(boards
-    emu
+
+    # emu
+    tc-test-board
 )
 
 foreach(board ${boards})
@@ -57,7 +59,6 @@ foreach(board ${boards})
     pico_enable_stdio_uart(${board} 0)
 
     pico_add_uf2_output(${board})
-
     set_target_properties(${board}
         PROPERTIES
 
