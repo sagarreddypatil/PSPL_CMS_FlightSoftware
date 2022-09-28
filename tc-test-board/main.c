@@ -6,11 +6,7 @@
 
 #define DEFAULT_BAUD 1000000  // 1 MHz
 
-spi_device_t _tc_spi = {
-    .spi_inst = spi0,
-    .cs       = 20,
-};
-#define tc_spi (&_tc_spi)
+SPI_DEVICE(tc_spi, spi0, 20)
 
 int main() {
   stdio_init_all();

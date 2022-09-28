@@ -8,11 +8,18 @@ typedef struct {
   uint cs;
 } spi_device_t;
 
-#define SPI_INITFUNC(name) \
-  uint name##_set(spi_device_t *spi);
+#define SPI_DEVICE(name, spi_port, cs_pin) \
+  static const spi_device_t _##name = {    \
+      .spi_inst = spi_port,                \
+      .cs       = cs_pin,                  \
+  };                                       \
+  static const spi_device_t *name = &_##name;
 
 #define SPI_DEVICE_PARAM \
-  spi_device_t *spi
+  const spi_device_t *spi
+
+#define SPI_INITFUNC(name) \
+  uint name##_set(SPI_DEVICE_PARAM);
 
 #define SPI_INST \
   (spi->spi_inst)

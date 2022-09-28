@@ -39,7 +39,7 @@ static void cs_deselect(uint cs_pin) {
   static const spi_cpha_t cpha = SPI_CPHA_1;
 
 #define SPI_INITFUNC_IMPL(name, baud)                       \
-  uint name##_set(spi_device_t *spi) {                      \
+  uint name##_set(SPI_DEVICE_PARAM) {                       \
     cs_init(spi->cs);                                       \
     uint actual_baud = spi_set_baudrate(SPI_INST, baud);    \
     spi_set_format(SPI_INST, 8, cpol, cpha, SPI_MSB_FIRST); \
