@@ -22,9 +22,10 @@
   static const spi_cpha_t cpha = SPI_CPHA_1;
 
 #define SPI_INITFUNC_IMPL(name, baud)                  \
-  void name##_set(spi_inst_t *spi) {                   \
-    spi_set_baudrate(spi, baud);                       \
+  uint name##_set(spi_inst_t *spi) {                   \
+    uint actual_baud = spi_set_baudrate(spi, baud);    \
     spi_set_format(spi, 8, cpol, cpha, SPI_MSB_FIRST); \
+    return actual_baud;                                \
   }
 
 #define SPI_TRANSFER(src, dst, len) spi_write_read_blocking(spi, src, dst, len)

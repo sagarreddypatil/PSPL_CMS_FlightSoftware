@@ -2,9 +2,10 @@
 #include <spi_device_impl.h>
 #include <string.h>
 
-SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
+SPI_MODE3;  // Mode 1 or 3 allowed, we're using 1
 
-const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
+// const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
+const uint baudrate = 10000000;  // Slower baud rate, as a treat
 SPI_INITFUNC_IMPL(max31856, baudrate)
 
 // MSB is 0 for read, 1 for write
