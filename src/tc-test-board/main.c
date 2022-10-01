@@ -36,12 +36,17 @@ int main() {
     short cj_temp = max31856_get_cj_temp(tc_spi);
     uint8_t sr    = max31856_rreg_byte(tc_spi, max31856_sr);
 
+    float tc_temp_f = tc_temp * 0.0078125;
+    float cj_temp_f = cj_temp * 0.00390625;
+
     // print all values, one per line
     printf("the actual baud: %d\n", actual_baud);
     printf("cr0: 0x%02x\n", cr0);
     printf("cr1: 0x%02x\n", cr1);
-    printf("tc_temp: %d\n", tc_temp);
-    printf("cj_temp: %d\n", cj_temp);
+    // printf("tc_temp: %d\n", tc_temp);
+    // printf("cj_temp: %d\n", cj_temp);
+    printf("tc_temp: %f deg C\n", tc_temp_f);
+    printf("cj_temp: %f deg C\n", cj_temp_f);
     printf("sr: 0x%02x\n", sr);
 
     sleep_ms(100);
