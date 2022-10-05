@@ -27,8 +27,8 @@ const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
 SPI_INITFUNC_IMPL(max31856, baudrate)
 
 // MSB is 0 for read, 1 for write
-#define READ(x) (x & 0x7F)
-#define WRITE(x) (x | 0x80)
+#define READ(x) (x & 0x7F) // x & 0b01111111
+#define WRITE(x) (x | 0x80) // x | 0b10000000
 
 uint8_t max31856_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg) {
   uint8_t src[2] = {READ(reg)};
