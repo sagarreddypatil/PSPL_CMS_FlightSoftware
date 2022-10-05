@@ -14,6 +14,8 @@ char input[INPUT_SIZE + 1];
 char input1[INPUT_SIZE1 + 1];
 byte size;  // Size of the incoming command as read from Serial
 
+void read_command();
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);   //start coms with control computer 
@@ -25,6 +27,15 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   read_command();
+
+  if (cmd == 'a'){    //stamtents for each command 
+    Serial.print("im command a statment: ");
+
+    if(cmd_parameter[0] == 1){  //statmenmt to look at the first argument of command 'a' this can be done for up to 10 arguments 
+      //some cool code to do some stuff 
+      Serial.println("1");
+    }
+  }
 
 }
 
@@ -45,11 +56,14 @@ void read_command () {
     }
 
     if (debugging) {
+      Serial.println("Receive input control parameters");
+      Serial.println("-------------------------------------");
       for (int i = 0; i < NUM_INPUTS; i++) {
         Serial.print(i);
         Serial.print(": ");
         Serial.println(cmd_parameter[i]);
       }
+      Serial.println("-------------------------------------");
     }
 
     // Use this switch to ensure we recognize the command.
@@ -62,7 +76,9 @@ void read_command () {
       case 'f': // Voltage off
       case 'i': // Set all voltage/current limits
         if (debugging) {
+          Serial.print("Receive control command: ");
           Serial.println(cmd);
+          Serial.println("-------------------------------------");
         }
         break;
       default:
