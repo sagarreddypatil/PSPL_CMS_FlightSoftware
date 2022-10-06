@@ -41,7 +41,7 @@ void setup() {
     Serial3.read();
   }
 
-// add some system safety checks in here before allowing power up of the system 
+  //add some system safety checks in here before allowing power up of the system 
 
   Serial.println("System start");
 
@@ -228,7 +228,7 @@ void loop() {
     }
   }
 
-   /* 
+  /* 
   cmd_parameter[Drok #, read or voltage]
   s,0,0 - Drok 0 reading volatge 
   s,0,1 - Drok 0 reading current 
@@ -237,14 +237,10 @@ void loop() {
   s,2,0 - Drok 2 reading volatge
   s,2,1 - Drok 2 reading current  
   */
-  if (cmd == 's'){    //set output current
-  String current = "";
-  String voltage = "";
-  int Amp = 0;
-  int volt = 0;
-  char v_reading;
-  char i_reading;
-  //char reading_c; 
+  if (cmd == 's'){    //Read the output currernt and voltage
+  String reading_s = "";
+  int reading_i;
+  char reading_c; 
 
     switch (cmd_parameter[1])   //cuurent or volatge 
     {
@@ -257,10 +253,10 @@ void loop() {
         delay(50);
         while (Serial1.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial1.read();
-          current.concat(i_reading);
+          reading_c = Serial1.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
 
         case 1: 
@@ -269,10 +265,10 @@ void loop() {
         delay(50);
         while (Serial2.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial2.read();
-          current.concat(i_reading);
+          reading_c = Serial2.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
 
         case 2: 
@@ -281,19 +277,82 @@ void loop() {
         delay(50);
         while (Serial3.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial3.read();
-          current.concat(i_reading);
+          reading_c = Serial3.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
       
       default:
         break;
       }
-      Serial.println(Amp);
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing" + String(reading_i / 100.0) + "Amps");
     break;
     
     case 1:
+      switch (cmd_parameter[0])  //for each drok 
+      {
+      case 0: 
+        delay(50);
+        Serial1.println("aru");
+        delay(50);
+        while (Serial1.available() > 0) {
+          // read the incoming byte:
+          reading_c = Serial1.read();
+          reading_s.concat(reading_c);
+        }
+        reading_i = reading_s.substring(10,14).toInt();
+        break;
+
+        case 1: 
+        delay(50);
+        Serial2.println("aru");
+        delay(50);
+        while (Serial2.available() > 0) {
+          // read the incoming byte:
+          reading_c = Serial2.read();
+          reading_s.concat(reading_c);
+        }
+        reading_i = reading_s.substring(10,14).toInt();
+        break;
+
+        case 2: 
+        delay(50);
+        Serial3.println("aru");
+        delay(50);
+        while (Serial3.available() > 0) {
+          // read the incoming byte:
+          reading_c = Serial3.read();
+          reading_s.concat(reading_c);
+        }
+        reading_i = reading_s.substring(10,14).toInt();
+        break;
+      
+      default:
+        break;
+      }
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing" + String(reading_i / 100.0) + "Volts");
+    break;
+
+    default:
+    // invalid 
+    Serial.println("invalid argument");
+      break;
+    }
+  }
+
+/* 
+  note this is an expermental function 
+  cmd_parameter[Drok #] 
+  s,0 - Drok 0 power reading
+  s,1 - Drok 1 power reading 
+  s,2 - Drok 2 power reading
+  */
+  if (cmd == 'p'){    //Read the power output of the drok
+  String reading_s = "";
+  int reading_i;
+  char reading_c; 
+
       switch (cmd_parameter[0])  //for each drok 
       {
       case 0: 
@@ -302,10 +361,10 @@ void loop() {
         delay(50);
         while (Serial1.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial1.read();
-          current.concat(i_reading);
+          reading_c = Serial1.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
 
         case 1: 
@@ -314,10 +373,10 @@ void loop() {
         delay(50);
         while (Serial2.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial2.read();
-          current.concat(i_reading);
+          reading_c = Serial2.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
 
         case 2: 
@@ -326,23 +385,17 @@ void loop() {
         delay(50);
         while (Serial3.available() > 0) {
           // read the incoming byte:
-          i_reading = Serial3.read();
-          current.concat(i_reading);
+          reading_c = Serial3.read();
+          reading_s.concat(reading_c);
         }
-        Amp = current.substring(10,14).toInt();
+        reading_i = reading_s.substring(10,14).toInt();
         break;
       
       default:
         break;
       }
-      Serial.println(Amp);
-    break;
-
-    default:
-    // invalid 
-    Serial.println("invalid argument");
-      break;
-    }
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing" + String(reading_i / 100.0) + "");
+    
   }
 
 }
@@ -379,10 +432,11 @@ void read_command () {
     switch (cmd) {
 
       case 'o': // OutPut On
-      case 'f': // OutPut Off
-      case 's': // Status 
+      case 'f': // OutPut Off 
       case 'v': // Set Voltage
-      case 'i': // Set Current  
+      case 'i': // Set Current
+      case 's': // Status
+      case 'p': // Power output 
         if (debugging) {
           Serial.print("Receive control command: ");
           Serial.println(cmd);
