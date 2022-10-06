@@ -196,6 +196,36 @@ void loop() {
     }
   }
 
+  /* 
+  cmd_parameter[Drok #, set current]
+  v,0,xxxx - Drok 0 current set to xxxx
+  v,1,xxxx - Drok 1 current set to xxxx
+  v,2,xxxx - Drok 2 current set to xxxx
+  */
+  if (cmd == 'i' && (cmd_parameter[1] < 1000) ){    //set output current
+    switch (cmd_parameter[0]){
+    case 0:
+        Serial.println("Drok 0 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial1.println("awi" + String(cmd_parameter[1]) );
+      break;
+    case 1:
+        Serial.println("Drok 1 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial2.println("awi" + String(cmd_parameter[1]) );
+    break;
+    case 2:
+        Serial.println("Drok 2 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial3.println("awi" + String(cmd_parameter[1]) );
+    break;
+
+    default:
+    // invalid 
+    Serial.println("invalid argument");
+      break;
+    }
+  }
+
+
+
 }
 
 void read_command () {
@@ -233,7 +263,7 @@ void read_command () {
       case 'f': // OutPut Off
       case 's': // Status 
       case 'v': // Set Voltage
-      case 'c': // Set Current  
+      case 'i': // Set Current  
         if (debugging) {
           Serial.print("Receive control command: ");
           Serial.println(cmd);
