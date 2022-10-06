@@ -41,6 +41,8 @@ void setup() {
     Serial3.read();
   }
 
+// add some system safety checks in here before allowing power up of the system 
+
   Serial.println("System start");
 
 }
@@ -48,6 +50,9 @@ void setup() {
 void loop() {
 
   read_command();
+
+  //unknown command handeling 
+  //if (cmd == 0){Serial.println("unknonw command registerd");}
 
   /* 
   cmd_parameter[subCommand]
@@ -197,9 +202,9 @@ void loop() {
 
   /* 
   cmd_parameter[Drok #, set current]
-  v,0,xxxx - Drok 0 current set to xxxx
-  v,1,xxxx - Drok 1 current set to xxxx
-  v,2,xxxx - Drok 2 current set to xxxx
+  i,0,xxxx - Drok 0 current set to xxxx
+  i,1,xxxx - Drok 1 current set to xxxx
+  i,2,xxxx - Drok 2 current set to xxxx
   */
   if (cmd == 'i' && (cmd_parameter[1] < 1000) ){    //set output current
     switch (cmd_parameter[0]){
@@ -223,7 +228,122 @@ void loop() {
     }
   }
 
+   /* 
+  cmd_parameter[Drok #, read or voltage]
+  s,0,0 - Drok 0 reading volatge 
+  s,0,1 - Drok 0 reading current 
+  s,1,0 - Drok 1 reading volatge 
+  s,1,1 - Drok 1 reading current 
+  s,2,0 - Drok 2 reading volatge
+  s,2,1 - Drok 2 reading current  
+  */
+  if (cmd == 's'){    //set output current
+  String current = "";
+  String voltage = "";
+  int Amp = 0;
+  int volt = 0;
+  char v_reading;
+  char i_reading;
+  //char reading_c; 
 
+    switch (cmd_parameter[1])   //cuurent or volatge 
+    {
+    case 0:
+      switch (cmd_parameter[0])  //for each drok 
+      {
+      case 0: 
+        delay(50);
+        Serial1.println("ari");
+        delay(50);
+        while (Serial1.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial1.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+
+        case 1: 
+        delay(50);
+        Serial2.println("ari");
+        delay(50);
+        while (Serial2.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial2.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+
+        case 2: 
+        delay(50);
+        Serial3.println("ari");
+        delay(50);
+        while (Serial3.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial3.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+      
+      default:
+        break;
+      }
+      Serial.println(Amp);
+    break;
+    
+    case 1:
+      switch (cmd_parameter[0])  //for each drok 
+      {
+      case 0: 
+        delay(50);
+        Serial1.println("ari");
+        delay(50);
+        while (Serial1.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial1.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+
+        case 1: 
+        delay(50);
+        Serial2.println("ari");
+        delay(50);
+        while (Serial2.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial2.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+
+        case 2: 
+        delay(50);
+        Serial3.println("ari");
+        delay(50);
+        while (Serial3.available() > 0) {
+          // read the incoming byte:
+          i_reading = Serial3.read();
+          current.concat(i_reading);
+        }
+        Amp = current.substring(10,14).toInt();
+        break;
+      
+      default:
+        break;
+      }
+      Serial.println(Amp);
+    break;
+
+    default:
+    // invalid 
+    Serial.println("invalid argument");
+      break;
+    }
+  }
 
 }
 
