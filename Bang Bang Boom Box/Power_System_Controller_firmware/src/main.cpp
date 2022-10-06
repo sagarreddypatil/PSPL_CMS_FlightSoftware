@@ -49,7 +49,6 @@ void loop() {
 
   read_command();
 
-
   /* 
   cmd_parameter[subCommand]
   o,0 - Drok 0 OutPut on 
