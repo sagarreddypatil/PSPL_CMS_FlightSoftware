@@ -41,6 +41,8 @@ void setup() {
     Serial3.read();
   }
 
+  Serial.println("System start");
+
 }
 
 void loop() {
@@ -58,6 +60,7 @@ void loop() {
   if (cmd == 'o'){    //Turn on the output of droks 
     switch (cmd_parameter[0]){
     case 0:
+        Serial.println("Drok_0 on");
         Serial1.println("awo1");
         delay(50);
         while (Serial1.available() > 0) {
@@ -65,6 +68,7 @@ void loop() {
         }
       break;
     case 1:
+        Serial.println("Drok_1 on");
         Serial2.println("awo1");
         delay(50);
         while (Serial2.available() > 0) {
@@ -72,6 +76,7 @@ void loop() {
         }
     break;
     case 2:
+        Serial.println("Drok_2 on");
         Serial3.println("awo1");
         delay(50);
         while (Serial3.available() > 0) {
@@ -79,6 +84,7 @@ void loop() {
         }  
     break;
     case 3:
+      Serial.println("All Droks on");
       Serial1.println("awo1");
       delay(50);
       while (Serial1.available() > 0) {
@@ -113,6 +119,7 @@ void loop() {
   if (cmd == 'f'){    //Turn off the output of droks 
     switch (cmd_parameter[0]){
     case 0:
+        Serial.println("Drok_0 off");
         Serial1.println("awo0");
         delay(50);
         while (Serial1.available() > 0) {
@@ -120,6 +127,7 @@ void loop() {
         }
       break;
     case 1:
+        Serial.println("Drok_1 off");
         Serial2.println("awo0");
         delay(50);
         while (Serial2.available() > 0) {
@@ -127,6 +135,7 @@ void loop() {
         }
     break;
     case 2:
+        Serial.println("Drok_2 off");
         Serial3.println("awo0");
         delay(50);
         while (Serial3.available() > 0) {
@@ -134,6 +143,7 @@ void loop() {
         }  
     break;
     case 3:
+      Serial.println("All Droks off");
       Serial1.println("awo0");
       delay(50);
       while (Serial1.available() > 0) {
@@ -158,7 +168,33 @@ void loop() {
     }
   }
 
+  /* 
+  cmd_parameter[Drok #, set volatge]
+  v,0,xxxx - Drok 0 voltage set to xxxx
+  v,1,xxxx - Drok 1 voltage set to xxxx
+  v,2,xxxx - Drok 2 voltage set to xxxx
+  */
+  if (cmd == 'v' && (cmd_parameter[1] < 3500) ){    //set output voltage
+    switch (cmd_parameter[0]){
+    case 0:
+        Serial.println("Drok 0 Set to: " + String(cmd_parameter[1] / 100.0) + "V");
+        Serial1.println("awu" + String(cmd_parameter[1]) );
+      break;
+    case 1:
+        Serial.println("Drok 1 Set to: " + String(cmd_parameter[1] / 100.0) + "V");
+        Serial2.println("awu" + String(cmd_parameter[1]) );
+    break;
+    case 2:
+        Serial.println("Drok 2 Set to: " + String(cmd_parameter[1] / 100.0) + "V");
+        Serial3.println("awu" + String(cmd_parameter[1]) );
+    break;
 
+    default:
+    // invalid 
+    Serial.println("invalid argument");
+      break;
+    }
+  }
 
 }
 
