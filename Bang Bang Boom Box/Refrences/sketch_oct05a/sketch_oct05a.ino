@@ -45,7 +45,7 @@ byte size;  // Size of the incoming command as read from Serial
 void setup() {
   // External comms over serial0, comms with chargers on serial1
   Serial.begin(115200);
-  Serial1.begin(4800);
+  Serial1.begin(9600);
   delay(100);
   Serial.println("DroneHome Charger Starting");
 
@@ -444,7 +444,7 @@ void resume_on (){
 // charger
 void write_settings (){
   //noramly awu2520
-  Serial1.println("awu2520");
+  Serial1.println("awu1000");
   delay(50);
   Serial1.println("awi" + desiredCurrent);
   delay(50);

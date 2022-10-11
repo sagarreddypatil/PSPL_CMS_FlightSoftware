@@ -3,6 +3,7 @@
 #define INPUT_SIZE 37  // Max number of bytes expected to come over in a command (1 char + 9 longs)
 #define NUM_INPUTS 10  // Max number of different inputs we expect
 #define INPUT_SIZE1 100  // Max number of bytes to come over from charger Rx
+#define BUAD 4800
 
 bool debugging = false;
 String allStatus;
@@ -15,14 +16,14 @@ char input1[INPUT_SIZE1 + 1];
 byte size;  // Size of the incoming command as read from Serial
 
 void read_command();
-void Drok_off();
+//void Drok_off();
 
 void setup() {
 
   Serial.begin(9600);   //start coms with control computer 
-  Serial1.begin(9600);  //start coms with Drok_0 
-  Serial2.begin(9600);  //start coms with Drok_1
-  Serial3.begin(9600);  //start coms with Drok_2
+  Serial1.begin(BUAD);  //start coms with Drok_0 
+  Serial2.begin(BUAD);  //start coms with Drok_1
+  Serial3.begin(BUAD);  //start coms with Drok_2
 
   //Start with all Droks off 
   Serial1.println("awo0");
@@ -286,7 +287,7 @@ void loop() {
       default:
         break;
       }
-      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing" + String(reading_i / 100.0) + "Amps");
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + "Amps");
     break;
     
     case 1:
@@ -331,7 +332,7 @@ void loop() {
       default:
         break;
       }
-      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing" + String(reading_i / 100.0) + "Volts");
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + "Volts");
     break;
 
     default:
