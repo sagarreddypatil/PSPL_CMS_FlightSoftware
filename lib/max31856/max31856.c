@@ -70,7 +70,7 @@ int32_t max31856_get_tc_temp(SPI_DEVICE_PARAM) {
    * the most significant bits of the integer, and then shift the integer right
    * to automatically sign extend.
    */
-  uint32_t temp = (data[0] << 24) | (data[1] << 16) | (data[2] << 8);
+  int32_t temp = (data[0] << 24) | (data[1] << 16) | (data[2] << 8);
 
   // Only 19 bits of the 24 we read are used. So only first 19 bits of the 32-bit int are used
   temp >>= (32 - 19);
