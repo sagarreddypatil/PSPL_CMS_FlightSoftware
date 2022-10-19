@@ -176,3 +176,6 @@ $RECYCLE.BIN/
 
 build/
 docs/
+
+# Idea ignore 
+.idea/
