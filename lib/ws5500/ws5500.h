@@ -3,8 +3,8 @@ Datasheet
 https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1.pdf
 */
 
-#ifndef WS5500_H
-#define WS5500_H
+#pragma once
+#include <spi_device_impl.h>
 
 /*===============================
 Common Register Addresses pg 32
@@ -128,4 +128,13 @@ static const uint8_t socket_frag1 = 0x2E;
 static const uint8_t socket_pmru0 = 0x2F; //Socket Keep Alive Time Register
 
 
+/*Functionality: 
+read & write data to single register (socket & common)
+config ethernet switch for UDP multicasting
+config rx tx buffer size
+send ethernet data to relevant chips
+recieve spi data from relevant chips and transfer over ethernet
+configure socket port number, MAC Address, IP Address
 
+
+*/
