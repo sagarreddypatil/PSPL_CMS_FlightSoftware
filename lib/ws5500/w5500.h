@@ -5,6 +5,7 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 
 #pragma once
 #include <spi_device_impl.h>
+#include <string.h>
 
 /*===============================
 Common Register Addresses pg 32
@@ -128,14 +129,12 @@ static const uint8_t w5500_socket_frag1 = 0x2E;
 static const uint8_t w5500_socket_pmru0 = 0x2F; //Socket Keep Alive Time Register
 
 
-/*Core Functionality: 
-read & write data to single register (socket & common)
-mask and shift values depending on byte*/
+/*Functions*/
+void w5500_setup() //sets up w5500 with configurations in driver
+void w5500_transmit() //sends data from w5500 to destination address
+void w5500_recieve() //gets data from w5500 buffers and transmits it to rp2040
 
-//Read a single register
-uint8_t w5500_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg);
-//write to a single register
-void w5500_wreg_byte(SPI_DEVICE_PARAM, uint8_t reg);
+
 
 
 
