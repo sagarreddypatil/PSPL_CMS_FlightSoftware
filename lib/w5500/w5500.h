@@ -136,9 +136,9 @@ uint8_t w5500_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg); //Read from single regis
 void w5500_wreg_byte(SPI_DEVICE_PARAM, uint8_t reg); //Write to single register
 void ws5500_config_ip(SPI_DEVICE_PARAM, uint8_t ip[4]); //Set source ip address of ws5500
 void ws5500_config_socket_ip(SPI_DEVICE_PARAM, uint8_t ip[4], uint8_t socket_num); //set ip address of socket
-void w5500_write_tx(SPI_DEVICE_PARAM, uint8_t dst_ip[4], void* data, size_t len); //transmits data from source to destination
-void w5500_read(SPI_DEVICE_PARAM); //reads in all data from rx buffer
-void w5500_transmit(SPI_DEVICE_PARAM); //sends all data in tx buffer over ethernet
+void w5500_write_tx(SPI_DEVICE_PARAM, uint8_t socket_num, uint8_t dst_ip[4], void* data, size_t len); //writes to tx buffer of socket 
+void w5500_read_rx(SPI_DEVICE_PARAM, uint8_t socket_num); //reads in all data from rx buffer of socket
+void w5500_transmit(SPI_DEVICE_PARAM, uint8_t socket_num); //sends all data in tx buffer of socket over ethernet
 
 
 
