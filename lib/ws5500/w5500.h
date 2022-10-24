@@ -4,8 +4,8 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 */
 
 #pragma once
-#include <spi_device_impl.h>
-#include <string.h>
+#include <spi_device.h>
+
 
 /*===============================
 Common Register Addresses pg 32
@@ -108,31 +108,38 @@ static const uint8_t w5500_socket_tbuf_size = 0x1F; //Socket Tx Buffer Size Regi
 static const uint8_t w5500_socket_tx_fsr0 = 0x20; 
 static const uint8_t w5500_socket_tx_fsr1 = 0x21;
 //Socket Tx Read Pointer Registers
-static const uint8_t w5500_socket_rd0 = 0x22;
-static const uint8_t w5500_socket_rd1 = 0x23;
+static const uint8_t w5500_socket_tx_rd0 = 0x22;
+static const uint8_t w5500_socket_tx_rd1 = 0x23;
 //Socket Tx Write Pointer Registers
-static const uint8_t w5500_socket_wr0 = 0x24;
-static const uint8_t w5500_socket_wr1 = 0x25;
+static const uint8_t w5500_socket_tx_wr0 = 0x24;
+static const uint8_t w5500_socket_tx_wr1 = 0x25;
 //Socket Recieved Size Register
 static const uint8_t w5500_socket_rsr0 = 0x26;
 static const uint8_t w5500_socket_rsr1 = 0x27;
 //Socket Rx Read Data Pointer Register
-static const uint8_t w5500_socket_rd0 = 0x28;
-static const uint8_t w5500_socket_rd1 = 0x29;
+static const uint8_t w5500_socket_rx_rd0 = 0x28;
+static const uint8_t w5500_socket_rx_rd1 = 0x29;
 //Socket Rx Write Pointer Register
-static const uint8_t w5500_socket_wr0 = 0x2A;
-static const uint8_t w5500_socket_wr1 = 0x2B;
+static const uint8_t w5500_socket_rx_wr0 = 0x2A;
+static const uint8_t w5500_socket_rx_wr1 = 0x2B;
 static const uint8_t w5500_socket_imr = 0x23; //Socket Interrupt Mask Register
 //Socket Fragment Registers
 static const uint8_t w5500_socket_frag0 = 0x2D;
 static const uint8_t w5500_socket_frag1 = 0x2E;
 static const uint8_t w5500_socket_pmru0 = 0x2F; //Socket Keep Alive Time Register
 
+SPI_INITFUNC(w5500);
 
 /*Functions*/
-void w5500_setup() //sets up w5500 with configurations in driver
-void w5500_transmit() //sends data from w5500 to destination address
-void w5500_recieve() //gets data from w5500 buffers and transmits it to rp2040
+
+uint8_t w5500_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg); //Read from single register
+void w5500_wreg_byte(SPI_DEVICE_PARAM, uint8_t reg); //Write to single register
+void ws5500_config_ip(SPI_DEVICE_PARAM, uint8_t ip[4]); //Set source ip address of ws5500
+void ws5500_config_socket_ip(SPI_DEVICE_PARAM, uint8_t ip[4], uint8_t socket_num); //set ip address of socket
+void w5500_write_tx(SPI_DEVICE_PARAM, uint8_t dst_ip[4], void* data, size_t len); //transmits data from source to destination
+void w5500_read(SPI_DEVICE_PARAM); //reads in all data from rx buffer
+void w5500_transmit(SPI_DEVICE_PARAM); //sends all data in tx buffer over ethernet
+
 
 
 

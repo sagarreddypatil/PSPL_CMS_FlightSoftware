@@ -21,7 +21,7 @@
  * Writing follows the same pattern, except the chip doesn't respond with anything. You just write a byte or multiple bytes, and then drive CS high.
  */
 
-SPI_MODE3;  // Mode 1 or 3 allowed, we're using 1
+SPI_MODE3;  // Mode 1 or 3 allowed, we're using 3
 
 const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
 SPI_INITFUNC_IMPL(max31856, baudrate)

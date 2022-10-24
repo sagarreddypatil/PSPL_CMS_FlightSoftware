@@ -1,3 +1,13 @@
-#include <spi_device_impl.h>
-#include <w5500.h>
+// #include <w5500.h>
+// #include <spi_device_impl.h>
+
+// const uint baudrate = 80 * 1000 * 1000; //80 mHz, max for W5500
+
+// SPI_MODE3;
+// SPI_INITFUNC_IMPL(w5500, baudrate); 
+// //read a single register from w5500
+
+
+
+
 
