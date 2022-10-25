@@ -11,5 +11,6 @@
     "gpio.h": "c",
     "stdio.h": "c"
   },
-  "cmake.configureOnEdit": false
+  "cmake.configureOnEdit": false,
+  "cmake.sourceDirectory": "${workspaceFolder}/build/_deps/pico_sdk-src/src/host/pico_stdlib"
 }

@@ -6,6 +6,40 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 #pragma once
 #include <spi_device.h>
 
+//Block Select Bits
+#define COMMON 0b00000
+#define SOCKET0 0b00001 
+#define SOCKET0_TX 0b00010
+#define SOCKET0_RX 0b00011
+
+#define SOCKET1 0b00110
+#define SOCKET1_TX 0b00111
+#define SOCKET1_RX 0b01000
+
+#define SOCKET2 0b01010
+#define SOCKET2_TX 0b01011
+#define SOCKET2_RX 0b01100
+
+#define SOCKET3 0b01110
+#define SOCKET3_TX 0b01111
+#define SOCKET3_RX 0b10000
+
+#define SOCKET4 0b10010
+#define SOCKET4_TX 0b10011
+#define SOCKET4_RX 0b10100
+
+#define SOCKET5 0b10101 
+#define SOCKET5_TX 0b10110
+#define SOCKET5_RX 0b10111
+
+#define SOCKET6 0b11001  
+#define SOCKET6_TX 0b11010
+#define SOCKET6_RX 0b11011
+
+#define SOCKET7 0b11101  
+#define SOCKET7_TX 0b11110
+#define SOCKET7_RX 0b11111
+
 /*===============================
 Common Register Addresses pg 32
 ===============================*/
