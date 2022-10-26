@@ -21,7 +21,7 @@ const uint baudrate = 80 * 1000 * 1000; //80 mHz, max for W5500
 SPI_MODE3;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
-//read a single register from w5500
+//read & write data to any register on the w5500
 void w5500_transfer(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, uint8_t rw, void* data, size_t len) 
 {
     uint8_t src[len + 1]; //rp2040 DO to w5500 DI
