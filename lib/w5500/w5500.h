@@ -7,38 +7,7 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 #include <spi_device.h>
 
 //Block Select Bits
-#define COMMON 0b00000
-#define SOCKET0 0b00001 
-#define SOCKET0_TX 0b00010
-#define SOCKET0_RX 0b00011
 
-#define SOCKET1 0b00110
-#define SOCKET1_TX 0b00111
-#define SOCKET1_RX 0b01000
-
-#define SOCKET2 0b01010
-#define SOCKET2_TX 0b01011
-#define SOCKET2_RX 0b01100
-
-#define SOCKET3 0b01110
-#define SOCKET3_TX 0b01111
-#define SOCKET3_RX 0b10000
-
-#define SOCKET4 0b10010
-#define SOCKET4_TX 0b10011
-#define SOCKET4_RX 0b10100
-
-#define SOCKET5 0b10101 
-#define SOCKET5_TX 0b10110
-#define SOCKET5_RX 0b10111
-
-#define SOCKET6 0b11001  
-#define SOCKET6_TX 0b11010
-#define SOCKET6_RX 0b11011
-
-#define SOCKET7 0b11101  
-#define SOCKET7_TX 0b11110
-#define SOCKET7_RX 0b11111
 
 /*===============================
 Common Register Addresses pg 32
@@ -162,22 +131,41 @@ static const uint8_t w5500_socket_frag1 = 0x2E;
 static const uint8_t w5500_socket_pmru0 = 0x2F;  // Socket Keep Alive Time Register
 
 typedef enum {
-  w5500_socket0,
-  w5500_socket1,
-  w5500_socket2,
-  w5500_socket3,
-  w5500_socket4,
-  w5500_socket5,
-  w5500_socket6,
-  w5500_socket7,
-} w5500_socket_t;
+ common = 0x00,
+ socket0 =  0x01,  
+ socket0_tx  = 0x02,
+ socket0_rx  = 0x03,
 
-typedef enum {
-  w5500_socket_closed,
-  w5500_socket_tcp,
-  w5500_socket_udp,
-  w5500_socket_macraw,
-} w5500_socket_mode_t;
+ socket1 = 0x05,
+ socket1_tx = 0x06,
+ socket1_rx = 0x07,
+
+ socket2 = 0x09,
+ socket2_tx = 0x0A,
+ socket2_rx = 0x0B,
+
+ socket3 = 0x0D,
+ socket3_tx = 0x0E,
+ socket3_rx = 0x0F,
+
+ socket4 = 0x11,
+ socket4_tx = 0x12,
+ socket4_rx = 0x13,
+
+ socket5 = 0x15, 
+ socket5_tx = 0x16,
+ socket5_rx = 0x17,
+
+ socket6 = 0x19,  
+ socket6_tx = 0x1A,
+ socket6_rx = 0x1B,
+
+ socket7 = 0x1D,  
+ socket7_tx = 0x1E,
+ socket7_rx = 0x1F,
+} block_select_t;
+
+
 
 typedef uint8_t ip_addr_t[4];
 
@@ -185,20 +173,55 @@ SPI_INITFUNC(w5500);
 
 /*Functions*/
 
-uint8_t w5500_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg);  // Read from single register
-void w5500_wreg_byte(SPI_DEVICE_PARAM, uint8_t reg);     // Write to single register
+void w5500_transfer(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, uint8_t rw, void* data, size_t len);
 
-void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);  // Set source ip address of ws5500
-void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);                                                // Enable or disable wake on lan
-void ws5500_config_socket(SPI_DEVICE_PARAM,
-                          w5500_socket_t socket, w5500_socket_mode_t mode,  // Set socket mode
-                          uint16_t src_port,                                // Set source port
-                          ip_addr_t dst_ip, uint16_t dst_port,              // Set destination ip and port
-                          bool multicast);                                  // Enable or disable multicast, uses destination ip as multicast ip
+void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);
 
-void w5500_write(SPI_DEVICE_PARAM, w5500_socket_t socket, void* data, size_t len);  // writes to tx buffer of socket
-uint16_t w5500_free(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // returns free space in tx buffer of socket
-void w5500_transmit(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // sends all data in tx buffer of socket over ethernet
 
-uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_socket_t socket);  // checks if data is available
-void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t socket);           // reads in all data from rx buffer of socket
+
+
+
+
+
+
+
+
+
+
+
+// //typedef enum {
+//   w5500_socket0,
+//   w5500_socket1,
+//   w5500_socket2,
+//   w5500_socket3,
+//   w5500_socket4,
+//   w5500_socket5,
+//   w5500_socket6,
+//   w5500_socket7,
+// //} w5500_socket_t;
+
+// //typedef enum {
+//   w5500_socket_closed,
+//   w5500_socket_tcp,
+//   w5500_socket_udp,
+//   w5500_socket_macraw,
+// //} w5500_socket_mode_t;
+
+
+
+
+  // Set source ip address of ws5500
+//void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);                                                // Enable or disable wake on lan
+// void ws5500_config_socket(SPI_DEVICE_PARAM,
+//                           w5500_socket_t socket, w5500_socket_mode_t mode,  // Set socket mode
+//                           uint16_t src_port,                                // Set source port
+//                           ip_addr_t dst_ip, uint16_t dst_port,              // Set destination ip and port
+//                           bool multicast);                                  // Enable or disable multicast, uses destination ip as multicast ip
+
+// void w5500_write(SPI_DEVICE_PARAM, w5500_socket_t socket, void* data, size_t len);  // writes to tx buffer of socket
+// uint16_t w5500_free(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // returns free space in tx buffer of socket
+// void w5500_transmit(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // sends all data in tx buffer of socket over ethernet
+
+// uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_socket_t socket);  // checks if data is available
+// void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t socket);           // reads in all data from rx buffer of socket
+
