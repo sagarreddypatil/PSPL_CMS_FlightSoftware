@@ -6,6 +6,9 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 #pragma once
 #include <spi_device.h>
 
+#define READ 0
+#define WRITE 1
+
 //Block Select Bits
 
 
@@ -167,14 +170,16 @@ typedef enum {
 
 
 
+
+
 typedef uint8_t ip_addr_t[4];
 
 SPI_INITFUNC(w5500);
 
 /*Functions*/
 
-void w5500_transfer(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, uint8_t rw, void* data, size_t len);
-
+void w5500_wreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
+void w5500_rreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
 void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);
 
 
@@ -189,16 +194,6 @@ void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t 
 
 
 
-// //typedef enum {
-//   w5500_socket0,
-//   w5500_socket1,
-//   w5500_socket2,
-//   w5500_socket3,
-//   w5500_socket4,
-//   w5500_socket5,
-//   w5500_socket6,
-//   w5500_socket7,
-// //} w5500_socket_t;
 
 // //typedef enum {
 //   w5500_socket_closed,
