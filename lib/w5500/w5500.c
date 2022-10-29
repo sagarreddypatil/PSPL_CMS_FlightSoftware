@@ -16,8 +16,22 @@
 
 #define OM_MASK 0x02 //Operation Mode Bits
 
+#define MULTICAST_BLOCK_MASK 0x01 //Multicast Bit
 
-const uint baudrate = 80 * 1000 * 1000; //80 mHz, max for W5500
+#define BROADCAST_BLOCK_MASK 0x01 //Broadcast blocking bit
+#define BROADCAST_BLOCK_SHIFT 1
+
+#define IGMP_MASK 0x01 //IGMP Version selection bit
+#define IGMP_SHIFT 2
+
+#define UNICAST_BLOCK_MASK 0x01
+#define UNICAST_BLOCK_SHIFT 3
+
+#define PROTOCOL_MASK 0x04
+#define PROTOCOL_SHIFT 4
+
+
+const uint baudrate = 50 * 1000 * 1000; //50 mHz, max for rp2040
 
 
 SPI_MODE3;
@@ -56,8 +70,7 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
 }
 
 void w5500_config_socket( SPI_DEVICE_PARAM, uint8_t src_port[2], block_select_t bsb, 
-w5500_socket_mode_t mode, buf_size_t* rxbuf, buf_size_t* txbuf ,
-ip_addr_t dst_ip, uint8_t dst_port[2], uint8_t multicast)
+buf_size_t* rxbuf, buf_size_t* txbuf ,ip_addr_t dst_ip, uint8_t dst_port[2])
 {   
     //Src Port
     w5500_wreg(spi, w5500_socket_sport0, bsb, src_port, 2);
@@ -71,12 +84,12 @@ ip_addr_t dst_ip, uint8_t dst_port[2], uint8_t multicast)
     w5500_wreg(spi, w5500_socket_rbuf_size, bsb, rxbuf, 1);
 }
 
+void w5500_socket_mode(w5500_socket_mode_t mode, w5500_socket_command_t command, 
+block_select_t socket, bool multicast, bool broadcast_block, bool igmp_v, bool unicast_block)
+{
+
+}
 
 
-
-
-//Make buffers pointers
-//data buffer is what you want to read to chip or write from chip
-//Check datasheet on how phase control works
 
 
