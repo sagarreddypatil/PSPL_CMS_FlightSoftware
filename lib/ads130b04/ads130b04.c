@@ -11,13 +11,15 @@ SPI_INITFUNC_IMPL(ads130b04, baudrate)
 #define WREG_AND_MASK 0x7FFF  //  0b0111111111111111
 #define WREG_OR_MASK 0x6000   //  0b0110000000000000
 
-#define RREG_AND_MASK 0xbfff  //  0b1011111111111111
+#define RREG_AND_MASK 0xbFFF  //  0b1011111111111111
 #define RREG_OR_MASK 0xa000   //  0b1010000000000000
 
 //                                 FEDCBA9876543210
-#define MODE_AND_MASK 0x3f12  // 0b0011111100010010
+#define MODE_AND_MASK 0x3F12  // 0b0011111100010010
 
 #define GAIN_AND_MASK 0x7777  // 0b0111011101110111
+
+#define CLOCK_AND_MASK 0xF9F  // 0b0000111110011111
 
 #define CH_CFG_AND_MASK 0x3  // 0b0000000000000011
 
@@ -35,21 +37,21 @@ SPI_INITFUNC_IMPL(ads130b04, baudrate)
            SET_BIT(DRDY_HiZ, 1),                                                  \
        MODE_AND_MASK, 0)
 
-enum GAIN_SETTINGS {
-  GAIN_1   = 0,
-  GAIN_2   = 1,
-  GAIN_4   = 2,
-  GAIN_8   = 3,
-  GAIN_16  = 4,
-  GAIN_32  = 5,
-  GAIN_64  = 6,
-  GAIN_128 = 7,
-};
+// Gain
 
 #define GAIN(CH0, CH1, CH2, CH3) \
   MASK(SET_BITS(CH0, 12, 3) | SET_BITS(CH1, 8, 3) | SET_BITS(CH2, 4, 3) | SET_BITS(CH3, 0, 3), GAIN_AND_MASK, 0)
 
-enum CH_CFG_SETTINGS {
+// Clock
+
+#define CLOCK(CH0_EN, CH1_EN, CH2_EN, CH3_EN, CLK_SEL, OSR, PWR)                                                   \
+  MASK(SET_BIT(CH3_EN, 11) | SET_BIT(CH2_EN, 10) | SET_BIT(CH1_EN, 9) | SET_BIT(CH0_EN, 8) | SET_BIT(CLK_SEL, 7) | \
+           SET_BITS(OSR, 2, 2) | SET_BITS(PWR, 0, 2),                                                              \
+       CLOCK_AND_MASK, 0)
+
+// Channel Configuration
+
+enum CH_CFG_SETTING {
   AIN0P_AND_AIN0N             = 0,  // AIN0P and AIN0N
   AIN0_DISCONNECTED_ADC_SHORT = 1,  // AIN0 disconnected, ADC inputs shorted
   POS_DC_TEST_SIGNAL          = 2,  // Positive DC test signal
@@ -67,23 +69,30 @@ void ads130b04_init(SPI_DEVICE_PARAM) {
   SPI_WRITE(src, 6);
 }
 
-void ads130b04_wreg_single(SPI_DEVICE_PARAM, uint8_t reg, uint16_t data, size_t len) {
+void ads130b04_wreg_single(SPI_DEVICE_PARAM, uint8_t reg, uint16_t data) {
   uint16_t command[2] = {WREG(reg, 1), data};
   SPI_WRITE16(command, 2);
 }
 
-uint16_t ads130b04_rreg_single(SPI_DEVICE_PARAM, uint8_t reg, size_t len) {
-  uint16_t data[6];
+uint16_t ads130b04_rreg_single(SPI_DEVICE_PARAM, uint8_t reg) {
+  uint16_t data[5];
 
-  uint16_t command = READ(reg, len);
+  uint16_t command = READ(reg, 1);
   SPI_WRITE16(&command, 1);
-  SPI_READ16(data, len);
-  return data[5]; // TODO: Get data
+  SPI_READ16(data, 5);
+  return data[4];  // TODO: Get data from the channels while waiting for response
 }
 
-
 uint16_t ads130b04_read_data(SPI_DEVICE_PARAM) {
-    uint16_t data[6];
-    SPI_READ16(data,6);
-    return data[0];
+  uint16_t data[5];
+  SPI_READ16(data, 5);
+  return data[0];
+}
+
+void ads130b04_set_gain(SPI_DEVICE_PARAM, ads130b04_GAIN_SETTING gain_setting) {
+  ads130b04_wreg_single(spi, ads130b04_mode, GAIN(gain_setting, 0, 0, 0));
+}
+
+void ads130b04_set_sample_rate(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads130b04_SAMPLE_RATE sampleRate) {
+  ads130b04_wreg_single(spi, ads130b04_mode, CLOCK(ch0, ch1, ch2, ch3, 0, sampleRate, HIGH_RESOLUTION));
 }
