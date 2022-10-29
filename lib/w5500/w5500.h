@@ -168,7 +168,26 @@ typedef enum {
  socket7_rx = 0x1F,
 } block_select_t;
 
+typedef enum {
+  w5500_socket_closed,
+  w5500_socket_tcp,
+  w5500_socket_udp,
+  w5500_socket_macraw,
+} w5500_socket_mode_t;
 
+typedef enum {
+  w5500_socket_open = 0x01,
+  w5500_socket_close = 0x10,
+
+} w5500_socket_command_t;
+
+typedef enum {
+   one = 0x01,
+   two = 0x02,
+   four = 0x04,
+   eight = 0x08,
+   sixteen = 0x16,
+} buf_size_t;
 
 
 
@@ -180,33 +199,17 @@ SPI_INITFUNC(w5500);
 
 void w5500_wreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
 void w5500_rreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
-void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);
+void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);
+//Multicast, IGMP configured by default (still not sure what version)
+void w5500_config_socket( SPI_DEVICE_PARAM, uint8_t src_port[2], block_select_t bsb, 
+w5500_socket_mode_t mode, buf_size_t* rxbuf, buf_size_t* txbuf ,
+ip_addr_t dst_ip, uint8_t dst_port[2], bool multicast);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// //typedef enum {
-//   w5500_socket_closed,
-//   w5500_socket_tcp,
-//   w5500_socket_udp,
-//   w5500_socket_macraw,
-// //} w5500_socket_mode_t;
-
-
-
-
-  // Set source ip address of ws5500
-//void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);                                                // Enable or disable wake on lan
+//set socket to open / close
+void w5500_socket_mode(w5500_socket_command_t mode, block_select_t socket);
+void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);     
+uint16_t w5500_free(SPI_DEVICE_PARAM, block_select_t bsb);
+uint16_t w5500_available(SPI_DEVICE_PARAM, block_select_t bsb);  // checks if data is available                                             // Enable or disable wake on lan
 // void ws5500_config_socket(SPI_DEVICE_PARAM,
 //                           w5500_socket_t socket, w5500_socket_mode_t mode,  // Set socket mode
 //                           uint16_t src_port,                                // Set source port
@@ -214,9 +217,9 @@ void ws5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t 
 //                           bool multicast);                                  // Enable or disable multicast, uses destination ip as multicast ip
 
 // void w5500_write(SPI_DEVICE_PARAM, w5500_socket_t socket, void* data, size_t len);  // writes to tx buffer of socket
-// uint16_t w5500_free(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // returns free space in tx buffer of socket
+                     // returns free space in tx buffer of socket
 // void w5500_transmit(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // sends all data in tx buffer of socket over ethernet
 
-// uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_socket_t socket);  // checks if data is available
+
 // void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t socket);           // reads in all data from rx buffer of socket
 
