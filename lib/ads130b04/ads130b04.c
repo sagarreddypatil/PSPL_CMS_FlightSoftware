@@ -93,6 +93,7 @@ void ads130b04_set_gain(SPI_DEVICE_PARAM, ads130b04_GAIN_SETTING gain_setting) {
   ads130b04_wreg_single(spi, ads130b04_mode, GAIN(gain_setting, 0, 0, 0));
 }
 
-void ads130b04_set_sample_rate(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads130b04_SAMPLE_RATE sampleRate) {
-  ads130b04_wreg_single(spi, ads130b04_mode, CLOCK(ch0, ch1, ch2, ch3, 0, sampleRate, HIGH_RESOLUTION));
+void ads130b04_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads130b04_SAMPLE_RATE sampleRate,
+                        ads130b04_PWR_SETTING powerSetting) {
+  ads130b04_wreg_single(spi, ads130b04_mode, CLOCK(ch0, ch1, ch2, ch3, 0, sampleRate, powerSetting));
 }

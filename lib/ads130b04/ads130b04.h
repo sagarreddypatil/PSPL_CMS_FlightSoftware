@@ -57,4 +57,5 @@ uint16_t ads130b04_read_data(SPI_DEVICE_PARAM);
 
 void ads130b04_set_gain(SPI_DEVICE_PARAM, ads130b04_GAIN_SETTING gain_setting);
 
-void ads130b04_set_sample_rate(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads130b04_SAMPLE_RATE sampleRate);
+void ads130b04_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads130b04_SAMPLE_RATE sampleRate,
+                        ads130b04_PWR_SETTING powerSetting);
