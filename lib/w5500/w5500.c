@@ -24,10 +24,10 @@
 #define IGMP_MASK 0x01 //IGMP Version selection bit
 #define IGMP_SHIFT 2
 
-#define UNICAST_BLOCK_MASK 0x01
+#define UNICAST_BLOCK_MASK 0x01 //Unicast blocking bit
 #define UNICAST_BLOCK_SHIFT 3
 
-#define PROTOCOL_MASK 0x04
+#define PROTOCOL_MASK 0x04 //Protocol selection bits
 #define PROTOCOL_SHIFT 4
 
 
@@ -84,12 +84,23 @@ buf_size_t* rxbuf, buf_size_t* txbuf ,ip_addr_t dst_ip, uint8_t dst_port[2])
     w5500_wreg(spi, w5500_socket_rbuf_size, bsb, rxbuf, 1);
 }
 
-void w5500_socket_mode(w5500_socket_mode_t mode, w5500_socket_command_t command, 
+void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_socket_mode_t protocol, w5500_socket_command_t* command, 
 block_select_t socket, bool multicast, bool broadcast_block, bool igmp_v, bool unicast_block)
-{
-
+{   //Creating Mode Byte
+    uint8_t config = MS(protocol, PROTOCOL_MASK, PROTOCOL_SHIFT) & 
+                     MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) &
+                     MS(igmp_v, IGMP_MASK, IGMP_SHIFT) &
+                     MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
+                     (MULTICAST_BLOCK_MASK & multicast);
+    //Writing to Mode Register
+    w5500_wreg(spi, w5500_socket_mr, socket, &config, 1);
+    //Writing to Command Register
+    w5500_wreg(spi, w5500_socket_cr, socket, command, 1);
 }
 
-
+uint16_t w5500_free(SPI_DEVICE_PARAM, block_select_t bsb)
+{
+    
+}
 
 

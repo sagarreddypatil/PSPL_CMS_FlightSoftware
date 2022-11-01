@@ -207,11 +207,9 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
 void w5500_config_socket( SPI_DEVICE_PARAM, uint8_t src_port[2], block_select_t bsb, 
 buf_size_t* rxbuf, buf_size_t* txbuf ,
 ip_addr_t dst_ip, uint8_t dst_port[2]);
-
 //config socket mode and command registers
-void w5500_socket_mode(w5500_socket_mode_t mode, w5500_socket_command_t command, 
-block_select_t socket, bool multicast, bool broadcast_block, bool igmp, bool unicast_block
-);
+void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_socket_mode_t protocol, w5500_socket_command_t* command, 
+block_select_t socket, bool multicast, bool broadcast_block, bool igmp_v, bool unicast_block);
 void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);     
 uint16_t w5500_free(SPI_DEVICE_PARAM, block_select_t bsb);
 uint16_t w5500_available(SPI_DEVICE_PARAM, block_select_t bsb);  // checks if data is available                                             // Enable or disable wake on lan
