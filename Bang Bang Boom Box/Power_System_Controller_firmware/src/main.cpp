@@ -3,7 +3,7 @@
 #define INPUT_SIZE 37  // Max number of bytes expected to come over in a command (1 char + 9 longs)
 #define NUM_INPUTS 10  // Max number of different inputs we expect
 #define INPUT_SIZE1 100  // Max number of bytes to come over from charger Rx
-#define BUAD 4800
+#define BUAD 9600
 
 bool debugging = false;
 String allStatus;
@@ -210,15 +210,15 @@ void loop() {
   if (cmd == 'i' && (cmd_parameter[1] < 1000) ){    //set output current
     switch (cmd_parameter[0]){
     case 0:
-        Serial.println("Drok 0 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial.println("Drok 0 Set to: " + String(cmd_parameter[1] / 100.0) + " Amps");
         Serial1.println("awi" + String(cmd_parameter[1]) );
       break;
     case 1:
-        Serial.println("Drok 1 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial.println("Drok 1 Set to: " + String(cmd_parameter[1] / 100.0) + " Amps");
         Serial2.println("awi" + String(cmd_parameter[1]) );
     break;
     case 2:
-        Serial.println("Drok 2 Set to: " + String(cmd_parameter[1] / 100.0) + "A");
+        Serial.println("Drok 2 Set to: " + String(cmd_parameter[1] / 100.0) + " Amps");
         Serial3.println("awi" + String(cmd_parameter[1]) );
     break;
 
@@ -231,12 +231,12 @@ void loop() {
 
   /* 
   cmd_parameter[Drok #, read or voltage]
-  s,0,0 - Drok 0 reading volatge 
-  s,0,1 - Drok 0 reading current 
-  s,1,0 - Drok 1 reading volatge 
-  s,1,1 - Drok 1 reading current 
-  s,2,0 - Drok 2 reading volatge
-  s,2,1 - Drok 2 reading current  
+  s,0,1 - Drok 0 reading volatge 
+  s,0,0 - Drok 0 reading current 
+  s,1,1 - Drok 1 reading volatge 
+  s,1,0 - Drok 1 reading current 
+  s,2,1 - Drok 2 reading volatge
+  s,2,0 - Drok 2 reading current  
   */
   if (cmd == 's'){    //Read the output currernt and voltage
   String reading_s = "";
@@ -287,7 +287,7 @@ void loop() {
       default:
         break;
       }
-      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + "Amps");
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + " Amps");
     break;
     
     case 1:
@@ -332,7 +332,7 @@ void loop() {
       default:
         break;
       }
-      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + "Volts");
+      Serial.println("Drok: " + String(cmd_parameter[0]) + " is outputing " + String(reading_i / 100.0) + " Volts");
     break;
 
     default:

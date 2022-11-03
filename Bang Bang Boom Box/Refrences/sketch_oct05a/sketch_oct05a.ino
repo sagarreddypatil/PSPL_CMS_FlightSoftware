@@ -45,7 +45,7 @@ byte size;  // Size of the incoming command as read from Serial
 void setup() {
   // External comms over serial0, comms with chargers on serial1
   Serial.begin(115200);
-  Serial1.begin(9600);
+  Serial1.begin(4800);
   delay(100);
   Serial.println("DroneHome Charger Starting");
 
