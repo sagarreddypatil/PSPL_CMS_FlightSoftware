@@ -107,8 +107,8 @@ static const uint8_t w5500_socket_mssr0     = 0x12;
 static const uint8_t w5500_socket_mssr1     = 0x13;
 static const uint8_t w5500_socket_tos       = 0x15;  // Type of Service Register
 static const uint8_t w5500_socket_ttl       = 0x16;  // Time to Live Configuration Register
-static const uint8_t w5500_socket_rbuf_size = 0x1E;  // Socket Rx Buffer Size Register
-static const uint8_t w5500_socket_tbuf_size = 0x1F;  // Socket Tx Buffer Size Register
+static const uint8_t w5500_socket_rxbuf_size = 0x1E;  // Socket Rx Buffer Size Register
+static const uint8_t w5500_socket_txbuf_size = 0x1F;  // Socket Tx Buffer Size Register
 // Socket Tx Free Size Registers
 static const uint8_t w5500_socket_tx_fsr0 = 0x20;
 static const uint8_t w5500_socket_tx_fsr1 = 0x21;
@@ -136,61 +136,37 @@ static const uint8_t w5500_socket_pmru0 = 0x2F;  // Socket Keep Alive Time Regis
 typedef enum {
  common = 0x00,
  socket0 =  0x01,  
- socket0_tx  = 0x02,
- socket0_rx  = 0x03,
-
  socket1 = 0x05,
- socket1_tx = 0x06,
- socket1_rx = 0x07,
-
  socket2 = 0x09,
- socket2_tx = 0x0A,
- socket2_rx = 0x0B,
-
  socket3 = 0x0D,
- socket3_tx = 0x0E,
- socket3_rx = 0x0F,
-
  socket4 = 0x11,
- socket4_tx = 0x12,
- socket4_rx = 0x13,
-
  socket5 = 0x15, 
- socket5_tx = 0x16,
- socket5_rx = 0x17,
-
  socket6 = 0x19,  
- socket6_tx = 0x1A,
- socket6_rx = 0x1B,
-
  socket7 = 0x1D,  
- socket7_tx = 0x1E,
- socket7_rx = 0x1F,
-} block_select_t;
+} w5500_sn_t;
 
 typedef enum {
   w5500_socket_closed = 0x00,
   w5500_socket_tcp = 0x01,
   w5500_socket_udp = 0x02,
   w5500_socket_macraw = 0x04,
-} w5500_socket_mode_t;
+} w5500_sn_mr_t;
 
 typedef enum {
   w5500_socket_open = 0x01,
   w5500_socket_close = 0x10,
   w5500_socket_send = 0x20,
   w5500_socket_send_mac = 0x21,
-  w5500_socket_recv = 0x40
-
-} w5500_socket_command_t;
+  w5500_socket_recv = 0x40,
+} w5500_sn_cr_t;
 
 typedef enum {
-   one = 0x01,
-   two = 0x02,
-   four = 0x04,
-   eight = 0x08,
-   sixteen = 0x16,
-} buf_size_t;
+   one = 1,
+   two = 2,
+   four = 4,
+   eight = 8,
+   sixteen = 16,
+} w5500_sn_buf_size_t;
 
 
 
@@ -199,24 +175,25 @@ typedef uint8_t ip_addr_t[4];
 SPI_INITFUNC(w5500);
 
 /*Functions*/
-
-void w5500_wreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
-void w5500_rreg(SPI_DEVICE_PARAM, uint8_t reg, block_select_t bsb, void* data, size_t len);
-void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask);
+//Read and write to single register
+void w5500_wreg(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len);
+void w5500_rreg(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len);
+//Config w5500 chip
+void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, bool wol);
 //config socket ports and buffers
-void w5500_config_socket( SPI_DEVICE_PARAM, uint8_t src_port[2], block_select_t bsb, 
-buf_size_t* rxbuf, buf_size_t* txbuf ,
-ip_addr_t dst_ip, uint8_t dst_port[2]);
+void w5500_config_socket( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
+w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_t dst_port);
+
 //config socket mode and command registers
-void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_socket_mode_t protocol, w5500_socket_command_t* command, 
-block_select_t socket, bool multicast, bool broadcast_block, bool igmp_v, bool unicast_block);
-void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);     
-uint16_t w5500_free(SPI_DEVICE_PARAM, block_select_t bsb);
-uint16_t w5500_available(SPI_DEVICE_PARAM, block_select_t bsb);  // checks if data is available                                             // Enable or disable wake on lan
+void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, 
+w5500_sn_t sn, bool multicast, bool broadcast_block, bool unicast_block);
+
+uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
+uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);  // checks if data is available                                             // Enable or disable wake on lan
 
 
 // void w5500_transmit(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // sends all data in tx buffer of socket over ethernet
-
+// uint
 
 
 
