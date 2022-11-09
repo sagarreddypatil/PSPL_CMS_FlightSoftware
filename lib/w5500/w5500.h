@@ -188,12 +188,13 @@ w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_
 void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, 
 w5500_sn_t sn, bool multicast, bool broadcast_block, bool unicast_block);
 
+//Check free space in TX buffer
 uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
-uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);  // checks if data is available                                             // Enable or disable wake on lan
+//Check if data is available to read
+uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);
+//Transmit to network
+void w5500_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
-
-// void w5500_transmit(SPI_DEVICE_PARAM, w5500_socket_t socket);                       // sends all data in tx buffer of socket over ethernet
-// uint
 
 
 

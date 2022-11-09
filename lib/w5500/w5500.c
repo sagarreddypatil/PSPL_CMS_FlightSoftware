@@ -4,6 +4,7 @@
 
 #define MS(x, mask, shift) x & mask << shift
 #define SET_BITS(x, name) (((x) & name##_MASK) << name##_SHIFT)
+#define CONCATBYTES(x1, x2) (x1 << 8 | x2)
 
 #define ADDR_MASK 0x7F //Address Mask
 #define ADDR_SHIFT 7
@@ -85,7 +86,7 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
                      MS(1, PING_BLOCK_MASK, PING_BLOCK_SHIFT) & //Not sure if we should block ping requests
                      MS(0, PPPoE_MASK, PPPoE_SHIFT) &
                      MS(0, FARP_MASK, FARP_SHIFT);
-    w5500_wreg(spi, w5500_mr, common, &config);
+    w5500_wreg(spi, w5500_mr, common,  &config, 1);
 }
 
 void w5500_config_socket( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
@@ -122,11 +123,28 @@ w5500_sn_t sn, bool multicast, bool broadcast_block, bool unicast_block)
 
 uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   //Reading TX Free Size Range
-    uint8_t data[2];
+    uint8_t data[3];
     w5500_rreg(spi, w5500_socket_tx_fsr0, sn, data, 2);
-    return (data[0] << 8 & data[1]);
+    return CONCATBYTES(data[0], data[1]);
 }
 
+uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
+{   
+    uint8_t data[3];
+    //Recieved data size (space used in RX Buffer)
+    w5500_rreg(spi, w5500_socket_rsr0, sn, data, 2);
+    uint16_t data_size = CONCATBYTES(data[0], data[1]);
+    //RX Buffer total size
+    w5500_rreg(spi, w5500_socket_rxbuf_size, sn, data, 1);
+    uint16_t buf_size = data[0] * 1000;
+    return (buf_size - data_size);
+}
+
+void w5500_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
+{
+    uint8_t data[1] = {w5500_socket_send};
+    w5500_wreg(spi, w5500_socket_cr, sn, data, 1);
+}
 
 
 
