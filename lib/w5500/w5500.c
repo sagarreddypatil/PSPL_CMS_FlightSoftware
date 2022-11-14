@@ -2,6 +2,8 @@
 #include <spi_device_impl.h>
 #include <string.h>
 
+#define R 0
+#define W 1
 #define MS(x, mask, shift) x & mask << shift
 #define SET_BITS(x, name) (((x) & name##_MASK) << name##_SHIFT)
 #define CONCATBYTES(x1, x2) (x1 << 8 | x2)
@@ -50,43 +52,39 @@ const uint baudrate = 50 * 1000 * 1000; //50 mHz, max for rp2040
 SPI_MODE3;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
-
-//write to registers starting from reg
-void w5500_wreg(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len)
+//Read write to register
+void w5500_rw(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len, bool rw)
 {
+    if(rw)
+    {
     uint8_t src[len + 2];
     //Setting address and block select bits for transmission
     src[0] = reg;
-    src[1] = MS(sn, SN_MASK, SN_SHIFT) & MS(WRITE, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
+    src[1] = MS(sn, SN_MASK, SN_SHIFT) & MS(W, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
     //Copy data into src and write to register
     memcpy(src+2, data, len);
     SPI_WRITE(src, len);
-}
-//read from registers starting from reg
-void w5500_rreg(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len)
-{
+    }
+    else
+    {
     uint8_t dst[len+1];
     uint8_t src[1];
-    src[0] = MS(sn, SN_MASK, SN_SHIFT) & MS(WRITE, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
+    src[0] = MS(sn, SN_MASK, SN_SHIFT) & MS(R, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
     SPI_TRANSFER(src, dst, len);
     memcpy(data, dst, len);
+    }
 }
 
-void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask,  bool wol)
+void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac)
 {
     //Source IP address configuration
-    w5500_wreg(spi, w5500_sipr0, common, ip, 4);
+    w5500_rw(spi, w5500_sipr0, cmn, ip, 4, W);
     //Gateway IP address configuration
-    w5500_wreg(spi, w5500_gar0, common, gateway, 4);
+    w5500_rw(spi, w5500_gar0, cmn, gateway, 4, W);
     //Subnet Mask Configuration
-    w5500_wreg(spi, w5500_subr0, common, gateway, 4);
-    //Mode Register Configuration
-    uint8_t config = MS(1, SW_RESET_MASK, SW_RESET_SHIFT) &
-                     MS(wol, WOL_MASK, WOL_SHIFT) &
-                     MS(1, PING_BLOCK_MASK, PING_BLOCK_SHIFT) & //Not sure if we should block ping requests
-                     MS(0, PPPoE_MASK, PPPoE_SHIFT) &
-                     MS(0, FARP_MASK, FARP_SHIFT);
-    w5500_wreg(spi, w5500_mr, common,  &config, 1);
+    w5500_rw(spi, w5500_subr0, cmn, gateway, 4, W);
+    //Source Hardware Address Configuration
+    w5500_rw(spi, w5500_shar0, cmn, mac, 6, W);
 }
 
 void w5500_config_socket( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
@@ -96,35 +94,33 @@ w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_
     uint8_t dst_port_buf[3] = {dst_port >> 8, dst_port};
     
     //Src Port
-    w5500_wreg(spi, w5500_socket_sport0, sn, src_port_buf, 2);
+    w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
     //Destination Port IP Address
-    w5500_wreg(spi, w5500_socket_dport0, sn, dst_port_buf, 2);
+    w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
     //Destination IP Address
-    w5500_wreg(spi, w5500_socket_dipr0, sn, dst_ip, 4);
+    w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
     //Tx Buffer Size
-    w5500_wreg(spi, w5500_socket_txbuf_size, sn, &txbuf , 1);
+    w5500_rw(spi, w5500_sn_txbuf_size, sn, &txbuf , 1, W);
     //Rx Buffer Size
-    w5500_wreg(spi, w5500_socket_rxbuf_size, sn, &rxbuf, 1);
+    w5500_rw(spi, w5500_sn_rxbuf_size, sn, &rxbuf, 1, W);
 }
 
-void w5500_socket_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, 
-w5500_sn_t sn, bool multicast, bool broadcast_block, bool unicast_block)
-{   //Creating Mode Byte
+void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t sn_mode, 
+w5500_sn_t sn, bool multicast, bool unicast_block)
+{
     uint8_t config = MS(protocol, PROTOCOL_MASK, PROTOCOL_SHIFT) & 
                      MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) &
                      MS(0, IGMP_MASK, IGMP_SHIFT) & //IGMP Version 2
-                     MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
+                     MS(1, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
                      (MULTICAST_BLOCK_MASK & multicast);
-    //Writing to Mode Register
-    w5500_wreg(spi, w5500_socket_mr, sn, &config, 1);
-    //Writing to Command Register
-    w5500_wreg(spi, w5500_socket_cr, sn, &cr, 1);
+    w5500_rw(spi, w5500_sn_mr, sn, &config, 1, W);
+    w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
 }
 
 uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   //Reading TX Free Size Range
     uint8_t data[3];
-    w5500_rreg(spi, w5500_socket_tx_fsr0, sn, data, 2);
+    w5500_rw(spi, w5500_sn_tx_fsr0, sn, data, 2, R);
     return CONCATBYTES(data[0], data[1]);
 }
 
@@ -132,18 +128,18 @@ uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   
     uint8_t data[3];
     //Recieved data size (space used in RX Buffer)
-    w5500_rreg(spi, w5500_socket_rsr0, sn, data, 2);
+    w5500_rw(spi, w5500_sn_rsr0, sn, data, 2, R);
     uint16_t data_size = CONCATBYTES(data[0], data[1]);
     //RX Buffer total size
-    w5500_rreg(spi, w5500_socket_rxbuf_size, sn, data, 1);
+    w5500_rw(spi, w5500_sn_rxbuf_size, sn, data, 1, R);
     uint16_t buf_size = data[0] * 1000;
     return (buf_size - data_size);
 }
 
 void w5500_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {
-    uint8_t data[1] = {w5500_socket_send};
-    w5500_wreg(spi, w5500_socket_cr, sn, data, 1);
+    uint8_t data[1] = {w5500_sn_send};
+    w5500_rw(spi, w5500_sn_cr, sn, data, 1, W);
 }
 
 
