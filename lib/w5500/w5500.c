@@ -87,7 +87,7 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
     w5500_rw(spi, w5500_shar0, cmn, mac, 6, W);
 }
 
-void w5500_config_socket( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
+void w5500_config_sn( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
 w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_t dst_port)
 {   
     uint8_t src_port_buf[3] = {src_port >> 8, src_port};
@@ -95,27 +95,32 @@ w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_
     
     //Src Port
     w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
-    //Destination Port IP Address
-    w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
-    //Destination IP Address
-    w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
     //Tx Buffer Size
     w5500_rw(spi, w5500_sn_txbuf_size, sn, &txbuf , 1, W);
     //Rx Buffer Size
     w5500_rw(spi, w5500_sn_rxbuf_size, sn, &rxbuf, 1, W);
 }
 
+void w5500_sn_dst(w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port)
+{
+    w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
+    //Destination IP Address
+    w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
+}
+
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t sn_mode, 
-w5500_sn_t sn, bool multicast, bool unicast_block)
+w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block)
 {
     uint8_t config = MS(protocol, PROTOCOL_MASK, PROTOCOL_SHIFT) & 
                      MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) &
                      MS(0, IGMP_MASK, IGMP_SHIFT) & //IGMP Version 2
-                     MS(1, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
+                     MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
                      (MULTICAST_BLOCK_MASK & multicast);
     w5500_rw(spi, w5500_sn_mr, sn, &config, 1, W);
     w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
 }
+
+
 
 uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   //Reading TX Free Size Range
@@ -136,7 +141,7 @@ uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
     return (buf_size - data_size);
 }
 
-void w5500_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
+void w5500_sn_send(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {
     uint8_t data[1] = {w5500_sn_send};
     w5500_rw(spi, w5500_sn_cr, sn, data, 1, W);
