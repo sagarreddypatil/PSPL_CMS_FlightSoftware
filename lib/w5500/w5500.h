@@ -158,10 +158,6 @@ typedef enum {
   w5500_sn_recv = 0x40,
 } w5500_sn_cr_t;
 
-
-
-
-
 typedef uint8_t ip_addr_t[4];
 typedef uint8_t mac_t[6];
 
@@ -175,11 +171,11 @@ void w5500_rw(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t l
 //Configure w5500 with IP addr, subnet, mac addr
 void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac);
 
-//Configure socket port and buffer sizes
-void w5500_config_sn(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf);
+//Configure socket port and buffer sizes (Add buffer size checking)
+void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf , ip_addr_t dst_ip, uint16_t dst_port);
 
 //Configure socket destination IP and port
-void w5500_sn_dst(w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port);
+void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port);
 
 //Socket mode register (protocol stuff), & command register (socket open / close)
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block);
@@ -191,7 +187,9 @@ uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
 uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
 //Send data over network
-void w5500_sn_send(SPI_DEVICE_PARAM, w5500_sn_t sn);
+void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);
+//Read data over spi
+void w5500_sn_read(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
 
 

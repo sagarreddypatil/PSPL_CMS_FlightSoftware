@@ -87,11 +87,10 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
     w5500_rw(spi, w5500_shar0, cmn, mac, 6, W);
 }
 
-void w5500_config_sn( SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, 
-w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_t dst_port)
+void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf , ip_addr_t dst_ip, uint16_t dst_port)
 {   
     uint8_t src_port_buf[3] = {src_port >> 8, src_port};
-    uint8_t dst_port_buf[3] = {dst_port >> 8, dst_port};
+    
     
     //Src Port
     w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
@@ -101,8 +100,9 @@ w5500_sn_buf_size_t rxbuf, w5500_sn_buf_size_t txbuf , ip_addr_t dst_ip, uint16_
     w5500_rw(spi, w5500_sn_rxbuf_size, sn, &rxbuf, 1, W);
 }
 
-void w5500_sn_dst(w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port)
+void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port)
 {
+    uint8_t dst_port_buf[3] = {dst_port >> 8, dst_port};
     w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
     //Destination IP Address
     w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
@@ -119,8 +119,6 @@ w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block)
     w5500_rw(spi, w5500_sn_mr, sn, &config, 1, W);
     w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
 }
-
-
 
 uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   //Reading TX Free Size Range
@@ -141,11 +139,13 @@ uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
     return (buf_size - data_size);
 }
 
-void w5500_sn_send(SPI_DEVICE_PARAM, w5500_sn_t sn)
+void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {
     uint8_t data[1] = {w5500_sn_send};
     w5500_rw(spi, w5500_sn_cr, sn, data, 1, W);
 }
 
-
+//Read function
+//multicast igmp messages
+//make sure arp works
 
