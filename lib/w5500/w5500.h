@@ -110,7 +110,7 @@ static const uint8_t w5500_sn_txbuf_size = 0x1F;  // Socket Tx Buffer Size Regis
 // Socket Tx Free Size Registers
 static const uint8_t w5500_sn_tx_fsr0 = 0x20;
 static const uint8_t w5500_sn_tx_fsr1 = 0x21;
-// sn Tx Read Pointer Registers
+// Socket Tx Read Pointer Registers
 static const uint8_t w5500_sn_tx_rd0 = 0x22;
 static const uint8_t w5500_sn_tx_rd1 = 0x23;
 // Socket Tx Write Pointer Registers
@@ -181,15 +181,18 @@ void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t ds
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block);
 
 //Check free space in TX buffer
-uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
+uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
 //Check if data is available to read
 uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
+//write data to sn tx buffer
+void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len);
 //Send data over network
 void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);
 //Read data over spi
-void w5500_sn_read(SPI_DEVICE_PARAM, w5500_sn_t sn);
+void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data);
+
 
 
 

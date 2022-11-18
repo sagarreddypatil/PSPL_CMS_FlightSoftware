@@ -6,7 +6,9 @@
 #define W 1
 #define MS(x, mask, shift) x & mask << shift
 #define SET_BITS(x, name) (((x) & name##_MASK) << name##_SHIFT)
-#define CONCATBYTES(x1, x2) (x1 << 8 | x2)
+#define CONCAT16(x1, x2) (x1 << 8 | x2)
+#define TXBUF(sn) (sn + 1)
+#define RXBUF(sn) (sn + 2)
 
 #define ADDR_MASK 0x7F //Address Mask
 #define ADDR_SHIFT 7
@@ -91,7 +93,6 @@ void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxb
 {   
     uint8_t src_port_buf[3] = {src_port >> 8, src_port};
     
-    
     //Src Port
     w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
     //Tx Buffer Size
@@ -120,11 +121,11 @@ w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block)
     w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
 }
 
-uint16_t w5500_free_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
+uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
 {   //Reading TX Free Size Range
     uint8_t data[3];
     w5500_rw(spi, w5500_sn_tx_fsr0, sn, data, 2, R);
-    return CONCATBYTES(data[0], data[1]);
+    return CONCAT16(data[0], data[1]);
 }
 
 uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
@@ -132,11 +133,30 @@ uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)
     uint8_t data[3];
     //Recieved data size (space used in RX Buffer)
     w5500_rw(spi, w5500_sn_rsr0, sn, data, 2, R);
-    uint16_t data_size = CONCATBYTES(data[0], data[1]);
+    uint16_t data_size = CONCAT16(data[0], data[1]);
     //RX Buffer total size
     w5500_rw(spi, w5500_sn_rxbuf_size, sn, data, 1, R);
     uint16_t buf_size = data[0] * 1000;
     return (buf_size - data_size);
+}
+
+void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len)
+{  
+    uint8_t start_buf[3]; 
+    //Read starting save address of buffer
+    w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, R);
+    uint16_t start = CONCAT16(start_buf[0], start_buf[1]);
+    //Save data to tx buffer if space available
+    if((start + len) < w5500_sn_fs_tx(spi, sn))
+    {
+        w5500_rw(spi, start, TXBUF(sn), data, len, W);
+    }
+    //Increment starting save address by data length
+    start+=len;
+    start_buf[0] = start << 8;
+    start_buf[1] = start;
+    //Save new TX buffer starting address
+    w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, W);
 }
 
 void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
@@ -145,7 +165,23 @@ void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn)
     w5500_rw(spi, w5500_sn_cr, sn, data, 1, W);
 }
 
-//Read function
-//multicast igmp messages
-//make sure arp works
+void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data)
+{
+    uint8_t addr_buf[3]; 
+    //get starting read address of rx buffer
+    w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, R);
+    uint16_t start = CONCAT16(addr_buf[0], addr_buf[1]);
+
+    //get ending read address of rx buffer
+    w5500_rw(spi, w5500_sn_rx_wr0, sn, addr_buf, 2, R);
+    uint16_t end = CONCAT16(addr_buf[0], addr_buf[1]);
+
+    //Read all data in rx buffer from start to end address
+    for(uint16_t i = start; i < end; i++)
+    {
+        w5500_rw(spi, i, RXBUF(sn), data, (start - end), W);
+    }
+    //Update read address of rx buffer
+    w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, W);
+}
 
