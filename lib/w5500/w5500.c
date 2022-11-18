@@ -49,6 +49,8 @@
 
 #define FARP_MASK 0x01 //Force ARP Request
 #define FARP_SHIFT 1
+
+#define TTL_MASK 0xFF
 const uint baudrate = 50 * 1000 * 1000; //50 mHz, max for rp2040
 
 SPI_MODE3;
@@ -126,6 +128,12 @@ uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn)
     uint8_t data[3];
     w5500_rw(spi, w5500_sn_tx_fsr0, sn, data, 2, R);
     return CONCAT16(data[0], data[1]);
+}
+
+void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl)
+{
+    ttl = TTL_MASK & ttl;
+    w5500_rw(spi, w5500_sn_ttl, sn, &ttl, 1, W);
 }
 
 uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn)

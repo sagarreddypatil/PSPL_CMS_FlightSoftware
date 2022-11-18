@@ -180,6 +180,8 @@ void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t ds
 //Socket mode register (protocol stuff), & command register (socket open / close)
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block);
 
+//Time to live register configuration
+void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl);
 //Check free space in TX buffer
 uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
 
