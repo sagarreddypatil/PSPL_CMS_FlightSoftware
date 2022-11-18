@@ -183,5 +183,8 @@ void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data)
     }
     //Update read address of rx buffer
     w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, W);
+    //order recieve command for no reason
+    w5500_sn_cr_t recv  = w5500_sn_recv;
+    w5500_rw(spi, w5500_sn_cr, sn, &recv, 1, W);
 }
 
