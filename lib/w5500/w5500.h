@@ -6,9 +6,7 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 #pragma once
 #include <spi_device.h>
 
-
 //Block Select Bits
-
 
 /*===============================
 Common Register Addresses pg 32
@@ -101,10 +99,10 @@ static const uint8_t w5500_sn_dipr3 = 0x0F;
 static const uint8_t w5500_sn_dport0 = 0x10;
 static const uint8_t w5500_sn_dport1 = 0x11;
 // Socket Maximum Segment Size Registers
-static const uint8_t w5500_sn_mssr0     = 0x12;
-static const uint8_t w5500_sn_mssr1     = 0x13;
-static const uint8_t w5500_sn_tos       = 0x15;  // Type of Service Register
-static const uint8_t w5500_sn_ttl       = 0x16;  // Time to Live Configuration Register
+static const uint8_t w5500_sn_mssr0      = 0x12;
+static const uint8_t w5500_sn_mssr1      = 0x13;
+static const uint8_t w5500_sn_tos        = 0x15;  // Type of Service Register
+static const uint8_t w5500_sn_ttl        = 0x16;  // Time to Live Configuration Register
 static const uint8_t w5500_sn_rxbuf_size = 0x1E;  // Socket Rx Buffer Size Register
 static const uint8_t w5500_sn_txbuf_size = 0x1F;  // Socket Tx Buffer Size Register
 // Socket Tx Free Size Registers
@@ -132,30 +130,30 @@ static const uint8_t w5500_sn_frag1 = 0x2E;
 static const uint8_t w5500_sn_pmru0 = 0x2F;  // Socket Keep Alive Time Register
 
 typedef enum {
- cmn = 0x00,
- sn0 =  0x01,  
- sn1 = 0x05,
- sn2 = 0x09,
- sn3 = 0x0D,
- sn4 = 0x11,
- sn5 = 0x15, 
- sn6 = 0x19,  
- sn7 = 0x1D,  
+  cmn = 0x00,
+  sn0 = 0x01,
+  sn1 = 0x05,
+  sn2 = 0x09,
+  sn3 = 0x0D,
+  sn4 = 0x11,
+  sn5 = 0x15,
+  sn6 = 0x19,
+  sn7 = 0x1D,
 } w5500_sn_t;
 
 typedef enum {
   w5500_sn_closed = 0x00,
-  w5500_sn_tcp = 0x01,
-  w5500_sn_udp = 0x02,
+  w5500_sn_tcp    = 0x01,
+  w5500_sn_udp    = 0x02,
   w5500_sn_macraw = 0x04,
 } w5500_sn_mr_t;
 
 typedef enum {
-  w5500_sn_open = 0x01,
-  w5500_sn_close = 0x10,
-  w5500_sn_send = 0x20,
+  w5500_sn_open     = 0x01,
+  w5500_sn_close    = 0x10,
+  w5500_sn_send     = 0x20,
   w5500_sn_send_mac = 0x21,
-  w5500_sn_recv = 0x40,
+  w5500_sn_recv     = 0x40,
 } w5500_sn_cr_t;
 
 typedef uint8_t ip_addr_t[4];
@@ -172,7 +170,7 @@ void w5500_rw(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t l
 void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac);
 
 //Configure socket port and buffer sizes (Add buffer size checking)
-void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf , ip_addr_t dst_ip, uint16_t dst_port);
+void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port);
 
 //Configure socket destination IP and port
 void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port);
@@ -194,8 +192,3 @@ void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len);
 void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);
 //Read data over spi
 void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data);
-
-
-
-
-
