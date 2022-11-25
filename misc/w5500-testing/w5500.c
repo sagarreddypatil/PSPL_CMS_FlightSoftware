@@ -1,12 +1,12 @@
-#include <spi_device_impl.h>
+
 #include <string.h>
+#include <spi_device_impl.h>
 #include <w5500.h>
 
-#define R 0
-#define W 1
-#define MS(x, mask, shift) x& mask << shift
-#define SET_BITS(x, name) (((x)&name##_MASK) << name##_SHIFT)
+
+#define MS(x, mask, shift) (x & mask) << shift
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
+#define SPLIT16(x1) {x1 >> 8 , x1}
 #define TXBUF(sn) (sn + 1)
 #define RXBUF(sn) (sn + 2)
 
@@ -20,8 +20,7 @@
 #define HALF_DUPLEX 0  //Half and Full duplex
 #define FULL_DUPLEX 1
 
-//Bitmasks
-
+//Bitmasks & shifts
 #define ADDR_MASK 0x7F  //Address Mask
 #define ADDR_SHIFT 7
 
@@ -29,7 +28,7 @@
 #define SN_SHIFT 3
 
 #define RW_MASK 0x01  //Read/Write Mask
-#define RW_SHIFT 3
+#define RW_SHIFT 2
 
 #define OM_MASK 0x02  //Operation Mode Bits
 
@@ -90,20 +89,21 @@ void w5500_rw(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t l
     uint8_t src[len + 2];
     //Setting address and block select bits for transmission
     src[0] = reg;
-    src[1] = MS(sn, SN_MASK, SN_SHIFT) & MS(W, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
+    src[1] = (MS(sn, SN_MASK, SN_SHIFT) | MS(W, RW_MASK, RW_SHIFT));
     //Copy data into src and write to register
     memcpy(src + 2, data, len);
-    SPI_WRITE(src, len);
+    SPI_WRITE(src, len + 2);
   } else {
-    uint8_t dst[len + 1];
+    uint8_t dst[len];
     uint8_t src[1];
-    src[0] = MS(sn, SN_MASK, SN_SHIFT) & MS(R, RW_MASK, RW_SHIFT) & (0x00 & OM_MASK);
-    SPI_TRANSFER(src, dst, len);
+    src[0] = MS(sn, SN_MASK, SN_SHIFT) | MS(R, RW_MASK, RW_SHIFT) | (0x00 & OM_MASK);
+    SPI_WRITE(src, 1);
+    SPI_READ(dst, len)
     memcpy(data, dst, len);
   }
 }
 
-void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac) {
+void w5500_configIP(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac) {
   //Source IP address configuration
   w5500_rw(spi, w5500_sipr0, cmn, ip, 4, W);
   //Gateway IP address configuration
@@ -114,9 +114,18 @@ void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t s
   w5500_rw(spi, w5500_shar0, cmn, mac, 6, W);
 }
 
+void w5500_configMR(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp)
+{
+  uint8_t config = MS(1 , SW_RESET_MASK, SW_RESET_SHIFT) |
+                   MS(wol, WOL_MASK, WOL_SHIFT) |
+                   MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
+                   MS(pppoe, PPPoE_MASK, PPPoE_SHIFT) |
+                   MS(farp, FARP_MASK, FARP_SHIFT);
+  w5500_rw(spi, w5500_mr, cmn, &config, 1, W);
+}
 void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port) {
-  uint8_t src_port_buf[3] = {src_port >> 8, src_port};
-
+  
+  uint8_t src_port_buf[2] = SPLIT16(src_port);
   //Src Port
   w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
   //Tx Buffer Size
@@ -126,7 +135,7 @@ void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxb
 }
 
 void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port) {
-  uint8_t dst_port_buf[3] = {dst_port >> 8, dst_port};
+  uint8_t dst_port_buf[2] = SPLIT16(dst_port);
   w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
   //Destination IP Address
   w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
@@ -134,10 +143,10 @@ void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t ds
 
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t sn_mode,
                    w5500_sn_t sn, bool multicast, bool unicast_block, bool broadcast_block) {
-  uint8_t config = MS(protocol, PROTOCOL_MASK, PROTOCOL_SHIFT) &
-                   MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) &
-                   MS(0, IGMP_MASK, IGMP_SHIFT) &  //IGMP Version 2
-                   MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) &
+  uint8_t config = MS(protocol, PROTOCOL_MASK, PROTOCOL_SHIFT) |
+                   MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
+                   MS(0, IGMP_MASK, IGMP_SHIFT) |  //IGMP Version 2
+                   MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
                    (MULTICAST_BLOCK_MASK & multicast);
   w5500_rw(spi, w5500_sn_mr, sn, &config, 1, W);
   w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
@@ -155,10 +164,10 @@ void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl) {
 }
 
 void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiation) {
-  uint8_t config = MS(1, PHY_RST_MASK, PHY_RST_SHIFT) &
-                   MS(1, PHY_OM_MASK, PHY_OM_SHIFT) &
-                   MS(auto_negotiation, PHY_AN_MASK, PHY_AN_SHIFT) &
-                   MS(speed, PHY_MBPS_MASK, PHY_MBPS_SHIFT) &
+  uint8_t config = MS(1, PHY_RST_MASK, PHY_RST_SHIFT) |
+                   MS(1, PHY_OM_MASK, PHY_OM_SHIFT) |
+                   MS(auto_negotiation, PHY_AN_MASK, PHY_AN_SHIFT) |
+                   MS(speed, PHY_MBPS_MASK, PHY_MBPS_SHIFT) |
                    MS(duplex, PHY_DUPLEX_MASK, PHY_DUPLEX_SHIFT);
 
   w5500_rw(spi, w5500_phycfgr, cmn, &config, 1, W);
