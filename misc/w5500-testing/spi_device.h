@@ -1,7 +1,7 @@
 #pragma once
 
 #include <hardware/spi.h>
-#include <pico/picostdlib.h>
+#include <pico/stdlib.h>
 
 /// @brief Struct to hold SPI device parameters, i.e., SPI hardware pointer and CS pin
 typedef struct {

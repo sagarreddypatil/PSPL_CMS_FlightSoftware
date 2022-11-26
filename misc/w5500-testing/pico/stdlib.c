@@ -1,12 +1,12 @@
 
-#include<picostdlib.h>
+#include <../pico/stdlib.h>
 
-void gpio_init(uint pin)
+void gpio_init(unsigned int pin)
 {
     printf("GPIO %d INIT\n", pin);
 }
 
-void gpio_put(uint pin, bool value)
+void gpio_put(unsigned int pin, bool value)
 {
     if(value)
     {
@@ -18,7 +18,7 @@ void gpio_put(uint pin, bool value)
     }
 }
 
-void gpio_set_dir(uint pin, bool out)
+void gpio_set_dir(unsigned int pin, bool out)
 {
    if(out)
     {
