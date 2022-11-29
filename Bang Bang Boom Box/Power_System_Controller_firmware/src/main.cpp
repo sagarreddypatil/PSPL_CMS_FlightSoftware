@@ -230,7 +230,7 @@ void loop() {
   }
 
   /* 
-  cmd_parameter[Drok #, read or voltage]
+  cmd_parameter[Drok #, read voltage or current]
   s,0,1 - Drok 0 reading volatge 
   s,0,0 - Drok 0 reading current 
   s,1,1 - Drok 1 reading volatge 
