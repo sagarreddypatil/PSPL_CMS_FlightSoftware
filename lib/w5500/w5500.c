@@ -1,6 +1,7 @@
 
 #include <pico/stdlib.h>
 #include <spi_device_impl.h>
+#include <stdio.h>
 #include <string.h>
 #include <w5500.h>
 
@@ -82,7 +83,7 @@
 
 const uint baudrate = 1000 * 1000;  // 50 mHz, max for rp2040
 
-SPI_MODE3;
+SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
 // Read write to register
@@ -90,14 +91,18 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_sn_t sn, void* data, size_t 
   uint8_t src[3 + len];
   uint8_t dst[3 + len];
 
-  src[0] = reg & 0xFF;
-  src[1] = (reg >> 8) & 0xFF;
+  src[0] = (reg >> 8) & 0xFF;
+  src[1] = reg & 0xFF;
 
   src[2] = MS(sn, BSB_MASK, BSB_SHIFT) | MS(write, RW_MASK, RW_SHIFT) | MS(00, OM_MASK, OM_SHIFT);
 
   if (write) {
     memcpy(src + 3, data, len);
+  } else {
+    memset(src + 3, 0, len);
   }
+
+  printf("%x %x %x %x\n", src[0], src[1], src[2], src[3]);
 
   SPI_TRANSFER(src, dst, 3 + len);
 
