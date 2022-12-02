@@ -6,4 +6,9 @@ int main()
     int* data;
     w5500_rw(w5500, w5500_versionr, cmn, data , 1, R);
     printf("0x%x", *data);
+
+    
+    w5500_configMR(w5500, 1, 1, 1, 1);
+    w5500_rw(w5500, w5500_mr, cmn, data, 1, R);
+    printf("0x%x", *data);
 }
