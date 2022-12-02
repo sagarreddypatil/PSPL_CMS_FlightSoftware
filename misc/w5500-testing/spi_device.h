@@ -24,7 +24,3 @@ typedef struct {
 
 #define SPI_INST \
   (spi->spi_inst)
-
-
-
-

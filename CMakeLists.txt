@@ -45,7 +45,8 @@ endforeach()
 set(boards
 
     # emu
-    tc-test-board
+    # tc-test-board
+    dev-1-ethernet-test
 )
 
 foreach(board ${boards})
