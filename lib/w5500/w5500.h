@@ -5,7 +5,8 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 
 #pragma once
 #include <spi_device.h>
-
+#define R 0
+#define W 1
 
 /*===============================
 Common Register Addresses pg 32
@@ -167,7 +168,10 @@ SPI_INITFUNC(w5500);
 void w5500_rw(SPI_DEVICE_PARAM, uint8_t reg, w5500_sn_t sn, void* data, size_t len, bool rw);
 
 //Configure w5500 with IP addr, subnet, mac addr
-void w5500_config(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac);
+void w5500_configIP(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac);
+
+//Configure w5500 mode register
+void w5500_configMR(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);
 
 //Configure socket port and buffer sizes (Add buffer size checking)
 void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port);
