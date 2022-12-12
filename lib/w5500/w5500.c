@@ -102,7 +102,7 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_sn_t sn, void* data, size_t 
     memset(src + 3, 0, len);
   }
 
-  printf("%x %x %x %x\n", src[0], src[1], src[2], src[3]);
+  //printf("%x %x %x %x\n", src[0], src[1], src[2], src[3]);
 
   SPI_TRANSFER(src, dst, 3 + len);
 
@@ -113,38 +113,38 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_sn_t sn, void* data, size_t 
 
 void w5500_configIP(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac) {
   // Source IP address configuration
-  w5500_rw(spi, w5500_sipr0, cmn, ip, 4, W);
+  w5500_rw(spi, w5500_sipr0, cmn, ip, 4, true);
   // Gateway IP address configuration
-  w5500_rw(spi, w5500_gar0, cmn, gateway, 4, W);
+  w5500_rw(spi, w5500_gar0, cmn, gateway, 4, true);
   // Subnet Mask Configuration
-  w5500_rw(spi, w5500_subr0, cmn, gateway, 4, W);
+  w5500_rw(spi, w5500_subr0, cmn, subnet_mask, 4, true);
   // Source Hardware Address Configuration
-  w5500_rw(spi, w5500_shar0, cmn, mac, 6, W);
+  w5500_rw(spi, w5500_shar0, cmn, mac, 6, true);
 }
 
 void w5500_configMR(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp) {
-  uint8_t config = MS(1, SW_RESET_MASK, SW_RESET_SHIFT) |
+  uint8_t config = MS(0, SW_RESET_MASK, SW_RESET_SHIFT) |
                    MS(wol, WOL_MASK, WOL_SHIFT) |
                    MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
                    MS(pppoe, PPPoE_MASK, PPPoE_SHIFT) |
                    MS(farp, FARP_MASK, FARP_SHIFT);
-  w5500_rw(spi, w5500_mr, cmn, &config, 1, W);
+  w5500_rw(spi, w5500_mr, cmn, &config, 1, true);
 }
 void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port) {
   uint8_t src_port_buf[2] = SPLIT16(src_port);
   // Src Port
-  w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, W);
+  w5500_rw(spi, w5500_sn_sport0, sn, src_port_buf, 2, true);
   // Tx Buffer Size
-  w5500_rw(spi, w5500_sn_txbuf_size, sn, &txbuf, 1, W);
+  w5500_rw(spi, w5500_sn_txbuf_size, sn, &txbuf, 1, true);
   // Rx Buffer Size
-  w5500_rw(spi, w5500_sn_rxbuf_size, sn, &rxbuf, 1, W);
+  w5500_rw(spi, w5500_sn_rxbuf_size, sn, &rxbuf, 1, true);
 }
 
 void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port) {
   uint8_t dst_port_buf[2] = SPLIT16(dst_port);
-  w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, W);
+  w5500_rw(spi, w5500_sn_dport0, sn, dst_port_buf, 2, true);
   // Destination IP Address
-  w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, W);
+  w5500_rw(spi, w5500_sn_dipr0, sn, dst_ip, 4, true);
 }
 
 void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t sn_mode,
@@ -154,19 +154,19 @@ void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t sn_mo
                    MS(0, IGMP_MASK, IGMP_SHIFT) |  // IGMP Version 2
                    MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
                    (MULTICAST_BLOCK_MASK & multicast);
-  w5500_rw(spi, w5500_sn_mr, sn, &config, 1, W);
-  w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, W);
+  w5500_rw(spi, w5500_sn_mr, sn, &config, 1, true);
+  w5500_rw(spi, w5500_sn_cr, sn, &sn_mode, 1, true);
 }
 
 uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn) {  // Reading TX Free Size Range
   uint8_t data[2];
-  w5500_rw(spi, w5500_sn_tx_fsr0, sn, data, 2, R);
+  w5500_rw(spi, w5500_sn_tx_fsr0, sn, data, 2, false);
   return CONCAT16(data[0], data[1]);
 }
 
 void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl) {
   ttl = TTL_MASK & ttl;
-  w5500_rw(spi, w5500_sn_ttl, sn, &ttl, 1, W);
+  w5500_rw(spi, w5500_sn_ttl, sn, &ttl, 1, true);
 }
 
 void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiation) {
@@ -176,16 +176,16 @@ void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiat
                    MS(speed, PHY_MBPS_MASK, PHY_MBPS_SHIFT) |
                    MS(duplex, PHY_DUPLEX_MASK, PHY_DUPLEX_SHIFT);
 
-  w5500_rw(spi, w5500_phycfgr, cmn, &config, 1, W);
+  w5500_rw(spi, w5500_phycfgr, cmn, &config, 1, true);
 }
 
 uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn) {
   uint8_t data[2];
   // Recieved data size (space used in RX Buffer)
-  w5500_rw(spi, w5500_sn_rsr0, sn, data, 2, R);
+  w5500_rw(spi, w5500_sn_rsr0, sn, data, 2, false);
   uint16_t data_size = CONCAT16(data[0], data[1]);
   // RX Buffer total size
-  w5500_rw(spi, w5500_sn_rxbuf_size, sn, data, 1, R);
+  w5500_rw(spi, w5500_sn_rxbuf_size, sn, data, 1, false);
   uint16_t buf_size = data[0] * 1000;
   return (buf_size - data_size);
 }
@@ -193,42 +193,42 @@ uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn) {
 void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len) {
   uint8_t start_buf[2];
   // Read starting save address of buffer
-  w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, R);
+  w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, false);
   uint16_t start = CONCAT16(start_buf[0], start_buf[1]);
   // Save data to tx buffer if space available
   if ((start + len) < w5500_sn_fs_tx(spi, sn)) {
-    w5500_rw(spi, start, TXBUF(sn), data, len, W);
+    w5500_rw(spi, start, TXBUF(sn), data, len, true);
   }
   // Increment starting save address by data length
   start += len;
   uint8_t newStart[2] = SPLIT16(start);
   memcpy(newStart, start_buf, 2);
   // Save new TX buffer starting address
-  w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, W);
+  w5500_rw(spi, w5500_sn_tx_wr0, sn, start_buf, 2, true);
 }
 
 void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn) {
   uint8_t data[1] = {w5500_sn_send};
-  w5500_rw(spi, w5500_sn_cr, sn, data, 1, W);
+  w5500_rw(spi, w5500_sn_cr, sn, data, 1, true);
 }
 
 void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data) {
   uint8_t addr_buf[3];
   // get starting read address of rx buffer
-  w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, R);
+  w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, false);
   uint16_t start = CONCAT16(addr_buf[0], addr_buf[1]);
 
   // get ending read address of rx buffer
-  w5500_rw(spi, w5500_sn_rx_wr0, sn, addr_buf, 2, R);
+  w5500_rw(spi, w5500_sn_rx_wr0, sn, addr_buf, 2, false);
   uint16_t end = CONCAT16(addr_buf[0], addr_buf[1]);
 
   // Read all data in rx buffer from start to end address
   for (uint16_t i = start; i < end; i++) {
-    w5500_rw(spi, i, RXBUF(sn), data, (start - end), W);
+    w5500_rw(spi, i, RXBUF(sn), data, (start - end), true);
   }
   // Update read address of rx buffer
-  w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, W);
+  w5500_rw(spi, w5500_sn_rx_rd0, sn, addr_buf, 2, true);
   // order recieve command for no reason
   w5500_sn_cr_t recv = w5500_sn_recv;
-  w5500_rw(spi, w5500_sn_cr, sn, &recv, 1, W);
+  w5500_rw(spi, w5500_sn_cr, sn, &recv, 1, true);
 }

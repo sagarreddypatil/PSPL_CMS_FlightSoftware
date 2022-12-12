@@ -5,8 +5,6 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 
 #pragma once
 #include <spi_device.h>
-#define R 0
-#define W 1
 
 /*===============================
 Common Register Addresses pg 32
@@ -168,27 +166,12 @@ void w5500_configIP(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t
 void w5500_configMR(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);                                              // Configure w5500 mode register
 void w5500_sn_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_sn_t sn, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port);  // Configure socket port and buffer sizes (Add buffer size checking)
 void w5500_sn_dst(SPI_DEVICE_PARAM, w5500_sn_t sn, ip_addr_t dst_ip, uint16_t dst_port);                                              // Configure socket destination IP and port
-
-void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, w5500_sn_t sn,
-                   bool multicast, bool unicast_block, bool broadcast_block);  // Socket mode register (protocol stuff), & command register (socket open / close)
-
-// Time to live register configuration
-void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl);
-
-// Phy config register (Ethernet speed and such)
-void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiation);
-
-// Check free space in TX buffer
-uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);
-
-// Check if data is available to read
-uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);
-
-// write data to sn tx buffer
-void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len);
-
-// Send data over network
-void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);
-
-// Read data over spi
-void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data);
+void w5500_sn_mode(SPI_DEVICE_PARAM, w5500_sn_mr_t protocol, w5500_sn_cr_t cr, w5500_sn_t sn,                                         // Socket mode register (protocol stuff), & command register (socket open / close)
+                   bool multicast, bool unicast_block, bool broadcast_block);                                                         
+void w5500_sn_ttl_config(SPI_DEVICE_PARAM, w5500_sn_t sn, uint8_t ttl);                                                               // Time to live register configuration
+void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiation);                                                 // Phy config register (Ethernet speed and such)
+uint16_t w5500_sn_fs_tx(SPI_DEVICE_PARAM, w5500_sn_t sn);                                                                             // Check free space in TX buffer 
+uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_sn_t sn);                                                                            // Check if data is available to read
+void w5500_sn_write(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data, size_t len);                                                         // write data to sn tx buffer
+void w5500_sn_transmit(SPI_DEVICE_PARAM, w5500_sn_t sn);                                                                              // Send data over network
+void w5500_read_rx(SPI_DEVICE_PARAM, w5500_sn_t sn, void* data);                                                                      // Read data over spi
