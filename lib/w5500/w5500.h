@@ -89,23 +89,7 @@ typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
 SPI_INITFUNC(w5500);
-
-/*Functions*/
-
-// void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_s_t s, void* data, size_t len, bool write);                                     // Read and write to single register
-// void w5500_configIP(SPI_DEVICE_PARAM, ip_addr_t ip, ip_addr_t gateway, ip_addr_t subnet_mask, mac_t mac);                             // Configure w5500 with IP addr, subnet, mac addr
-// void w5500_configMR(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);                                              // Configure w5500 mode register
-// void w5500_s_config(SPI_DEVICE_PARAM, uint16_t src_port, w5500_s_t s, int rxbuf, int txbuf, ip_addr_t dst_ip, uint16_t dst_port);  // Configure socket port and buffer sizes (Add buffer size checking)
-// void w5500_s_mode(SPI_DEVICE_PARAM, w5500_s_mr_t protocol, w5500_s_cr_t cr, w5500_s_t s,                                         // Socket mode register (protocol stuff), & command register (socket open / close)
-//                    bool multicast, bool unicast_block, bool broadcast_block);
-// void w5500_s_ttl_config(SPI_DEVICE_PARAM, w5500_s_t s, uint8_t ttl);                                                               // Time to live register configuration
-// void w5500_phy_config(SPI_DEVICE_PARAM, int speed, int duplex, int auto_negotiation);                                                 // Phy config register (Ethernet speed and such)
-// uint16_t w5500_s_fs_tx(SPI_DEVICE_PARAM, w5500_s_t s);                                                                             // Check free space in TX buffer
-// uint16_t w5500_available(SPI_DEVICE_PARAM, w5500_s_t s);                                                                            // Check if data is available to read
-// void w5500_s_write(SPI_DEVICE_PARAM, w5500_s_t s, void* data, size_t len);                                                         // write data to s tx buffer
-// void w5500_s_transmit(SPI_DEVICE_PARAM, w5500_s_t s);                                                                              // Send data over network
-// void w5500_read_rx(SPI_DEVICE_PARAM, w5500_s_t s, void* data);                                                                      // Read data over spi
-
+                                                                  // Read data over spi
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr);
 void w5500_close(SPI_DEVICE_PARAM, w5500_s_t s);
 void w5500_open(SPI_DEVICE_PARAM, w5500_s_t s);
