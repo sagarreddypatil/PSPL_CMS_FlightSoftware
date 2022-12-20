@@ -12,7 +12,6 @@
 #define TXBUF(s) (s + 1)
 #define RXBUF(s) (s + 2)
 
-
 // Phy configuration bits
 #define MBPS10 0  // 10 and 100 mbps network speed
 #define MBPS100 1
@@ -103,7 +102,7 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_s_t s, void* data, size_t le
     memset(src + 3, 0, len);
   }
 
-  //printf("%x %x %x %x\n", src[0], src[1], src[2], src[3]);
+  // printf("%x %x %x %x\n", src[0], src[1], src[2], src[3]);
 
   SPI_TRANSFER(src, dst, 3 + len);
 
@@ -206,16 +205,16 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_s_t s, void* data, size_t le
 //   w5500_rw(spi, w5500_s_tx_wr0, s, start_buf, 2, true);
 // }
 
-//void w5500_s_transmit(SPI_DEVICE_PARAM, w5500_s_t s) {
-//   uint8_t data[1] = {w5500_s_send};
-//   w5500_rw(spi, w5500_s_cr, s, data, 1, true);
-// }
+// void w5500_s_transmit(SPI_DEVICE_PARAM, w5500_s_t s) {
+//    uint8_t data[1] = {w5500_s_send};
+//    w5500_rw(spi, w5500_s_cr, s, data, 1, true);
+//  }
 
-//void w5500_read_rx(SPI_DEVICE_PARAM, w5500_s_t s, void* data) {
-//   uint8_t addr_buf[3];
-//   // get starting read address of rx buffer
-//   w5500_rw(spi, w5500_s_rx_rd0, s, addr_buf, 2, false);
-//   uint16_t start = CONCAT16(addr_buf[0], addr_buf[1]);
+// void w5500_read_rx(SPI_DEVICE_PARAM, w5500_s_t s, void* data) {
+//    uint8_t addr_buf[3];
+//    // get starting read address of rx buffer
+//    w5500_rw(spi, w5500_s_rx_rd0, s, addr_buf, 2, false);
+//    uint16_t start = CONCAT16(addr_buf[0], addr_buf[1]);
 
 //   // get ending read address of rx buffer
 //   w5500_rw(spi, w5500_s_rx_wr0, s, addr_buf, 2, false);
@@ -232,27 +231,23 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_s_t s, void* data, size_t le
 //   w5500_rw(spi, w5500_s_cr, s, &recv, 1, true);
 // }
 
-void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr)
-{
+void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr) {
   w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
   w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
   w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
   w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
 }
 
-void w5500_close(SPI_DEVICE_PARAM, w5500_s_t s)
-{
+void w5500_close(SPI_DEVICE_PARAM, w5500_s_t s) {
   uint8_t cr = 0x10;
   w5500_rw(spi, w5500_s_cr, s, &cr, 1, true);
 }
 
-void w5500_open(SPI_DEVICE_PARAM, w5500_s_t s)
-{
+void w5500_open(SPI_DEVICE_PARAM, w5500_s_t s) {
   uint8_t cr = 0x01;
   w5500_rw(spi, w5500_s_cr, s, &cr, 1, true);
 }
-void w5500_status(SPI_DEVICE_PARAM)
-{
+void w5500_status(SPI_DEVICE_PARAM) {
   uint8_t data[6];
   w5500_rw(spi, w5500_gar, cmn, data, sizeof(ip_t), false);
   printf("GATEWAY: %x %x %x %x \n", data[0], data[1], data[2], data[3]);
