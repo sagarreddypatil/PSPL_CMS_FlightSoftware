@@ -17,36 +17,35 @@ int main() {
   }
 
   uint actual_baud = w5500_set(w5500);
-  uint8_t recv[6];
-  uint8_t s_mr = 0x82;
-  uint8_t s_cr = 0x01;
-  uint8_t mr = 0xA8;
-  uint8_t dipr[4] = {0x08, 0xDC, 0x00, 0x01};
-  uint8_t dport[2] = {0x13, 0x88};
+  // uint8_t recv[6];
+  // uint8_t s_mr = 0x82;
+  // uint8_t s_cr = 0x01;
+  // uint8_t mr = 0xA8;
+  ip_t gateway = {0x02, 0x06, 0x07, 0x08};
+  ip_t subnet = {0xff, 0xff, 0x00, 0x00};
+  ip_t src = {192, 168, 2, 1};
+  mac_t mac = {0x08, 0xDC, 0x0A, 0x01, 0x10, 0x18};
+  // uint8_t dport[2] = {0x13, 0x88};
  
   printf("debug point 1, actual baud %d\n", actual_baud);
-  w5500_rw(w5500, w5500_mr, cmn, &mr, 1, true);
-  w5500_rw(w5500, w5500_s_mr, s1, &s_mr, 1, true);
-  w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
-  w5500_rw(w5500, w5500_s_sport0, s1, dport, 2, true);
-  w5500_rw(w5500, w5500_s_dport0, s1, dport, 2, true);
-  w5500_rw(w5500, w5500_s_dipr0, s1, dipr, 4, true);
-  s_cr = 0x01;
-  w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
-  s_cr = 0x10;
-  w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
-  dipr[0] = 0x11;
-  w5500_rw(w5500, w5500_s_dipr0, s1, dipr, 4, true);
-  s_cr = 0x01;
-  w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
+  // w5500_rw(w5500, w5500_mr, cmn, &mr, 1, true);
+  // w5500_rw(w5500, w5500_s_mr, s1, &s_mr, 1, true);
+  // w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
+  // w5500_rw(w5500, w5500_s_sport0, s1, dport, 2, true);
+  // w5500_rw(w5500, w5500_s_dport0, s1, dport, 2, true);
+  // w5500_rw(w5500, w5500_s_dipr0, s1, dipr, 4, true);
+  // s_cr = 0x01;
+  // w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
+  // s_cr = 0x10;
+  // w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
+  // dipr[0] = 0x11;
+  // w5500_rw(w5500, w5500_s_dipr0, s1, dipr, 4, true);
+  // s_cr = 0x01;
+  // w5500_rw(w5500, w5500_s_cr, s1, &s_cr, 1, true);
+  w5500_init(w5500, gateway, subnet, src, mac);
 
   while (true) {
-    w5500_rw(w5500, w5500_s_status, s1, recv, 2, false);
-    printf("%x\n", recv[0]);
-    w5500_rw(w5500, w5500_s_dport0, s1, recv, 2, false);
-    printf("%x %x\n", recv[0], recv[1]);
-    w5500_rw(w5500, w5500_s_dipr0, s1, recv, 6, false);
-    printf("%x %x %x %x\n", recv[0], recv[1], recv[2], recv[3]);
+    w5500_status(w5500);
     sleep_ms(500);
     
     // w5500_rw(w5500, w5500_mr, cmn, &data, 1, false);
