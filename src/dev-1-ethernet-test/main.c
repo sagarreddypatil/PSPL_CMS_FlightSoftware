@@ -21,12 +21,20 @@ int main() {
   ip_t subnet = {0xff, 0xff, 0x00, 0x00};
   ip_t src = {192, 168, 2, 1};
   mac_t mac = {0x08, 0xDC, 0x0A, 0x01, 0x10, 0x18};
+  ip_t s0_dst = {1, 2, 3, 4};
+  uint16_t s0_src_port = 5000;
+  uint16_t s0_dst_port = 5000;
 
   printf("debug point 1, actual baud %d\n", actual_baud);
   w5500_init(w5500, gateway, subnet, src, mac);
+  w5500_socket_init(w5500, s0, s0_dst, s0_src_port, s0_dst_port);
 
+  w5500_status(w5500, s0);
+  ip_t new_dst = {5,6,7,8};
+  w5500_set_dst(w5500, s0, new_dst );
+  w5500_status(w5500, s0);
   while (true) {
-    w5500_status(w5500);
+    
     sleep_ms(500);
     
     // w5500_rw(w5500, w5500_mr, cmn, &data, 1, false);
