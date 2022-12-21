@@ -64,23 +64,22 @@ void bbm_read(SPI_DEVICE_PARAM, w25n01_bbm_entry* entries);
     w25n01_write(spi, src, 1);                         \
   }
 
-__INSTR_SINGLE(reset, w25n01_ins_reset);
-__INSTR_SINGLE(write_enable, w25n01_ins_write_enable);
-__INSTR_SINGLE(write_disable, w25n01_ins_write_disable);
-
-#undef __INSTR_SINGLE
-
 #define __INSTR_PAGE(name, ins)                                       \
   static inline void w25n01_##name(SPI_DEVICE_PARAM, uint16_t addr) { \
     uint8_t src[4] = {ins, 0, addr >> 8, addr & 0xFF};                \
     SPI_WRITE(src, 4);                                                \
   }
 
+__INSTR_SINGLE(reset, w25n01_ins_reset);
+__INSTR_SINGLE(write_enable, w25n01_ins_write_enable);
+__INSTR_SINGLE(write_disable, w25n01_ins_write_disable);
+
 __INSTR_PAGE(read_page, w25n01_ins_page_data_read);
 __INSTR_PAGE(write_page, w25n01_ins_program_execute);  // needs write enable
 __INSTR_PAGE(block_erase, w25n01_ins_block_erase);     // needs write enable
 
 #undef __INSTR_PAGE
+#undef __INSTR_SINGLE
 
 /*
  * Status Register Bitfields
