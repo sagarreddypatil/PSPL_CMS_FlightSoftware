@@ -67,7 +67,7 @@ void bbm_read(SPI_DEVICE_PARAM, w25n01_bbm_entry* entries);
 #define __INSTR_PAGE(name, ins)                                       \
   static inline void w25n01_##name(SPI_DEVICE_PARAM, uint16_t addr) { \
     uint8_t src[4] = {ins, 0, addr >> 8, addr & 0xFF};                \
-    SPI_WRITE(src, 4);                                                \
+    w25n01_write(spi, src, 4);                                        \
   }
 
 __INSTR_SINGLE(reset, w25n01_ins_reset);
