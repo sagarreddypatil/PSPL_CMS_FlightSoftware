@@ -120,7 +120,7 @@ __RREG_BITFIELD_BOOL(busy, w25n01_status_register, 0);
 __RREG_BITFIELD_BOOL(write_enable, w25n01_status_register, 1);
 __RREG_BITFIELD_BOOL(erase_fail, w25n01_status_register, 2);
 __RREG_BITFIELD_BOOL(program_fail, w25n01_status_register, 3);
-__RREG_BITFIELD(ecc_status, w25n01_status_register, 0b110000, 4)
+__RREG_BITFIELD(ecc_status, w25n01_status_register, 0b110000, 4);
 __RREG_BITFIELD_BOOL(bbm_lut_full, w25n01_status_register, 6);
 
 #undef __WREG_BITFIELD_BOOL
