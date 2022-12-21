@@ -2,8 +2,8 @@
 #include <string.h>
 #include <w25n01.h>
 
-#define SHORT_MSB(x) ((x) >> 8)
-#define SHORT_LSB(x) ((x)&0xFF)
+#define SHORT_MSB(x) (x >> 8)
+#define SHORT_LSB(x) (x & 0xFF)
 
 SPI_MODE0;
 
@@ -56,7 +56,7 @@ uint8_t w25n01_read_status_register(SPI_DEVICE_PARAM, uint8_t addr) {
 }
 
 void bbm_add(SPI_DEVICE_PARAM, uint16_t lba, uint16_t pba) {
-  uint8_t src = {w25n01_ins_bbm_swap, SHORT_MSB(lba), SHORT_LSB(lba), SHORT_MSB(pba), SHORT_LSB(pba)};
+  uint8_t src[] = {w25n01_ins_bbm_swap, SHORT_MSB(lba), SHORT_LSB(lba), SHORT_MSB(pba), SHORT_LSB(pba)};
   SPI_WRITE(src, 5);
 }
 

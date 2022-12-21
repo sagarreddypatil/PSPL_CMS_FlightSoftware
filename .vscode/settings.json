@@ -9,7 +9,8 @@
     "spi_helpers.h": "c",
     "max31856.h": "c",
     "gpio.h": "c",
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "spi_device_impl.h": "c"
   },
   "cmake.configureOnEdit": false,
   "cmake.sourceDirectory": "${workspaceFolder}/."

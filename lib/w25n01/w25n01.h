@@ -74,7 +74,7 @@ __INSTR_SINGLE(write_disable, w25n01_ins_write_disable);
 
 #undef __INSTR_SINGLE
 
-#define __PAGE_INSTR(name, ins)                                       \
+#define __INSTR_PAGE(name, ins)                                       \
   static inline void w25n01_##name(SPI_DEVICE_PARAM, uint16_t addr) { \
     uint8_t src[4] = {ins, 0, addr >> 8, addr & 0xFF};                \
     SPI_WRITE(src, 4);                                                \
