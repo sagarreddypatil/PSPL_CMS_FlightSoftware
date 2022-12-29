@@ -9,12 +9,11 @@
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 #define SPLIT16(x1) \
   { x1 >> 8, x1 }
+
 #define TXBUF(s) (s + 1)
 #define RXBUF(s) (s + 2)
 
 
-#define AN_D 0  // Auto negotiation disable and enable
-#define AN_E 1
 
 #define HALF_DUPLEX 0  // Half and Full duplex
 #define FULL_DUPLEX 1
@@ -63,20 +62,6 @@
 
 #define TTL_MASK 0xFF  // Time to live of IP header
 
-#define PHY_RST_MASK 1
-#define PHY_RST_SHIFT 7  // Phy Reset bit
-
-#define PHY_OM_MASK 1
-#define PHY_OM_SHIFT 6  // Phy operation mode
-
-#define PHY_AN_MASK 1  // Phy auto negotiation
-#define PHY_AN_SHIFT 5
-
-#define PHY_MBPS_MASK 1  // 10baset or 100baset configuration
-#define PHY_MBPS_SHIFT 4
-
-#define PHY_DUPLEX_MASK 1
-#define PHY_DUPLEX_SHIFT 3
 
 const uint baudrate = 1000 * 1000;  // 1000 kHz
 
@@ -106,21 +91,32 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size
   }
 }
 
-void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr) 
-{
+void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, uint8_t* buf) {
+  uint8_t addr_buf[2];
+  uint16_t addr = CONCAT16(addr_buf[0], addr_buf[1]);
+  uint8_t recv = 0x40; 
+
+  w5500_rw(spi, w5500_socket_rx_rd, s, addr_buf, 2, false); //starting read address
+  w5500_rw(spi, RXBUF(s) + addr, s, buf, len, false); //read len bytes from RX buffer
+  addr += len; //update read addr
+  memcpy(addr_buf, SPLIT16(addr), 2);
+  w5500_rw(spi, w5500_socket_rx_rd, s, addr_buf, 2, true); //write updated read address
+  w5500_rw(spi, w5500_socket_cr, s, &recv, 1, true); //send recv command to auto-update read/write pointers
+}
+
+void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr) {
   uint8_t mr = 0xA8; //Default w5500 options
   uint8_t phy = 0xD8; //100BT Full Duplex Auto Negotiation Disabled
   w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_mr, cmn, &mr, sizeof(uint8_t), true);
-  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);memcpy()
   w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
   w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
   w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
   
 }
 
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port)
-{
+void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port) {
   uint8_t src_buf[2] = SPLIT16(src_port);
   uint8_t dst_buf[2] = SPLIT16(dst_port);
   uint8_t mr = 0x82; //Default UDP socket options
@@ -133,8 +129,7 @@ void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_
   w5500_open(spi, sn);
 }
 
-void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp)
-{
+void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp) {
   uint8_t config = MS(wol, WOL_MASK, WOL_SHIFT) | 
                    MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
                    MS(pppoe, PPPoE_MASK, PPPoE_SHIFT) |
@@ -142,8 +137,7 @@ void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool 
   w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
 }
 
-void w5500_socket_config(SPI_DEVICE_PARAM, w5500_socket_t sn, w5500_protocol_t protocol, bool multicast, bool unicast_block, bool broadcast_block)
-{
+void w5500_socket_config(SPI_DEVICE_PARAM, w5500_socket_t sn, w5500_protocol_t protocol, bool multicast, bool unicast_block, bool broadcast_block) {
   uint8_t config = MS(multicast, MULTICAST_BLOCK_MASK, MULTICAST_BLOCK_SHIFT) |
                    MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
                    MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
@@ -151,12 +145,12 @@ void w5500_socket_config(SPI_DEVICE_PARAM, w5500_socket_t sn, w5500_protocol_t p
   w5500_rw(spi, w5500_socket_mr, cmn, &config, sizeof(uint8_t), true);
 }
 
-void w5500_set_dst(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst)
-{
+void w5500_set_dst(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst) {
   w5500_close(spi, sn);
   w5500_rw(spi, w5500_socket_dipr, sn, dst, sizeof(ip_t), true);
   w5500_open(spi, sn);
 }
+
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t cr = 0x10;
   w5500_rw(spi, w5500_socket_cr, s, &cr, 1, true);
@@ -166,6 +160,9 @@ void w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t cr = 0x01;
   w5500_rw(spi, w5500_socket_cr, s, &cr, 1, true);
 }
+
+
+
 void w5500_status(SPI_DEVICE_PARAM, w5500_socket_t sn) {
   uint8_t data[6];
   if(sn == cmn) 
