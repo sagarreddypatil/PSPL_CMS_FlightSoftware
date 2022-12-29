@@ -89,6 +89,8 @@ typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
 SPI_INITFUNC(w5500);
+void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s, void* data); 
+void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, uint8_t* data); 
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr);
 void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port);
 void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);
