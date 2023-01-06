@@ -39,7 +39,7 @@ Socket Register Addresses pg 44
 static const uint16_t w5500_socket_mr         = 0x00;  // Socket Mode Register
 static const uint16_t w5500_socket_cr         = 0x01;  // Socket Command Register
 static const uint16_t w5500_socket_ir         = 0x02;  // Socket Interrupt Register
-static const uint16_t w5500_socket_status     = 0x03;  // Socket Status Register
+static const uint16_t w5500_socket_sr         = 0x03;  // Socket Status Register
 static const uint16_t w5500_socket_sport      = 0x04;  // Socket Source Port Register
 static const uint16_t w5500_socket_dhar       = 0x06;  // Socket Destination Hardware Address Registers
 static const uint16_t w5500_socket_dipr       = 0x0C;  // Socket Destination IP Address Register
@@ -57,7 +57,7 @@ static const uint16_t w5500_socket_rx_rd      = 0x28;  // Socket Rx Read Data Po
 static const uint16_t w5500_socket_rx_wr      = 0x2A;  // Socket Rx Write Pointer Register
 static const uint16_t w5500_socket_imr        = 0x23;  // Socket Interrupt Mask Register
 static const uint16_t w5500_socket_frag       = 0x2D;  // Socket Fragment Register
-
+static const uint16_t w5500_socket_kpalvtr    = 0x2F;  //Socket Keep alive Time Register
 typedef enum {
   cmn = 0b00000,
   s0  = 0b00001,
@@ -89,14 +89,18 @@ typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
 SPI_INITFUNC(w5500);
-void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s, void* data); 
-void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, uint8_t* data); 
+void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write); 
+void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len); 
+void w5500_read_tx(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, void* data); 
+void w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s);
+void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr);
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port);
+void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size);
 void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);
 void w5500_socket_config(SPI_DEVICE_PARAM, w5500_socket_t sn, w5500_protocol_t protocol, bool multicast, bool unicast_block, bool broadcast_block);
 void w5500_set_dst(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst);
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_status(SPI_DEVICE_PARAM, w5500_socket_t sn);
+void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t sn, uint16_t reg, uint8_t len);
 

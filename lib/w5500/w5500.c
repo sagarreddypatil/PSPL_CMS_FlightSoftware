@@ -91,42 +91,60 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size
   }
 }
 
-void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, uint8_t* buf) {
-  uint8_t addr_buf[2];
-  uint16_t addr = CONCAT16(addr_buf[0], addr_buf[1]);
-  uint8_t recv = 0x40; 
+void w5500_read_tx(SPI_DEVICE_PARAM, w5500_socket_t s, size_t len, void* data) {
+  uint8_t read_addr[2];
+  w5500_rw(spi, w5500_socket_tx_rd, s, read_addr, 2, false);
+  w5500_rw(spi, 0, TXBUF(s), data, len, false);
+}
 
-  w5500_rw(spi, w5500_socket_rx_rd, s, addr_buf, 2, false); //starting read address
-  w5500_rw(spi, RXBUF(s) + addr, s, buf, len, false); //read len bytes from RX buffer
-  addr += len; //update read addr
-  memcpy(addr_buf, SPLIT16(addr), 2);
-  w5500_rw(spi, w5500_socket_rx_rd, s, addr_buf, 2, true); //write updated read address
-  w5500_rw(spi, w5500_socket_cr, s, &recv, 1, true); //send recv command to auto-update read/write pointers
+void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
+  uint8_t write_addr_buf[2];
+  uint16_t write_addr;
+  w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, false);
+  write_addr = CONCAT16(write_addr_buf[0], write_addr_buf[1]);
+  w5500_rw(spi, write_addr, TXBUF(s), data, len, true);
+  printf("WRITE ADDR %x\n", write_addr);
+  write_addr+=len;
+  write_addr_buf[0] = write_addr >> 8;
+  write_addr_buf[1] = write_addr;
+  w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, true);
+}
+
+void w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s) {
+  
+}
+
+void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s) {
+  uint8_t send = 0x20;
+  w5500_rw(spi, w5500_socket_cr, s, &send, 1, true);
+  
 }
 
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr) {
-  uint8_t mr = 0xA8; //Default w5500 options
+  uint8_t mr = 0x02; //Default w5500 options
   uint8_t phy = 0xD8; //100BT Full Duplex Auto Negotiation Disabled
   w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_mr, cmn, &mr, sizeof(uint8_t), true);
-  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);memcpy()
+  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
   w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
   w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
   w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
   
 }
 
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t sn, ip_t dst_ip, uint16_t src_port, uint16_t dst_port) {
+void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, ip_t dst_ip, uint16_t src_port, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size) {
   uint8_t src_buf[2] = SPLIT16(src_port);
   uint8_t dst_buf[2] = SPLIT16(dst_port);
-  uint8_t mr = 0x82; //Default UDP socket options
-
-  w5500_rw(spi, w5500_socket_mr, sn, &mr, sizeof(mr), true);
-  w5500_close(spi, sn);
-  w5500_rw(spi, w5500_socket_sport, sn, src_buf, sizeof(src_buf), true);
-  w5500_rw(spi, w5500_socket_dport, sn, dst_buf, sizeof(dst_buf), true);
-  w5500_rw(spi, w5500_socket_dipr, sn, dst_ip, sizeof(ip_t), true);
-  w5500_open(spi, sn);
+  uint8_t mr = 0x02; //Default UDP socket options
+  //uint8_t mr = 0x81; // Default tcp 
+  w5500_rw(spi, w5500_socket_mr, s, &mr, sizeof(mr), true);
+  w5500_close(spi, s);
+  w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
+  w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
+  w5500_rw(spi, w5500_socket_dipr, s, dst_ip, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
+  w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
+  w5500_open(spi, s);
 }
 
 void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp) {
@@ -161,8 +179,6 @@ void w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s) {
   w5500_rw(spi, w5500_socket_cr, s, &cr, 1, true);
 }
 
-
-
 void w5500_status(SPI_DEVICE_PARAM, w5500_socket_t sn) {
   uint8_t data[6];
   if(sn == cmn) 
@@ -191,4 +207,15 @@ void w5500_status(SPI_DEVICE_PARAM, w5500_socket_t sn) {
 
     
   }
+
+
+}
+
+void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t sn, uint16_t reg, uint8_t len) {
+  uint8_t data[6];
+  w5500_rw(spi, reg, sn, data, len, false);
+  for(int i = 0; i < len; i++) {
+    printf("0x%x ", data[i]);
+  }
+  printf("\n");
 }
