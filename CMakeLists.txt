@@ -56,7 +56,8 @@ set(boards
 
     # emu
     # tc-test-board
-    dev-1-ethernet-test
+    eth-1
+    eth-2
 )
 
 foreach(board ${boards})
