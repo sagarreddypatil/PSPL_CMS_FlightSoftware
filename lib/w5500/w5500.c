@@ -104,7 +104,7 @@ void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) 
   w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, true);
 }
 
-void w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* data) {
+uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf) {
   uint8_t read_addr_buf[2];
   uint16_t read_addr;
   uint8_t recieved_buf[2];
@@ -114,12 +114,14 @@ void w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* data) {
   read_addr = CONCAT16(read_addr_buf[0], read_addr_buf[1]);
   w5500_rw(spi, w5500_socket_rsr, s, recieved_buf, 2, false);
   recieved = CONCAT16(recieved_buf[0], recieved_buf[1]);
-  w5500_rw(spi, read_addr, RXBUF(s), data, recieved, false);
+  w5500_rw(spi, read_addr, RXBUF(s), recv_buf, recieved, false);
   read_addr+=recieved;
   read_addr_buf[0] = read_addr >> 8;
   read_addr_buf[1] = read_addr;
   w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, true);
   w5500_rw(spi, w5500_socket_cr, s, &recv, 1, true);
+  return recieved;
+  
 
 }
 
@@ -128,7 +130,6 @@ void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s) {
   w5500_rw(spi, w5500_socket_cr, s, &send, 1, true);
   
 }
-
 
 void w5500_connect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t connect = 0x04;
@@ -173,7 +174,7 @@ void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t prot
   uint8_t mr;
 
   if(protocol == tcp) { mr = 0x01;} //Default tcp
-  if(protocol == udp) { mr = 0x02;} //Defauizeof(ip_t)lt udp 
+  if(protocol == udp) { mr = 0x02;} //Default udp 
   w5500_rw(spi, w5500_socket_mr, s, &mr, sizeof(mr), true);
   w5500_close(spi, s);
   w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
@@ -206,6 +207,7 @@ void w5500_socket_udp_config(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast,
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t cr = 0x10;
   w5500_rw(spi, w5500_socket_cr, s, &cr, 1, true);
+
 }
 
 void w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s) {

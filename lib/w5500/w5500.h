@@ -89,8 +89,6 @@ typedef uint8_t mac_t[6];
 
 SPI_INITFUNC(w5500);
 void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write); 
-
-
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr);
 void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp);
 void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size);
@@ -99,7 +97,7 @@ void w5500_connect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_listen_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_disconnect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len); 
-void w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* data);
+uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf);
 void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
 void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
