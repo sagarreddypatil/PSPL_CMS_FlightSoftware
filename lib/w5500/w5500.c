@@ -40,7 +40,7 @@
 #define IGMP_SHIFT 2
 
 #define UNICAST_BLOCK_MASK 0x01  // Unicast blocking bit
-#define UNICAST_BLOCK_SHIFT 4
+#define UNICAST_BLOCK_SHIFT 5
 
 #define PROTOCOL_MASK 0x04  // Protocol selection bits
 
@@ -168,23 +168,32 @@ void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_
   
 }
 
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol,  uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size) {
+void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar) {
   uint8_t src_buf[2] = {src_port >> 8, src_port};
   uint8_t dst_buf[2] = {dst_port >> 8, dst_port};
-  uint8_t mr;
-
-  if(protocol == tcp) { mr = 0x01;} //Default tcp
-  if(protocol == udp) { mr = 0x02;} //Default udp 
-  w5500_rw(spi, w5500_socket_mr, s, &mr, sizeof(mr), true);
+  uint8_t config = 0x02;
+  if(protocol == udp) {
+  config = MS(multicast, MULTICAST_BLOCK_MASK, MULTICAST_BLOCK_SHIFT) |
+                   MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
+                   MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
+                   MS(udp, PROTOCOL_MASK, 0);
+  config = 0x82;
+  }
+  if(protocol == tcp) {config = 0x01;}
+  w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
   w5500_close(spi, s);
   w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
   w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
   w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
   w5500_rw(spi, w5500_socket_dipr, s, dst, sizeof(ip_t), true);
   w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
+  if(multicast) {
+    w5500_rw(spi, w5500_socket_dhar, s, dhar, 6, true);
+  }
   w5500_open(spi, s);
   
 }
+
 
 void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp){
   uint8_t config = 
@@ -195,14 +204,7 @@ void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool 
   w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
 }
 
-void w5500_socket_udp_config(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast, bool unicast_block, bool broadcast_block) {
-  
-  uint8_t config = MS(multicast, MULTICAST_BLOCK_MASK, MULTICAST_BLOCK_SHIFT) |
-                   MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
-                   MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
-                   MS(udp, PROTOCOL_MASK, 0);
-  w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(uint8_t), true);
-}
+
 
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t cr = 0x10;
