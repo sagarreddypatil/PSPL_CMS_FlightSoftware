@@ -65,6 +65,7 @@
 const uint baudrate = 1000 * 1000;  // 1000 kHz
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s);
 void w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s);
+void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write); 
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
@@ -138,7 +139,7 @@ void w5500_connect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s) {
  
   while(sr != established) {
     w5500_rw(spi, w5500_socket_cr, s, &connect, 1, true);
-    w5500_rw(spi, w5500_socket_sr, s1, &sr, 1, false);
+    w5500_rw(spi, w5500_socket_sr, s, &sr, 1, false);
     sleep_ms(100);
     printf("Socket Not Established!\n");
   }
@@ -156,15 +157,21 @@ void w5500_disconnect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s) {
 }
 
 
-void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr) {
+void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp) {
   uint8_t mr = 0x00; //Default w5500 options
   uint8_t phy = 0xD8; //100BT Full Duplex Auto Negotiation Disabled
+  uint8_t config = 
+                   MS(wol, WOL_MASK, WOL_SHIFT) | 
+                   MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
+                   MS(0, PPPoE_MASK, PPPoE_SHIFT) |
+                   MS(farp, FARP_MASK, FARP_SHIFT);
   w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_mr, cmn, &mr, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
   w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
   w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
   w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
+  w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
   
 }
 
@@ -193,18 +200,6 @@ void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t prot
   w5500_open(spi, s);
   
 }
-
-
-void w5500_config(SPI_DEVICE_PARAM, bool wol, bool ping_block, bool pppoe, bool farp){
-  uint8_t config = 
-                   MS(wol, WOL_MASK, WOL_SHIFT) | 
-                   MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
-                   MS(pppoe, PPPoE_MASK, PPPoE_SHIFT) |
-                   MS(farp, FARP_MASK, FARP_SHIFT);
-  w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
-}
-
-
 
 void w5500_close(SPI_DEVICE_PARAM, w5500_socket_t s) {
   uint8_t cr = 0x10;
