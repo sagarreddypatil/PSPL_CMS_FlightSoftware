@@ -1,3 +1,4 @@
+
 #include <pico/stdlib.h>
 #include <stdio.h>
 #include <w5500.h>
@@ -27,13 +28,13 @@ int main() {
   uint16_t dst_port = 5000;
   uint8_t data[8] = {0x0A,0x0D,0x03,0x04, 0x00};
   printf("debug point 1, actual baud %d\n", actual_baud);
-  w5500_init(w5500, gateway, subnet, src, mac);
+  w5500_init(w5500, gateway, subnet, src, mac, false, false, false);
   w5500_socket_init(w5500, s1, udp, src_port, dst, dst_port, 2, 2, true, false, false, dhar);
   w5500_print_all(w5500, s1);
   while (true) {
   
   w5500_write_tx(w5500, s1, data, 8);
-  w5500_send(w5500, s1);
+  w5500_cmd_send(w5500, s1);
   sleep_ms(500);
   
   }

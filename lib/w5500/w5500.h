@@ -57,7 +57,8 @@ static const uint16_t w5500_socket_rx_rd      = 0x28;  // Socket Rx Read Data Po
 static const uint16_t w5500_socket_rx_wr      = 0x2A;  // Socket Rx Write Pointer Register
 static const uint16_t w5500_socket_imr        = 0x23;  // Socket Interrupt Mask Register
 static const uint16_t w5500_socket_frag       = 0x2D;  // Socket Fragment Register
-static const uint16_t w5500_socket_kpalvtr    = 0x2F;  //Socket Keep alive Time Register
+static const uint16_t w5500_socket_kpalvtr    = 0x2F;  // Socket Keep alive Time Register
+
 typedef enum {
   cmn = 0b00000,
   s0  = 0b00001,
@@ -77,27 +78,35 @@ typedef enum {
 } w5500_protocol_t;
 
 typedef enum {
-  w5500_socket_open     = 0x01,
-  w5500_socket_close    = 0x10,
-  w5500_socket_send     = 0x20,
-  w5500_socket_send_mac = 0x21,
-  w5500_socket_recv     = 0x40,
-} w5500_mode_t;
+  w5500_cr_open       = 0x01,
+  w5500_cr_listen     = 0x02,
+  w5500_cr_connect    = 0x04,
+  w5500_cr_disconnect = 0x08,
+  w5500_cr_close      = 0x10,
+  w5500_cr_send       = 0x20,
+  w5500_cr_send_mac   = 0x21,
+  w5500_cr_send_keep  = 0x22,
+  w5500_cr_recv       = 0x40,
+} w5500_cr_t;
 
 typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
+
+
 SPI_INITFUNC(w5500);
 
-/* 
+void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
+
+/*
 Initializes w5500 with following options:
-gateway: gateway address to use for connecting to external networks (usually router address) 
-sub_mask: subnet mask to identify devices on local subnet (for our purposes will be the same for all devices)
-src_ip: ip address of w5500
-mac_addr: mac address of w5500
+gateway: gateway address to use for connecting to external networks (usually router address) Ex: for 192.168.2.100, gateway = {192, 168, 2, 100}
+sub_mask: subnet mask to identify devices on local subnet (for our purposes will be the same for all devices) Ex: for 255.255.255.0,  sub_mask = {255,255,255,0}
+src_ip: ip address of w5500 (see gateway for initialization)
+mac_addr: mac address of w5500 Ex: for 1.2.3.4.5.6, mac_addr = {1,2,3,4,5,6}
 wol: if true - wake on LAN
 ping_block: if true - w5500 will block ping requests (in general, leave false)
-farp: if true - w5500 will send an ARP request every time data is sent (unless debugging, leave false) 
+farp: if true - w5500 will send an ARP request every time data is sent (unless debugging, leave false)
 */
 void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp);
 
@@ -105,40 +114,24 @@ void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_
 Initializes a new socket on the w5500 with the following options:
 s: socket number (s0 - s7)
 protocol: protocol type to use (udp or tcp)
-src_port: port of socket 
+src_port: port of socket
 dst, dst_port: destination ip address and port of socket
 txbuf_size, rxbuf_size: portion of rx and tx buffer memory to allocate for socket s (2,4,8,16 kB valid values - will implement error checking here)
 multicast: if true - sets up udp socket to multicast (note: in this more socket does not support ARP)
 unicast_block: if true - blocks unicast messages (further testing needed as to whether this blocks ARP requests)
-broadcast_block: if true - blocks all broadcast messages 
-dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address
+broadcast_block: if true - blocks all broadcast messages
+dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address. (see mac_addr in w5500_init for initialization)
 */
 void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar);
 
 /*
-Configures socket s as TCP client (socket s must be initialized as tcp in socket_init to work )
-*/
-void w5500_connect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
-
-/*
-Configures socket s as TCP server (socket s must be initialized as tcp in socket_init to work )
-*/
-void w5500_listen_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
-
-/*
-Disconnects TCP socket s from client or server (socket s must be initialized as tcp in socket_init to work )
-*/
-void w5500_disconnect_tcp(SPI_DEVICE_PARAM, w5500_socket_t s);
-
-/*
 Writes len bytes from data into transmit buffer for socket s. This is data ready to send to the network
 */
-void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len); 
+void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len);
 
 /*
 Sends all data in socket s tx buffer
 */
-void w5500_send(SPI_DEVICE_PARAM, w5500_socket_t s);
 
 /*
 Processes all data in recieve buffer and puts it into recv_buf
@@ -149,3 +142,21 @@ uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf);
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
 void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
 
+#define w5500_command(command)                                      \
+  static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
+    w5500_cr_t cmd = w5500_cr_##command;                            \
+    w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);               \
+    return 1;                                                       \
+  }
+  w5500_command(open);
+  w5500_command(close);
+  w5500_command(listen);
+  w5500_command(connect);
+  w5500_command(disconnect);
+  w5500_command(send_mac);
+  w5500_command(send_keep);
+  w5500_command(send);
+  w5500_command(recv);
+
+
+#undef w5500_command
