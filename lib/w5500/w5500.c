@@ -58,6 +58,12 @@
 
 #define TTL_MASK 0xFF  // Time to live of IP header
 
+#define ERROR_CHECK(s, reg, expected)               \
+  uint8_t err_check_data;                           \
+  w5500_rw(spi, reg, s, &err_check_data, 1, false); \
+  if (err_check_data != expected) {                 \
+    return -1;                                      \
+  }
 
 const uint baudrate = 1000 * 1000;  // 1000 kHz
 
@@ -65,7 +71,7 @@ SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
 // Read write to register
-void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write) {
+uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write) {
   uint8_t src[3 + len];
   uint8_t dst[3 + len];
 
@@ -85,18 +91,77 @@ void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size
   if (!write) {
     memcpy(data, dst + 3, len);
   }
+  return 1;
 }
 
-void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
+uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp) {
+  uint8_t phy = 0xD8;  // 100BT Full Duplex Auto Negotiation Disabled
+  uint8_t config =
+      MS(wol, WOL_MASK, WOL_SHIFT) |
+      MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
+      MS(0, PPPoE_MASK, PPPoE_SHIFT) |
+      MS(farp, FARP_MASK, FARP_SHIFT);
+  w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
+  w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
+  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
+  return 1;
+}
+
+uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar) {
+  uint8_t src_buf[2] = {src_port >> 8, src_port};
+  uint8_t dst_buf[2] = {dst_port >> 8, dst_port};
+  uint8_t config     = 0x00;
+
+  if (protocol == udp) {
+    config = MS(multicast, MULTICAST_BLOCK_MASK, MULTICAST_BLOCK_SHIFT) |
+             MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
+             MS(0, IGMP_MASK, IGMP_SHIFT) |
+             MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
+             MS(udp, PROTOCOL_MASK, 0);
+  }
+
+  if (protocol == tcp) {
+    config = 0x01;
+  }
+
+  w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
+  w5500_cmd_close(spi, s);
+  w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
+  w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
+  w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
+  w5500_rw(spi, w5500_socket_dipr, s, dst, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
+
+  if (multicast) {
+    w5500_rw(spi, w5500_socket_dhar, s, dhar, 6, true);
+  }
+
+  w5500_cmd_open(spi, s);
+
+  if (protocol == udp) {
+    ERROR_CHECK(s, w5500_socket_sr, w5500_SOCK_UDP);
+  }
+
+  if (protocol == tcp) {
+    ERROR_CHECK(s, w5500_socket_sr, w5500_SOCK_INIT);
+  }
+  return 1;
+}
+
+uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
   uint8_t write_addr_buf[2];
   uint16_t write_addr;
   w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, false);
   write_addr = CONCAT16(write_addr_buf[0], write_addr_buf[1]);
   w5500_rw(spi, write_addr, TXBUF(s), data, len, true);
-  write_addr+=len;
+  write_addr += len;
   write_addr_buf[0] = write_addr >> 8;
   write_addr_buf[1] = write_addr;
   w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, true);
+  return 1;
 }
 
 uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf) {
@@ -109,65 +174,18 @@ uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf) {
   w5500_rw(spi, w5500_socket_rsr, s, recieved_buf, 2, false);
   recieved = CONCAT16(recieved_buf[0], recieved_buf[1]);
   w5500_rw(spi, read_addr, RXBUF(s), recv_buf, recieved, false);
-  read_addr+=recieved;
+  read_addr += recieved;
   read_addr_buf[0] = read_addr >> 8;
   read_addr_buf[1] = read_addr;
   w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, true);
   w5500_cmd_recv(spi, s);
   return recieved;
-  
-
 }
-
-void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp) {
-  uint8_t phy = 0xD8; //100BT Full Duplex Auto Negotiation Disabled
-  uint8_t config = 
-                   MS(wol, WOL_MASK, WOL_SHIFT) | 
-                   MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
-                   MS(0, PPPoE_MASK, PPPoE_SHIFT) |
-                   MS(farp, FARP_MASK, FARP_SHIFT);
-  w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
-  w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
-  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
-  w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
-  w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
-  w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
-}
-
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar) {
-  uint8_t src_buf[2] = {src_port >> 8, src_port};
-  uint8_t dst_buf[2] = {dst_port >> 8, dst_port};
-  uint8_t config = 0x02;
-  if(protocol == udp) {
-  config = MS(multicast, MULTICAST_BLOCK_MASK, MULTICAST_BLOCK_SHIFT) |
-                   MS(broadcast_block, BROADCAST_BLOCK_MASK, BROADCAST_BLOCK_SHIFT) |
-                   MS(0,IGMP_MASK, IGMP_SHIFT) |
-                   MS(unicast_block, UNICAST_BLOCK_MASK, UNICAST_BLOCK_SHIFT) |
-                   MS(udp, PROTOCOL_MASK, 0);
-  }
-  if(protocol == tcp) {config = 0x01;}
-  w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
-  w5500_cmd_close(spi, s);
-  w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
-  w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
-  w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
-  w5500_rw(spi, w5500_socket_dipr, s, dst, sizeof(ip_t), true);
-  w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
-  if(multicast) {
-    w5500_rw(spi, w5500_socket_dhar, s, dhar, 6, true);
-  }
-  w5500_cmd_open(spi, s);
-  
-}
-
-
-
-
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len) {
   uint8_t data[6];
   w5500_rw(spi, reg, s, data, len, false);
-  for(int i = 0; i < len; i++) {
+  for (int i = 0; i < len; i++) {
     printf("0x%x ", data[i]);
   }
   printf("\n");

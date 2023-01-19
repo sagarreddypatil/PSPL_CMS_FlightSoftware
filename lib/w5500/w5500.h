@@ -89,14 +89,35 @@ typedef enum {
   w5500_cr_recv       = 0x40,
 } w5500_cr_t;
 
+typedef enum {
+  w5500_ir_SENDOK  = 0x10,
+  w5500_ir_TIMEOUT = 0x08,
+  w5500_ir_RECV    = 0x04,
+  w5500_ir_DISCON  = 0x02,
+  w5500_ir_CON     = 0x00,
+} w5500_ir_t;
+
+typedef enum {
+  w5500_SOCK_CLOSED      = 0x00,
+  w5500_SOCK_INIT        = 0x13,
+  w5500_SOCK_LISTEN      = 0x14,
+  w5500_SOCK_ESTABLISHED = 0x17,
+  w5500_SOCK_CLOSE_WAIT  = 0x1C,
+  w5500_SOCK_UDP         = 0x22,
+  w5500_SOCK_SYNSENT     = 0x15,
+  w5500_SOCK_SYNRECV     = 0x16,
+  w5500_SOCK_FIN_WAIT    = 0x18,
+  w5500_SOCK_CLOSING     = 0x1A,
+  w5500_SOCK_TIME_WAIT   = 0x1B,
+  w5500_SOCK_LAST_ACK    = 0x1D
+} w5500_sr_t;
+
 typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
-
-
 SPI_INITFUNC(w5500);
 
-void w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
+uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
 
 /*
 Initializes w5500 with following options:
@@ -108,7 +129,8 @@ wol: if true - wake on LAN
 ping_block: if true - w5500 will block ping requests (in general, leave false)
 farp: if true - w5500 will send an ARP request every time data is sent (unless debugging, leave false)
 */
-void w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp);
+
+uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp);
 
 /*
 Initializes a new socket on the w5500 with the following options:
@@ -122,41 +144,40 @@ unicast_block: if true - blocks unicast messages (further testing needed as to w
 broadcast_block: if true - blocks all broadcast messages
 dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address. (see mac_addr in w5500_init for initialization)
 */
-void w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar);
+
+uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar);
 
 /*
 Writes len bytes from data into transmit buffer for socket s. This is data ready to send to the network
 */
-void w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len);
 
-/*
-Sends all data in socket s tx buffer
-*/
+uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len);
 
 /*
 Processes all data in recieve buffer and puts it into recv_buf
 Returns number of bytes of new data in recieve buffer, can be used to read new data without processing the whole buffer (may change)
 */
+
 uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf);
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
 void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
 
-#define w5500_command(command)                                      \
+#define w5500_command(command)                                                    \
   static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
-    w5500_cr_t cmd = w5500_cr_##command;                            \
-    w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);               \
-    return 1;                                                       \
+    w5500_cr_t cmd = w5500_cr_##command;                                          \
+    w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                             \
+    return 1;                                                                     \
   }
-  w5500_command(open);
-  w5500_command(close);
-  w5500_command(listen);
-  w5500_command(connect);
-  w5500_command(disconnect);
-  w5500_command(send_mac);
-  w5500_command(send_keep);
-  w5500_command(send);
-  w5500_command(recv);
 
+w5500_command(open);
+w5500_command(close);
+w5500_command(listen);
+w5500_command(connect);
+w5500_command(disconnect);
+w5500_command(send_mac);
+w5500_command(send_keep);
+w5500_command(send);
+w5500_command(recv);
 
 #undef w5500_command
