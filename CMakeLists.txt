@@ -56,7 +56,7 @@ set(boards
 
     # emu
     # tc-test-board
-    #eth-1
+    eth-1
     eth-2
 )
 

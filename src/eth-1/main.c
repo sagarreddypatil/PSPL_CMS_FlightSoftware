@@ -20,16 +20,17 @@ int main() {
   uint actual_baud = w5500_set(w5500);
   ip_t gateway = {192,168,2,50};
   ip_t subnet = {0xff, 0xff, 0xff, 0x00};
-  ip_t src = {239,255,255,255};
+  ip_t src = {192,168,2,101};
   mac_t mac = {0x09, 0x10, 0x11, 0x12, 0x13, 0x14};
-  ip_t dst = {192, 168, 2, 101};
-  ip_t dhar = {0,0,0,0};
+  ip_t dst = {192, 168, 2, 102};
+  mac_t dhar = {0,0,0,0};
   uint16_t src_port = 5000;
   uint16_t dst_port = 5000;
   uint8_t recv_buf[2000] = {0};
   printf("debug point 1, actual baud %d\n", actual_baud);
   w5500_init(w5500, gateway, subnet, src, mac, false, false, false);
-  w5500_socket_init(w5500, s1, udp, src_port, dst, dst_port, 2 , 2, false, false, false, dhar);
+  w5500_socket_init(w5500, s1, tcp, src_port, dst, dst_port, 2 , 2, false, false, false, dhar);
+  w5500_cmd_listen(w5500, s1);
   w5500_print_all(w5500, s1);
   while(true) {
     uint16_t recieved = w5500_recv(w5500, s1, recv_buf);

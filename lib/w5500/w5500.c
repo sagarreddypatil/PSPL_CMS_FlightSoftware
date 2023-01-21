@@ -58,6 +58,9 @@
 
 #define TTL_MASK 0xFF  // Time to live of IP header
 
+/*
+Prototype Macro for error checking in sending data, initializing sockets, etc.
+*/
 #define ERROR_CHECK(s, reg, expected)               \
   uint8_t err_check_data;                           \
   w5500_rw(spi, reg, s, &err_check_data, 1, false); \
@@ -96,17 +99,20 @@ uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, s
 
 uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp) {
   uint8_t phy = 0xD8;  // 100BT Full Duplex Auto Negotiation Disabled
+
   uint8_t config =
       MS(wol, WOL_MASK, WOL_SHIFT) |
       MS(ping_block, PING_BLOCK_MASK, PING_BLOCK_SHIFT) |
       MS(0, PPPoE_MASK, PPPoE_SHIFT) |
       MS(farp, FARP_MASK, FARP_SHIFT);
+
   w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
   w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
   w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
   w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
   w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
+
   return 1;
 }
 
@@ -124,7 +130,7 @@ uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t p
   }
 
   if (protocol == tcp) {
-    config = 0x01;
+    config = 0x11; //No delay acknowledgement
   }
 
   w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
@@ -154,13 +160,17 @@ uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t p
 uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
   uint8_t write_addr_buf[2];
   uint16_t write_addr;
+
   w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, false);
   write_addr = CONCAT16(write_addr_buf[0], write_addr_buf[1]);
   w5500_rw(spi, write_addr, TXBUF(s), data, len, true);
+
   write_addr += len;
   write_addr_buf[0] = write_addr >> 8;
   write_addr_buf[1] = write_addr;
+
   w5500_rw(spi, w5500_socket_tx_wr, s, write_addr_buf, 2, true);
+
   return 1;
 }
 
@@ -169,18 +179,30 @@ uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf) {
   uint16_t read_addr;
   uint8_t recieved_buf[2];
   uint16_t recieved;
+
   w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, false);
   read_addr = CONCAT16(read_addr_buf[0], read_addr_buf[1]);
+
   w5500_rw(spi, w5500_socket_rsr, s, recieved_buf, 2, false);
   recieved = CONCAT16(recieved_buf[0], recieved_buf[1]);
+  
   w5500_rw(spi, read_addr, RXBUF(s), recv_buf, recieved, false);
+  
   read_addr += recieved;
   read_addr_buf[0] = read_addr >> 8;
+  
   read_addr_buf[1] = read_addr;
+  
   w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, true);
+  
   w5500_cmd_recv(spi, s);
+  
   return recieved;
 }
+
+/*
+For debugging, hopefully will be replaced with some sort of actual debugger at some point
+*/
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len) {
   uint8_t data[6];

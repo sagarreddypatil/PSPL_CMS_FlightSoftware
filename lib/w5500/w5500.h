@@ -6,9 +6,9 @@ https://cdn.sparkfun.com/datasheets/Dev/Arduino/Shields/W5500_datasheet_v1.0.2_1
 #pragma once
 #include <spi_device.h>
 
-/*===============================
-Common Register Addresses pg 32
-===============================*/
+/*
+ * Common Register Addresses pg 32
+*/
 
 static const uint16_t w5500_mr       = 0x00;  // Mode Register
 static const uint16_t w5500_gar      = 0x01;  // Gateway IP Address Register
@@ -32,9 +32,9 @@ static const uint16_t w5500_uportr   = 0x2C;  // Unreachable Port Registers
 static const uint16_t w5500_phycfgr  = 0x2E;  // PHY Configuration Register
 static const uint16_t w5500_versionr = 0x39;  // Chip Version Register
 
-/*===============================
-Socket Register Addresses pg 44
-===============================*/
+/*
+ * Socket Register Addresses pg 44
+*/
 
 static const uint16_t w5500_socket_mr         = 0x00;  // Socket Mode Register
 static const uint16_t w5500_socket_cr         = 0x01;  // Socket Command Register
@@ -59,6 +59,10 @@ static const uint16_t w5500_socket_imr        = 0x23;  // Socket Interrupt Mask 
 static const uint16_t w5500_socket_frag       = 0x2D;  // Socket Fragment Register
 static const uint16_t w5500_socket_kpalvtr    = 0x2F;  // Socket Keep alive Time Register
 
+/*
+ * Socket numbers
+*/
+
 typedef enum {
   cmn = 0b00000,
   s0  = 0b00001,
@@ -71,11 +75,20 @@ typedef enum {
   s7  = 0b11101,
 } w5500_socket_t;
 
+
+/*
+ * Protocols for sockets
+*/
+
 typedef enum {
   socket_closed = 0x00,
   tcp           = 0x01,
   udp           = 0x02,
 } w5500_protocol_t;
+
+/*
+Commands to initialize sockets, send & recv data
+*/
 
 typedef enum {
   w5500_cr_open       = 0x01,
@@ -89,6 +102,10 @@ typedef enum {
   w5500_cr_recv       = 0x40,
 } w5500_cr_t;
 
+/*
+Interrupt values that w5500 can return (useful for error checking during socket operation)
+*/
+
 typedef enum {
   w5500_ir_SENDOK  = 0x10,
   w5500_ir_TIMEOUT = 0x08,
@@ -96,6 +113,10 @@ typedef enum {
   w5500_ir_DISCON  = 0x02,
   w5500_ir_CON     = 0x00,
 } w5500_ir_t;
+
+/*
+Status Codes that w5500 can return (useful for error checking in socket initialization)
+*/
 
 typedef enum {
   w5500_SOCK_CLOSED      = 0x00,
@@ -133,16 +154,16 @@ farp: if true - w5500 will send an ARP request every time data is sent (unless d
 uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp);
 
 /*
-Initializes a new socket on the w5500 with the following options:
-s: socket number (s0 - s7)
-protocol: protocol type to use (udp or tcp)
-src_port: port of socket
-dst, dst_port: destination ip address and port of socket
-txbuf_size, rxbuf_size: portion of rx and tx buffer memory to allocate for socket s (2,4,8,16 kB valid values - will implement error checking here)
-multicast: if true - sets up udp socket to multicast (note: in this more socket does not support ARP)
-unicast_block: if true - blocks unicast messages (further testing needed as to whether this blocks ARP requests)
-broadcast_block: if true - blocks all broadcast messages
-dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address. (see mac_addr in w5500_init for initialization)
+ * Initializes a new socket on the w5500 with the following options:
+ * s: socket number (s0 - s7)
+ * protocol: protocol type to use (udp or tcp)
+ * src_port: port of socket
+ * dst, dst_port: destination ip address and port of socket
+ * txbuf_size, rxbuf_size: portion of rx and tx buffer memory to allocate for socket s (2,4,8,16 kB valid values - will implement error checking here)
+ * multicast: if true - sets up udp socket to multicast (note: in this more socket does not support ARP)
+ * unicast_block: if true - blocks unicast messages (further testing needed as to whether this blocks ARP requests)
+ * broadcast_block: if true - blocks all broadcast messages
+ * dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address. (see mac_addr in w5500_init for initialization)
 */
 
 uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar);
@@ -162,6 +183,10 @@ uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf);
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
 void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
+
+/*
+ * Automatically creates functions for sending commands to w5500
+*/
 
 #define w5500_command(command)                                                    \
   static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
