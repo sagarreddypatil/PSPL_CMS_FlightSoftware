@@ -134,6 +134,7 @@ uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t p
   }
 
   w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
+  
   w5500_cmd_close(spi, s);
   w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
   w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
