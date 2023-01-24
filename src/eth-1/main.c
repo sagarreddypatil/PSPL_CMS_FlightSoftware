@@ -38,7 +38,7 @@ int main() {
       printf(" 0x%x,", *(recv_buf + i));
     }
     printf("\n");
-    sleep_ms(1000);
+    sleep_ms(10);
   }
   
 }

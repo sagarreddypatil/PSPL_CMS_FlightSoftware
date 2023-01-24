@@ -205,7 +205,7 @@ void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
 #define __w5500_command(command)                                                  \
   static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
     w5500_cr_t cmd = w5500_cr_##command;                                          \
-    __w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                             \
+    __w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                           \
     return 1;                                                                     \
   }
 
