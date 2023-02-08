@@ -68,7 +68,7 @@ Prototype Macro for error checking in sending data, initializing sockets, etc.
     return -1;                                        \
   }
 
-const uint baudrate = 1000 * 1000;  // 1000 kHz
+const uint baudrate = 1000 * 1000 *  10;  // 10 MHz
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
