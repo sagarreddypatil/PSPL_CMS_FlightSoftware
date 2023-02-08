@@ -8,8 +8,8 @@
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
-#define TXBUF(s) (s + 1)
-#define RXBUF(s) (s + 2)
+#define BSB_TX_OFFSET 1
+#define BSB_RX_OFFSET 2
 
 #define HALF_DUPLEX 0  // Half and Full duplex
 #define FULL_DUPLEX 1
@@ -61,20 +61,20 @@
 /*
 Prototype Macro for error checking in sending data, initializing sockets, etc.
 */
-#define ERROR_CHECK(s, reg, expected)                 \
-  uint8_t err_check_data;                             \
-  __w5500_rw(spi, reg, s, &err_check_data, 1, false); \
-  if (err_check_data != expected) {                   \
-    return -1;                                        \
+#define ERROR_CHECK(s, reg, expected)               \
+  uint8_t err_check_data;                           \
+  w5500_rw(spi, reg, s, &err_check_data, 1, false); \
+  if (err_check_data != expected) {                 \
+    return -1;                                      \
   }
 
-const uint baudrate = 1000 * 1000 *  10;  // 10 MHz
+const uint baudrate = 1000 * 1000 * 10;  // 10 MHz
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
 // Read write to register
-uint8_t __w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write) {
+uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write) {
   uint8_t src[3 + len];
   uint8_t dst[3 + len];
 
@@ -106,12 +106,12 @@ uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, m
       MS(0, PPPoE_MASK, PPPoE_SHIFT) |
       MS(farp, FARP_MASK, FARP_SHIFT);
 
-  __w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
-  __w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
-  __w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
-  __w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
-  __w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
-  __w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
+  w5500_rw(spi, w5500_mr, cmn, &config, sizeof(uint8_t), true);
+  w5500_rw(spi, w5500_phycfgr, cmn, &phy, sizeof(uint8_t), true);
+  w5500_rw(spi, w5500_gar, cmn, gateway, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_subr, cmn, sub_mask, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_sipr, cmn, src_ip, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_shar, cmn, mac_addr, sizeof(mac_t), true);
 
   return 1;
 }
@@ -133,18 +133,18 @@ uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t p
     config = 0x11;
   }
 
-  __w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
+  w5500_rw(spi, w5500_socket_mr, s, &config, sizeof(config), true);
 
   w5500_cmd_close(spi, s);
 
-  __w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
-  __w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
-  __w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
-  __w5500_rw(spi, w5500_socket_dipr, s, dst, sizeof(ip_t), true);
-  __w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
+  w5500_rw(spi, w5500_socket_sport, s, src_buf, sizeof(src_buf), true);
+  w5500_rw(spi, w5500_socket_rxbuf_size, s, &rxbuf_size, 1, true);
+  w5500_rw(spi, w5500_socket_txbuf_size, s, &txbuf_size, 1, true);
+  w5500_rw(spi, w5500_socket_dipr, s, dst, sizeof(ip_t), true);
+  w5500_rw(spi, w5500_socket_dport, s, dst_buf, sizeof(dst_buf), true);
 
   if (multicast) {
-    __w5500_rw(spi, w5500_socket_dhar, s, dhar, 6, true);
+    w5500_rw(spi, w5500_socket_dhar, s, dhar, 6, true);
   }
 
   w5500_cmd_open(spi, s);
@@ -165,7 +165,7 @@ uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t le
   uint16_t free_size;
 
   // get current free size
-  __w5500_rw(spi, w5500_socket_tx_fsr, s, buf, 2, false);
+  w5500_rw(spi, w5500_socket_tx_fsr, s, buf, 2, false);
   free_size = CONCAT16(buf[0], buf[1]);
 
   // checking if there is enough free space in buffer for the data
@@ -174,17 +174,17 @@ uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t le
   }
 
   // get current write address
-  __w5500_rw(spi, w5500_socket_tx_wr, s, buf, 2, false);
+  w5500_rw(spi, w5500_socket_tx_wr, s, buf, 2, false);
   write_addr = CONCAT16(buf[0], buf[1]);
 
   // write len bytes to tx buffer starting at write_addr
-  __w5500_rw(spi, write_addr, TXBUF(s), data, len, true);
+  w5500_rw(spi, write_addr, s + BSB_TX_OFFSET, data, len, true);
 
   // update write address
   write_addr += len;
   buf[0] = write_addr >> 8;
   buf[1] = write_addr;
-  __w5500_rw(spi, w5500_socket_tx_wr, s, buf, 2, true);
+  w5500_rw(spi, w5500_socket_tx_wr, s, buf, 2, true);
   return 1;
 }
 
@@ -194,20 +194,20 @@ uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf) {
   uint8_t recieved_buf[2];
   uint16_t recieved;
 
-  __w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, false);
+  w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, false);
   read_addr = CONCAT16(read_addr_buf[0], read_addr_buf[1]);
 
-  __w5500_rw(spi, w5500_socket_rsr, s, recieved_buf, 2, false);
+  w5500_rw(spi, w5500_socket_rsr, s, recieved_buf, 2, false);
   recieved = CONCAT16(recieved_buf[0], recieved_buf[1]);
 
-  __w5500_rw(spi, read_addr, RXBUF(s), recv_buf, recieved, false);
+  w5500_rw(spi, read_addr, s + BSB_RX_OFFSET, recv_buf, recieved, false);
 
   read_addr += recieved;
   read_addr_buf[0] = read_addr >> 8;
 
   read_addr_buf[1] = read_addr;
 
-  __w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, true);
+  w5500_rw(spi, w5500_socket_rx_rd, s, read_addr_buf, 2, true);
 
   w5500_cmd_recv(spi, s);
 
@@ -220,7 +220,7 @@ For debugging, hopefully will be replaced with some sort of actual debugger at s
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len) {
   uint8_t data[6];
-  __w5500_rw(spi, reg, s, data, len, false);
+  w5500_rw(spi, reg, s, data, len, false);
   for (int i = 0; i < len; i++) {
     printf("0x%x ", data[i]);
   }

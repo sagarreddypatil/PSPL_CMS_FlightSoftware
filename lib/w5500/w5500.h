@@ -149,7 +149,7 @@ SPI_INITFUNC(w5500);
  * @param write if true, write data, else read data
  * @return 1 to indicate success
  */
-uint8_t __w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
+uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
 
 /** @brief Initializes w5500
  *
@@ -205,7 +205,7 @@ void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
 #define __w5500_command(command)                                                  \
   static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
     w5500_cr_t cmd = w5500_cr_##command;                                          \
-    __w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                           \
+    w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                             \
     return 1;                                                                     \
   }
 
@@ -219,4 +219,4 @@ __w5500_command(send_keep);
 __w5500_command(send);
 __w5500_command(recv);
 
-#undef w5500_command
+#undef __w5500_command
