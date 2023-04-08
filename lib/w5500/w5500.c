@@ -68,7 +68,7 @@ Prototype Macro for error checking in sending data, initializing sockets, etc.
     return -1;                                      \
   }
 
-const uint baudrate = 1000 * 1000 * 10;  // 10 MHz
+const uint baudrate = 1000 * 1000 * 80;  // 80 MHz
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
@@ -170,7 +170,7 @@ uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t le
 
   // checking if there is enough free space in buffer for the data
   if (free_size <= len) {
-    w5500_cmd_send(spi, s);
+    return 0;
   }
 
   // get current write address
