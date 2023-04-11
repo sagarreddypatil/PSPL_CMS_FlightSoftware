@@ -19,7 +19,7 @@ include(util)
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi)
+set(stdlibs pico_stdlib hardware_gpio hardware_spi hardware_pwm)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -56,6 +56,7 @@ set(boards
 
     # emu
     tc-test-board
+    adc-test-board
 )
 
 foreach(board ${boards})
