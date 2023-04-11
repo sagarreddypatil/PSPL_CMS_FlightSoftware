@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.13)
 
+# check if PICO_PLATFORM is host
+if(PICO_PLATFORM MATCHES "host")
+endif()
+
 # ---------- Setup  ----------
 # to make sure stuff in the cmake folder can be located
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
@@ -15,7 +19,7 @@ include(util)
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi)
+set(stdlibs pico_stdlib hardware_gpio hardware_spi hardware_pwm)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -23,9 +27,15 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 add_compile_options(
     -Wall # Enable all warnings
-    -Werror # Treat warnings as errors
     -O3 # I am speed
+    -Werror # Treat warnings as errors
 )
+
+if(PICO_PLATFORM MATCHES "host")
+    add_compile_options(
+        -Wno-error # host compilation redefines shit for some reason, and it prevents compilation
+    )
+endif()
 
 # ---------- Libraries  ----------
 subdirlist(libs ${CMAKE_SOURCE_DIR}/lib)
@@ -45,8 +55,8 @@ endforeach()
 set(boards
 
     # emu
-    # tc-test-board
-    adc-test
+    tc-test-board
+    adc-test-board
 )
 
 foreach(board ${boards})
