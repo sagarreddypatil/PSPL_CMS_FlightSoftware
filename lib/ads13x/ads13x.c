@@ -74,35 +74,35 @@ enum CH_CFG_SETTING {
 void ads13x_init(SPI_DEVICE_PARAM) {
 }
 
-void ads13x_wreg_single(SPI_DEVICE_PARAM, uint8_t reg, uint16_t data) {
+void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
 }
 
-uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, uint8_t reg) {
+uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
   uint8_t rreg_cmd = RREG(reg, 1);
   uint8_t cmd[3]   = {rreg_cmd, 0, 0};
-  uint8_t data[12]   = {};
+  uint8_t data[12] = {};
   SPI_TRANSFER(cmd, data, 3);
   SPI_READ(data + 3, 9);
   for (int i = 0; i < 12; i++) {
     printf("%02x ", data[i]);
   }
   printf("\n");
-//  uint16_t register_data = (data[0] << 8) | data[1];
+  //  uint16_t register_data = (data[0] << 8) | data[1];
   return 0;
 }
 #define data_len 12
-//int global_counter = 1;
+// int global_counter = 1;
 uint32_t ads13x_read_data(SPI_DEVICE_PARAM) {
   uint8_t data[data_len] = {};
-  for(int i = 0; i < 1; i++){
+  for (int i = 0; i < 1; i++) {
     SPI_READ(data, data_len);
   }
-//  global_counter++;
-//  if (global_counter % 100 == 0) {
-    for (int i = 0; i < data_len; i++) {
-      printf("0x%02X ", data[i]);
-    }
-    printf("\n");
+  //  global_counter++;
+  //  if (global_counter % 100 == 0) {
+  for (int i = 0; i < data_len; i++) {
+    printf("0x%02X ", data[i]);
+  }
+  printf("\n");
 
   return 0;
 }
@@ -112,6 +112,6 @@ void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_GAIN_SETTING gain_setting) {
 }
 
 void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads13x_SAMPLE_RATE sampleRate,
-                      ads13x_PWR_SETTING powerSetting) {
+                     ads13x_PWR_SETTING powerSetting) {
   ads13x_wreg_single(spi, ads13x_mode, CLOCK(ch0, ch1, ch2, ch3, 0, sampleRate, powerSetting));
 }
