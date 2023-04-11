@@ -7,7 +7,7 @@ SPI_DEVICE(w5500, spi0, 0);
 int main() {
   stdio_init_all();
 
-  spi_init(spi0, 1000 * 1000);
+  spi_init(spi0, 1000);
   gpio_set_function(2, GPIO_FUNC_SPI);
   gpio_set_function(3, GPIO_FUNC_SPI);
   gpio_set_function(4, GPIO_FUNC_SPI);
@@ -18,27 +18,23 @@ int main() {
   }
 
   uint actual_baud = w5500_set(w5500);
+
   ip_t gateway = {192,168,2,50};
-  ip_t subnet = {0xff, 0xff, 0xff, 0x00};
-  ip_t src = {192,168,2,101};
-  mac_t mac = {0x09, 0x10, 0x11, 0x12, 0x13, 0x14};
-  ip_t dst = {192, 168, 2, 102};
-  mac_t dhar = {0,0,0,0};
+  ip_t subnet_mask = {0xff, 0xff, 0xff, 0x00};
+  ip_t src_ip = {192,168,2,101};
+  mac_t src_mac = {0x09, 0x10, 0x11, 0x12, 0x13, 0x14};
+  ip_t s1_dst = {192, 168, 2, 102};
+
+
   uint16_t src_port = 5000;
   uint16_t dst_port = 5000;
-  uint8_t recv_buf[2000] = {0};
+  //uint8_t recv_buf[10] = {0};
+
   printf("debug point 1, actual baud %d\n", actual_baud);
-  w5500_init(w5500, gateway, subnet, src, mac, false, false, false);
-  w5500_socket_init(w5500, s1, tcp, src_port, dst, dst_port, 2 , 2, false, false, false, dhar);
-  w5500_cmd_listen(w5500, s1);
-  w5500_print_all(w5500, s1);
-  while(true) {
-    uint16_t recieved = w5500_recv(w5500, s1, recv_buf);
-    for(int i = 0; i < recieved; i++) {
-      printf(" 0x%x,", *(recv_buf + i));
-    }
-    printf("\n");
-    sleep_ms(10);
+
+  w5500_create(w5500, src_ip, src_mac, subnet_mask, gateway, 20, 5, false, false, false);
+  if(w5500_create_socket(w5500, s1, udp, false, s1_dst, src_port, dst_port, 8, 8, false, false)) {
+    w5500_print_all(w5500, s1);
   }
   
 }

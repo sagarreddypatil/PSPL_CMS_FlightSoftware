@@ -8,9 +8,7 @@
 #pragma once
 #include <spi_device.h>
 
-/*
- * Common Register Addresses pg 32
- */
+/* Common Register Addresses pg 32 */
 
 static const uint16_t w5500_mr       = 0x00;  // Mode Register
 static const uint16_t w5500_gar      = 0x01;  // Gateway IP Address Register
@@ -34,9 +32,7 @@ static const uint16_t w5500_uportr   = 0x2C;  // Unreachable Port Registers
 static const uint16_t w5500_phycfgr  = 0x2E;  // PHY Configuration Register
 static const uint16_t w5500_versionr = 0x39;  // Chip Version Register
 
-/*
- * Socket Register Addresses pg 44
- */
+/* Socket Register Addresses pg 44 */
 
 static const uint16_t w5500_socket_mr         = 0x00;  // Socket Mode Register
 static const uint16_t w5500_socket_cr         = 0x01;  // Socket Command Register
@@ -61,83 +57,95 @@ static const uint16_t w5500_socket_imr        = 0x23;  // Socket Interrupt Mask 
 static const uint16_t w5500_socket_frag       = 0x2D;  // Socket Fragment Register
 static const uint16_t w5500_socket_kpalvtr    = 0x2F;  // Socket Keep alive Time Register
 
-/*
- * Socket numbers
- */
+/* Interrupts */
+static const uint8_t INT_SENDOK     = 0x10;
+static const uint8_t INT_TIMEOUT    = 0x08;
+static const uint8_t INT_RECV       = 0x04;
+static const uint8_t INT_DISCONNECT = 0x02;
+static const uint8_t INT_CONNECT    = 0x00;
+
+/*Socket Commands*/
+static const uint8_t CMD_OPEN       = 0x01;
+static const uint8_t CMD_LISTEN     = 0x02;
+static const uint8_t CMD_CONNECT    = 0x04;
+static const uint8_t CMD_DISCONNECT = 0x08;
+static const uint8_t CMD_CLOSE      = 0x10;
+static const uint8_t CMD_SEND       = 0x20;
+static const uint8_t CMD_SEND_MAC   = 0x21;
+static const uint8_t CMD_SEND_KEEP  = 0x22;
+static const uint8_t CMD_RECIEVE    = 0x40;
+
+/*Socket Status*/
+
+static const uint8_t SOCK_CLOSED      = 0x00;
+static const uint8_t SOCK_INIT        = 0x13;
+static const uint8_t SOCK_LISTEN      = 0x14;
+static const uint8_t SOCK_ESTABLISHED = 0x17;
+static const uint8_t SOCK_CLOSE_WAIT  = 0x1C;
+static const uint8_t SOCK_UDP         = 0x22;
+static const uint8_t SOCK_MACRAW      = 0x42;
+static const uint8_t SOCK_SYNSENT     = 0x15;
+static const uint8_t SOCK_SYNRECV     = 0x16;
+static const uint8_t SOCK_FIN_WAIT    = 0x18;
+static const uint8_t SOCK_CLOSING     = 0x1A;
+static const uint8_t SOCK_TIME_WAIT   = 0x1B;
+static const uint8_t SOCK_LAST_ACK    = 0x1D;
+
+/* Socket numbers */
 
 typedef enum {
-  cmn = 0b00000,
-  s0  = 0b00001,
-  s1  = 0b00101,
-  s2  = 0b01001,
-  s3  = 0b01101,
-  s4  = 0b10001,
-  s5  = 0b10101,
-  s6  = 0b11001,
-  s7  = 0b11101,
+  cmn = 0x00,
+  s0  = 0x01,
+  s1  = 0x05,
+  s2  = 0x00,
+  s3  = 0x0D,
+  s4  = 0x11,
+  s5  = 0x15,
+  s6  = 0x19,
+  s7  = 0x1E,
 } w5500_socket_t;
 
-/*
- * Protocols for sockets
- */
+/* Protocols for sockets */
 
 typedef enum {
-  socket_closed = 0x00,
-  tcp           = 0x01,
-  udp           = 0x02,
+  tcp = 0x01,
+  udp = 0x02,
 } w5500_protocol_t;
-
-/*
- * Socket commands
- */
-
-typedef enum {
-  w5500_cr_open       = 0x01,
-  w5500_cr_listen     = 0x02,
-  w5500_cr_connect    = 0x04,
-  w5500_cr_disconnect = 0x08,
-  w5500_cr_close      = 0x10,
-  w5500_cr_send       = 0x20,
-  w5500_cr_send_mac   = 0x21,
-  w5500_cr_send_keep  = 0x22,
-  w5500_cr_recv       = 0x40,
-} w5500_cr_t;
-
-/*
- * Interrupt values that w5500 can return (error checking during socket operation)
- */
-
-typedef enum {
-  w5500_ir_SENDOK  = 0x10,
-  w5500_ir_TIMEOUT = 0x08,
-  w5500_ir_RECV    = 0x04,
-  w5500_ir_DISCON  = 0x02,
-  w5500_ir_CON     = 0x00,
-} w5500_ir_t;
-
-/*
- * Status Codes that w5500 can return (error checking in socket initialization)
- */
-
-typedef enum {
-  w5500_SOCK_CLOSED      = 0x00,
-  w5500_SOCK_INIT        = 0x13,
-  w5500_SOCK_LISTEN      = 0x14,
-  w5500_SOCK_ESTABLISHED = 0x17,
-  w5500_SOCK_CLOSE_WAIT  = 0x1C,
-  w5500_SOCK_UDP         = 0x22,
-  w5500_SOCK_SYNSENT     = 0x15,
-  w5500_SOCK_SYNRECV     = 0x16,
-  w5500_SOCK_FIN_WAIT    = 0x18,
-  w5500_SOCK_CLOSING     = 0x1A,
-  w5500_SOCK_TIME_WAIT   = 0x1B,
-  w5500_SOCK_LAST_ACK    = 0x1D
-} w5500_sr_t;
 
 typedef uint8_t ip_t[4];
 typedef uint8_t mac_t[6];
 
 SPI_INITFUNC(w5500);
+
+/* The new era of ethernet driver */
+
+/*W5500 Constructors*/
+uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_mask, ip_t gateway, uint8_t retry_time, uint8_t retry_count, bool wake_on_LAN, bool block_ping, bool force_ARP);
+
+/*Socket Constructors*/
+uint8_t w5500_create_socket(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, bool multicast, ip_t dst_addr, uint16_t src_port, uint16_t dst_port, uint8_t rx_buffer_size, uint8_t tx_buffer_size, bool block_broadcast, bool block_unicast);
+
+/*Socket Writing & Reading*/
+uint8_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t length);
+uint8_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv, size_t length);
+
+/*Socket Commands*/
+
+uint8_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command);
+uint8_t w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_listen(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_connect(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_disconnect(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_send_data(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_check_tcp_conn(SPI_DEVICE_PARAM, w5500_socket_t s);
+
+/*Helper Functions*/
+uint8_t w5500_split16(uint16_t num, uint8_t * dst);
+uint16_t w5500_concat16(uint8_t* num);
+
+/*Error Checking Functions*/
+uint8_t w5500_check_status(SPI_DEVICE_PARAM, w5500_socket_t s);
+uint8_t w5500_check_interrupt(SPI_DEVICE_PARAM, w5500_socket_t s);
 
 /** @brief Reads or writes len bytes starting at address reg
  *
@@ -146,77 +154,12 @@ SPI_INITFUNC(w5500);
  * @param s the socket number to write/read
  * @param data data to write to socket/address to store data at
  * @param len length of bytes being read/written
- * @param write if true, write data, else read data
+ * @param write if true; write data; else read data
  * @return 1 to indicate success
  */
 uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
 
-/** @brief Initializes w5500
- *
- * @param gateway: gateway address to connect to Ex: for 192.168.2.100, gateway = {192, 168, 2, 100}
- * @param sub_mask: subnet mask  Ex: for 255.255.255.0,  sub_mask = {255,255,255,0}
- * @param src_ip: ip address of w5500 Ex: see gateway
- * @param mac_addr: mac address of w5500 Ex: for 1.2.3.4.5.6, mac_addr = {1,2,3,4,5,6}
- * @param wol: if true - wake on LAN
- * @param ping_block: if true - w5500 will block ping requests (in general, leave false)
- * @param farp: if true - w5500 will send an ARP request every time data is sent (unless debugging, leave false)
- * @return 1 to confirm success
- */
-uint8_t w5500_init(SPI_DEVICE_PARAM, ip_t gateway, ip_t sub_mask, ip_t src_ip, mac_t mac_addr, bool wol, bool ping_block, bool farp);
 
-/** @brief Initializes new socket with parameters needed for operation
- * @param s: socket number (s0 - s7)
- * @param protocol: protocol type to use (udp or tcp)
- * @param src_port: port of socket
- * @param dst, dst_port: destination ip address and port of socket
- * @param txbuf_size, rxbuf_size: portion of rx and tx buffer memory to allocate for socket s (2,4,8,16 kB valid values - will implement error checking here)
- * @param multicast: if true - sets up udp socket to multicast (note: in this more socket does not support ARP)
- * @param unicast_block: if true - blocks unicast messages (further testing needed as to whether this blocks ARP requests)
- * @param broadcast_block: if true - blocks all broadcast messages
- * @param dhar: ONLY needed when using multicast UDP. All devices recieving packets on the multicast group must have dhar as their mac address. (see mac_addr in w5500_init for initialization)
- * @return 1 to confirm success
- */
-uint8_t w5500_socket_init(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, uint16_t src_port, ip_t dst, uint16_t dst_port, uint8_t txbuf_size, uint8_t rxbuf_size, bool multicast, bool unicast_block, bool broadcast_block, mac_t dhar);
-
-/** @brief Writes len bytes from data into transmit buffer for socket s. This is data ready to send to the network
- * @param SPI_DEVICE_PARAM spi device to communicate with
- * @param s the socket number to write/read
- * @param data data to write to socket/address to store data at
- * @param len length of bytes being read/written
- * @return 1 to confirm success
- */
-uint8_t w5500_write_tx(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len);
-
-/** @brief Processes all data in recieve buffer and puts it into recv_buf
- * @param SPI_DEVICE_PARAM spi device to communicate with
- * @param s the socket number to write/read
- * @param recv_buf the location to start writing recieved data to
- * @return the length of recieved data
- */
-uint16_t w5500_recv(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv_buf);
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
-void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);
-
-/*
- * Automatically creates functions for sending commands to w5500
- */
-
-#define __w5500_command(command)                                                  \
-  static inline uint8_t w5500_cmd_##command(SPI_DEVICE_PARAM, w5500_socket_t s) { \
-    w5500_cr_t cmd = w5500_cr_##command;                                          \
-    w5500_rw(spi, w5500_socket_cr, s, &cmd, 1, true);                             \
-    return 1;                                                                     \
-  }
-
-__w5500_command(open);
-__w5500_command(close);
-__w5500_command(listen);
-__w5500_command(connect);
-__w5500_command(disconnect);
-__w5500_command(send_mac);
-__w5500_command(send_keep);
-__w5500_command(send);
-__w5500_command(recv);
-
-#undef __w5500_command
+void w5500_print_all(SPI_DEVICE_PARAM , w5500_socket_t s);

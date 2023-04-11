@@ -57,7 +57,7 @@ set(boards
     # emu
     # tc-test-board
     eth-1
-    eth-2
+    #eth-2
 )
 
 foreach(board ${boards})
