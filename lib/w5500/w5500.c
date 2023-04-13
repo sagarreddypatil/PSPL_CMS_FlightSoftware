@@ -72,7 +72,7 @@ uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_m
 
 }
 
-uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast, ip_t dst_addr,  uint16_t src_port, bool block_broadcast, bool block_unicast) {
+uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port, bool multicast, bool block_broadcast, bool block_unicast) {
 
   uint8_t ms_block_unicast = MS(block_unicast, 0x01, 4);
   uint8_t ms_block_broadcast = MS(block_broadcast, 0x01, 6);
@@ -83,12 +83,8 @@ uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multica
 
   w5500_rw(spi, w5500_socket_mr, s, &config, 1, 1);
 
-  while(w5500_rw(spi, w5500_socket_mr, s, &config, 1, false) != config) {
-    printf("w5500_create_socket() Initializing Mode Register");
-  }
-
   w5500_command(spi, s, CMD_CLOSE);
-  
+
   //Writing Socket Ports
   uint8_t port_buf[2];
 
@@ -96,6 +92,28 @@ uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multica
   w5500_rw(spi, w5500_socket_sport, s, port_buf, 2, 1);
 
   w5500_command(spi, s, CMD_OPEN);
+
+  return 1;
+
+}
+
+uint8_t w5500_create_tcp_server(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port) {
+  uint8_t ms_no_delayed_ack = MS(0x00, 0x01, 5);
+
+  uint8_t config = 0x00 | ms_no_delayed_ack | tcp;
+
+  w5500_rw(spi, w5500_socket_mr, s, &config, 1, 1);
+
+  w5500_command(spi, s, CMD_CLOSE);
+
+  uint8_t port_buf[2];
+
+  w5500_split16(src_port, port_buf);
+  w5500_rw(spi, w5500_socket_sport, s, port_buf, 2, 1);
+
+  w5500_command(spi, s, CMD_OPEN);
+
+  w5500_command(spi, s, CMD_LISTEN);
 
   return 1;
 
@@ -159,11 +177,26 @@ uint8_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command) {
       if(protocol == udp) {
 
       while(!w5500_check_reg(spi, s, w5500_socket_sr, &SOCK_UDP, 1)) {
-        printf("Socket Opening\n");
+        printf("Socket Opening UDP\n");
       }
 
+      if(protocol == tcp) {
+
+      while(!w5500_check_reg(spi, s, w5500_socket_sr, &SOCK_INIT, 1)) {
+          printf("Socket Opening TCP");
+      }
+
+      }
     }
-    break;  
+    break; 
+
+  case CMD_LISTEN:;
+
+    while(!w5500_check_reg(spi, s, w5500_socket_sr, &SOCK_LISTEN, 1)) {
+      printf("Initializing TCP Server\n");
+    }
+
+  break; 
       
   }
   return 1;

@@ -123,7 +123,7 @@ SPI_INITFUNC(w5500);
 uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_mask, ip_t gateway, uint8_t retry_time, uint8_t retry_count, bool wake_on_LAN, bool block_ping, bool force_ARP);
 
 /*Socket Constructors*/
-uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast, ip_t dst_addr, uint16_t src_port, uint16_t dst_port, uint8_t rx_buffer_size, uint8_t tx_buffer_size, bool block_broadcast, bool block_unicast);
+uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port, bool multicast, bool block_broadcast, bool block_unicast);
 uint8_t w5500_create_tcp_server(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port);
 
 
