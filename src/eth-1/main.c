@@ -22,7 +22,7 @@ int main() {
   ip_t gateway = {192,168,2,50};
   ip_t subnet_mask = {0xff, 0xff, 0xff, 0x00};
   ip_t src_ip = {192,168,2,101};
-  mac_t src_mac = {0x09, 0x10, 0x11, 0x12, 0x13, 0x14};
+  mac_t src_mac = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
   ip_t s1_dst = {192, 168, 2, 102};
 
 
@@ -33,8 +33,9 @@ int main() {
   printf("debug point 1, actual baud %d\n", actual_baud);
 
   w5500_create(w5500, src_ip, src_mac, subnet_mask, gateway, 20, 5, false, false, false);
-  if(w5500_create_socket(w5500, s1, udp, false, s1_dst, src_port, dst_port, 8, 8, false, false)) {
-    w5500_print_all(w5500, s1);
-  }
+
+  w5500_create_udp_socket(w5500, s1, false, s1_dst, src_port, dst_port, 8, 8, false, false);
+
+  w5500_print_all(w5500, s1);
   
 }

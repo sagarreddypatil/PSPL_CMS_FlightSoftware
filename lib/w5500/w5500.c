@@ -11,7 +11,7 @@
 #define BSB_TX_OFFSET 1 
 
 
-const uint baudrate = 1000;  // 80 MHz
+const uint baudrate = 1000 * 1000;  // 80 MHz
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
@@ -36,6 +36,9 @@ uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, s
 
   if (!write) {
     memcpy(data, dst + 3, len);
+    if(len == 1) {
+      return *(dst + 3);
+    }
   }
   return 1;
 }
@@ -69,42 +72,30 @@ uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_m
 
 }
 
-uint8_t w5500_create_socket(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, bool multicast, ip_t dst_addr,  uint16_t src_port, uint16_t dst_port, uint8_t rx_buffer_size, uint8_t tx_buffer_size, bool block_broadcast, bool block_unicast) {
-
-  if(protocol != udp && multicast) return 0;
-
-  w5500_command(spi, s, CMD_CLOSE);
+uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast, ip_t dst_addr,  uint16_t src_port, bool block_broadcast, bool block_unicast) {
 
   uint8_t ms_block_unicast = MS(block_unicast, 0x01, 4);
-  uint8_t ms_no_delayed_ack = MS(0x00, 0x01, 5);
   uint8_t ms_block_broadcast = MS(block_broadcast, 0x01, 6);
   uint8_t ms_multicast = MS(multicast, 0x01, 7);
 
   //Writing Socket Mode Register
-  uint8_t config = ms_multicast | ms_block_broadcast | ms_no_delayed_ack | ms_block_unicast | protocol;
+  uint8_t config = ms_multicast | ms_block_broadcast | 0x00 | ms_block_unicast | udp;
 
   w5500_rw(spi, w5500_socket_mr, s, &config, 1, 1);
+
+  while(w5500_rw(spi, w5500_socket_mr, s, &config, 1, false) != config) {
+    printf("w5500_create_socket() Initializing Mode Register");
+  }
+
+  w5500_command(spi, s, CMD_CLOSE);
   
   //Writing Socket Ports
   uint8_t port_buf[2];
 
-  w5500_split16(dst_port, port_buf);
-
-  w5500_rw(spi, w5500_socket_dport, s, port_buf, 2, 1);
-
   w5500_split16(src_port, port_buf);
-
   w5500_rw(spi, w5500_socket_sport, s, port_buf, 2, 1);
-  
-  //Writing Socket destination ip
-  w5500_rw(spi, w5500_socket_dipr, s, dst_addr, 4, 1);
 
-  uint8_t temp = w5500_command(spi, s, CMD_OPEN);
-
-  if(temp != -1) {
-    printf("%x\n", temp);
-    return 0;
-  }
+  w5500_command(spi, s, CMD_OPEN);
 
   return 1;
 
@@ -140,41 +131,66 @@ uint8_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t 
   return 1;
 }
 
+
+
+
 uint8_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command) {
 
-  w5500_rw(spi, w5500_socket_cr, s, &command, 1, 1);
+  printf("%x %p\n", command, &command);
+  w5500_rw(spi, w5500_socket_cr, s, &command, 1, true);
+  
 
-  while(w5500_check_status(spi, s) != SOCK_CLOSED) {
-    uint8_t x = w5500_check_interrupt(spi, s);
-    if(x >= INT_TIMEOUT) {
-      return x;
+
+  switch(command) {
+
+    case CMD_CLOSE:
+
+      while(!w5500_check_reg(spi, s, w5500_socket_sr, &SOCK_CLOSED, 1)) {
+        printf("Socket Closing\n");
+      }
+    break;
+
+    
+    case CMD_OPEN:;
+      /*Checking protocol type*/
+      uint8_t protocol = w5500_rw(spi, w5500_socket_mr, s, NULL, 1, false) & 0x0F;
+
+      /*Checking socket is opened with UDP protocol*/
+      if(protocol == udp) {
+
+      while(!w5500_check_reg(spi, s, w5500_socket_sr, &SOCK_UDP, 1)) {
+        printf("Socket Opening\n");
+      }
+
     }
+    break;  
+      
   }
-  return -1;
+  return 1;
 }
 
+uint8_t w5500_check_reg(SPI_DEVICE_PARAM, w5500_socket_t s, const uint8_t reg, const uint8_t* expected, size_t len) {
+
+  uint8_t dst[len];
+
+  w5500_rw(spi, reg, s, dst, len, false);
+
+  for(int i = 0; i < len; i++) {
+    if(dst[i] != expected[i]) {
+      return 0;
+    }
+  }
+  return 1;
+}
 
 uint8_t w5500_split16(uint16_t num, uint8_t* dst) {
-  dst[0] = MS(num, 0xFF, 0);
-  dst[1] = MS(num, 0xFF, 1);
+  dst[0] = (num & 0xFF00) >> 8;
+  dst[1] = num & 0x00FF;
   return 1;
 }
 
 uint16_t w5500_concat16(uint8_t* num) {
   return (num[0] << 8 | num[1]);
-}
-
-
-uint8_t w5500_check_status(SPI_DEVICE_PARAM, w5500_socket_t s) {
-  uint8_t status = -1;
-  w5500_rw(spi, w5500_socket_sr, s, &status, 1, 0);
-  return status;
-}
-
-uint8_t w5500_check_interrupt(SPI_DEVICE_PARAM, w5500_socket_t s) {
-  uint8_t interrupt = -1;
-  w5500_rw(spi, w5500_socket_ir, s, &interrupt, 1, 0);
-  return interrupt;
 }
 
 

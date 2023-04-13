@@ -40,8 +40,8 @@ static const uint16_t w5500_socket_ir         = 0x02;  // Socket Interrupt Regis
 static const uint16_t w5500_socket_sr         = 0x03;  // Socket Status Register
 static const uint16_t w5500_socket_sport      = 0x04;  // Socket Source Port Register
 static const uint16_t w5500_socket_dhar       = 0x06;  // Socket Destination Hardware Address Registers
-static const uint16_t w5500_socket_dipr       = 0x0C;  // Socket Destination IP Address Register
-static const uint16_t w5500_socket_dport      = 0x10;  // Socket Destination Port Register
+static const uint16_t w5500_socket_dipr       = 0x000C;  // Socket Destination IP Address Register
+static const uint16_t w5500_socket_dport      = 0x0010;  // Socket Destination Port Register
 static const uint16_t w5500_socket_mssr       = 0x12;  // Socket Maximum Segment Size Register
 static const uint16_t w5500_socket_tos        = 0x15;  // Type of Service Register
 static const uint16_t w5500_socket_ttl        = 0x16;  // Time to Live Configuration Register
@@ -123,21 +123,28 @@ SPI_INITFUNC(w5500);
 uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_mask, ip_t gateway, uint8_t retry_time, uint8_t retry_count, bool wake_on_LAN, bool block_ping, bool force_ARP);
 
 /*Socket Constructors*/
-uint8_t w5500_create_socket(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_protocol_t protocol, bool multicast, ip_t dst_addr, uint16_t src_port, uint16_t dst_port, uint8_t rx_buffer_size, uint8_t tx_buffer_size, bool block_broadcast, bool block_unicast);
+uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, bool multicast, ip_t dst_addr, uint16_t src_port, uint16_t dst_port, uint8_t rx_buffer_size, uint8_t tx_buffer_size, bool block_broadcast, bool block_unicast);
+uint8_t w5500_create_tcp_server(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port);
+
 
 /*Socket Writing & Reading*/
 uint8_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t length);
 uint8_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv, size_t length);
 
-/*Socket Commands*/
+/*
+  Sends commands to w5500
+  returns 1 on success
+  returns 0 on failure
+*/
 
 uint8_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command);
-uint8_t w5500_open(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_listen(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_connect(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_disconnect(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_send_data(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_check_tcp_conn(SPI_DEVICE_PARAM, w5500_socket_t s);
+
+/*
+  Checks if a register value (or multiple register values) is equal to expected value
+  returns 1 on success 
+  returns 0 on failure
+*/
+uint8_t w5500_check_reg(SPI_DEVICE_PARAM, w5500_socket_t s, const uint8_t reg, const uint8_t* expected, size_t len);
 
 /*Helper Functions*/
 uint8_t w5500_split16(uint16_t num, uint8_t * dst);
