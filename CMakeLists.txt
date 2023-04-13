@@ -1,18 +1,12 @@
 cmake_minimum_required(VERSION 3.13)
 
-# check if PICO_PLATFORM is host
-if(PICO_PLATFORM MATCHES "host")
-endif()
+set(CMAKE_C_STANDARD 11)
 
 # ---------- Setup  ----------
-# to make sure stuff in the cmake folder can be located
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
 # Importing the pico-sdk importer
-set(PICO_SDK_FETCH_FROM_GIT on)
-include(pico_sdk_import)
+include(pico-sdk/pico_sdk_init.cmake)
 
-# General utility macros
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(util)
 
 # Project
