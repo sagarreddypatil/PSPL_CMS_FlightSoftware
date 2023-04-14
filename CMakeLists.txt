@@ -10,8 +10,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(util)
 
 # Project
-project(CMS_Avionics_Code)
 pico_sdk_init()
+project(CMS_Avionics_Code)
 
 set(stdlibs pico_stdlib hardware_gpio hardware_spi)
 
@@ -58,6 +58,14 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
+
+    set_target_properties(${board}
+        PROPERTIES
+
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/elf
+    )
+
     target_link_libraries(${board} ${stdlibs} ${libs})
 
     pico_enable_stdio_usb(${board} 1)
@@ -68,11 +76,4 @@ foreach(board ${boards})
     # pico_set_float_implementation(${board} none)
     pico_add_uf2_output(${board})
 
-    set_target_properties(${board}
-        PROPERTIES
-
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-    )
 endforeach()
