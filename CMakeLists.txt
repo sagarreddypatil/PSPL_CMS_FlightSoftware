@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.13)
 
 set(CMAKE_C_STANDARD 11)
 
+# ---------- Version ----------
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
+
 # ---------- Setup  ----------
 # Importing the pico-sdk importer
 include(pico-sdk/pico_sdk_init.cmake)
@@ -58,6 +63,8 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
+    pico_set_program_name(${board} "${board}")
+    pico_set_program_version(${board} "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH} (build ${CMAKE_BUILD_TYPE})")
 
     set_target_properties(${board}
         PROPERTIES
