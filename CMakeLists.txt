@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
@@ -23,6 +23,8 @@ set(stdlibs pico_stdlib hardware_gpio hardware_spi)
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(
     -Wall # Enable all warnings
