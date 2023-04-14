@@ -10,8 +10,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(util)
 
 # Project
-pico_sdk_init()
 project(CMS_Avionics_Code)
+pico_sdk_init()
 
 set(stdlibs pico_stdlib hardware_gpio hardware_spi)
 
