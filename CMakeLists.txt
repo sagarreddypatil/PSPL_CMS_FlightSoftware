@@ -1,18 +1,17 @@
 cmake_minimum_required(VERSION 3.13)
 
-# check if PICO_PLATFORM is host
-if(PICO_PLATFORM MATCHES "host")
-endif()
+set(CMAKE_C_STANDARD 17)
+
+# ---------- Version ----------
+set(VERSION_MAJOR 0)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH 0)
 
 # ---------- Setup  ----------
-# to make sure stuff in the cmake folder can be located
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-
 # Importing the pico-sdk importer
-set(PICO_SDK_FETCH_FROM_GIT on)
-include(pico_sdk_import)
+include(pico-sdk/pico_sdk_init.cmake)
 
-# General utility macros
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(util)
 
 # Project
@@ -24,6 +23,8 @@ set(stdlibs pico_stdlib hardware_gpio hardware_spi)
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(
     -Wall # Enable all warnings
@@ -65,6 +66,16 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
+    pico_set_program_name(${board} "${board}")
+    pico_set_program_version(${board} "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH} (build ${CMAKE_BUILD_TYPE})")
+
+    set_target_properties(${board}
+        PROPERTIES
+
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/elf
+    )
+
     target_link_libraries(${board} ${stdlibs} ${libs})
 
     pico_enable_stdio_usb(${board} 1)
@@ -75,11 +86,4 @@ foreach(board ${boards})
     # pico_set_float_implementation(${board} none)
     pico_add_uf2_output(${board})
 
-    set_target_properties(${board}
-        PROPERTIES
-
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${board}
-    )
 endforeach()
