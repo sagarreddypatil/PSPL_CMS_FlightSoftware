@@ -34,28 +34,28 @@ static const uint16_t w5500_versionr = 0x39;  // Chip Version Register
 
 /* Socket Register Addresses pg 44 */
 
-static const uint16_t w5500_socket_mr         = 0x00;  // Socket Mode Register
-static const uint16_t w5500_socket_cr         = 0x01;  // Socket Command Register
-static const uint16_t w5500_socket_ir         = 0x02;  // Socket Interrupt Register
-static const uint16_t w5500_socket_sr         = 0x03;  // Socket Status Register
-static const uint16_t w5500_socket_sport      = 0x04;  // Socket Source Port Register
-static const uint16_t w5500_socket_dhar       = 0x06;  // Socket Destination Hardware Address Registers
+static const uint16_t w5500_socket_mr         = 0x00;    // Socket Mode Register
+static const uint16_t w5500_socket_cr         = 0x01;    // Socket Command Register
+static const uint16_t w5500_socket_ir         = 0x02;    // Socket Interrupt Register
+static const uint16_t w5500_socket_sr         = 0x03;    // Socket Status Register
+static const uint16_t w5500_socket_sport      = 0x04;    // Socket Source Port Register
+static const uint16_t w5500_socket_dhar       = 0x06;    // Socket Destination Hardware Address Registers
 static const uint16_t w5500_socket_dipr       = 0x000C;  // Socket Destination IP Address Register
 static const uint16_t w5500_socket_dport      = 0x0010;  // Socket Destination Port Register
-static const uint16_t w5500_socket_mssr       = 0x12;  // Socket Maximum Segment Size Register
-static const uint16_t w5500_socket_tos        = 0x15;  // Type of Service Register
-static const uint16_t w5500_socket_ttl        = 0x16;  // Time to Live Configuration Register
-static const uint16_t w5500_socket_rxbuf_size = 0x1E;  // Socket Rx Buffer Size Register
-static const uint16_t w5500_socket_txbuf_size = 0x1F;  // Socket Tx Buffer Size Register
-static const uint16_t w5500_socket_tx_fsr     = 0x20;  // Socket Tx Free Size Register
-static const uint16_t w5500_socket_tx_rd      = 0x22;  // Socket Tx Read Pointer Register
-static const uint16_t w5500_socket_tx_wr      = 0x24;  // Socket Tx Write Pointer Register
-static const uint16_t w5500_socket_rsr        = 0x26;  // Socket Recieved Size Register
-static const uint16_t w5500_socket_rx_rd      = 0x28;  // Socket Rx Read Data Pointer Register
-static const uint16_t w5500_socket_rx_wr      = 0x2A;  // Socket Rx Write Pointer Register
-static const uint16_t w5500_socket_imr        = 0x23;  // Socket Interrupt Mask Register
-static const uint16_t w5500_socket_frag       = 0x2D;  // Socket Fragment Register
-static const uint16_t w5500_socket_kpalvtr    = 0x2F;  // Socket Keep alive Time Register
+static const uint16_t w5500_socket_mssr       = 0x12;    // Socket Maximum Segment Size Register
+static const uint16_t w5500_socket_tos        = 0x15;    // Type of Service Register
+static const uint16_t w5500_socket_ttl        = 0x16;    // Time to Live Configuration Register
+static const uint16_t w5500_socket_rxbuf_size = 0x1E;    // Socket Rx Buffer Size Register
+static const uint16_t w5500_socket_txbuf_size = 0x1F;    // Socket Tx Buffer Size Register
+static const uint16_t w5500_socket_tx_fsr     = 0x20;    // Socket Tx Free Size Register
+static const uint16_t w5500_socket_tx_rd      = 0x22;    // Socket Tx Read Pointer Register
+static const uint16_t w5500_socket_tx_wr      = 0x24;    // Socket Tx Write Pointer Register
+static const uint16_t w5500_socket_rsr        = 0x26;    // Socket Recieved Size Register
+static const uint16_t w5500_socket_rx_rd      = 0x28;    // Socket Rx Read Data Pointer Register
+static const uint16_t w5500_socket_rx_wr      = 0x2A;    // Socket Rx Write Pointer Register
+static const uint16_t w5500_socket_imr        = 0x23;    // Socket Interrupt Mask Register
+static const uint16_t w5500_socket_frag       = 0x2D;    // Socket Fragment Register
+static const uint16_t w5500_socket_kpalvtr    = 0x2F;    // Socket Keep alive Time Register
 
 /* Interrupts */
 static const uint8_t INT_SENDOK     = 0x10;
@@ -76,7 +76,6 @@ static const uint8_t CMD_SEND_KEEP  = 0x22;
 static const uint8_t CMD_RECIEVE    = 0x40;
 
 /*Socket Status*/
-
 static const uint8_t SOCK_CLOSED      = 0x00;
 static const uint8_t SOCK_INIT        = 0x13;
 static const uint8_t SOCK_LISTEN      = 0x14;
@@ -105,11 +104,26 @@ typedef enum {
   s7  = 0x1E,
 } w5500_socket_t;
 
+
+/*Errors*/
+typedef enum {
+  
+  SUCCESS = 0,
+  ERR_SOCK_CLOSE,
+  ERR_INVALID_PROTOCOL,
+  ERR_INIT_UDP,
+  ERR_INIT_TCP,
+  ERR_INIT_SERVER,
+  ERR_CONNECT_SERVER,
+
+
+} w5500_error_t;
+
 /* Protocols for sockets */
 
 typedef enum {
   tcp = 0x01,
-  udp = 0x02,
+  udp = 0x02,u
 } w5500_protocol_t;
 
 typedef uint8_t ip_t[4];
@@ -119,40 +133,30 @@ SPI_INITFUNC(w5500);
 
 /* The new era of ethernet driver */
 
+/*Register Read and Write*/
+uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
+
 /*W5500 Constructors*/
 uint8_t w5500_create(SPI_DEVICE_PARAM, ip_t src_ip, mac_t src_mac, ip_t subnet_mask, ip_t gateway, uint8_t retry_time, uint8_t retry_count, bool wake_on_LAN, bool block_ping, bool force_ARP);
 
 /*Socket Constructors*/
 uint8_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port, bool multicast, bool block_broadcast, bool block_unicast);
 uint8_t w5500_create_tcp_server(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port);
+uint8_t w5500_create_tcp_client(SPI_DEVICE_PARAM, w5500_socket_t s, ip_t dst, uint16_t src_port, uint16_t dst_port);
 
-
-/*Socket Writing & Reading*/
+/*Writing and Reading for Data Transfer*/
 uint8_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t length);
-uint8_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* recv, size_t length);
+uint8_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* recv);
 
-/*
-  Sends commands to w5500
-  returns 1 on success
-  returns 0 on failure
-*/
+/* Sends commands to w5500*/
+void w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command, w5500_error_t* err);
 
-uint8_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t command);
-
-/*
-  Checks if a register value (or multiple register values) is equal to expected value
-  returns 1 on success 
-  returns 0 on failure
-*/
+/*Error Checking*/
 uint8_t w5500_check_reg(SPI_DEVICE_PARAM, w5500_socket_t s, const uint8_t reg, const uint8_t* expected, size_t len);
 
 /*Helper Functions*/
-uint8_t w5500_split16(uint16_t num, uint8_t * dst);
+uint8_t w5500_split16(uint16_t num, uint8_t* dst);
 uint16_t w5500_concat16(uint8_t* num);
-
-/*Error Checking Functions*/
-uint8_t w5500_check_status(SPI_DEVICE_PARAM, w5500_socket_t s);
-uint8_t w5500_check_interrupt(SPI_DEVICE_PARAM, w5500_socket_t s);
 
 /** @brief Reads or writes len bytes starting at address reg
  *
@@ -164,9 +168,6 @@ uint8_t w5500_check_interrupt(SPI_DEVICE_PARAM, w5500_socket_t s);
  * @param write if true; write data; else read data
  * @return 1 to indicate success
  */
-uint8_t w5500_rw(SPI_DEVICE_PARAM, uint16_t reg, w5500_socket_t s, void* data, size_t len, bool write);
-
-
 
 void w5500_print_reg(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, uint8_t len);
-void w5500_print_all(SPI_DEVICE_PARAM , w5500_socket_t s);
+void w5500_print_all(SPI_DEVICE_PARAM, w5500_socket_t s);

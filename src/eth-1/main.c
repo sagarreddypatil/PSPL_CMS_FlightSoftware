@@ -34,11 +34,22 @@ int main() {
 
   w5500_create(w5500, src_ip, src_mac, subnet_mask, gateway, 20, 5, false, false, false);
 
-  w5500_create_udp_socket(w5500, s1, src_port, false, false, false);
+  //w5500_create_udp_socket(w5500, s1, src_port, false, false, false);
 
-  
+  w5500_create_tcp_server(w5500, s1, src_port);
 
-  //w5500_create_tcp_server(w5500, s1, src_port);
+  uint8_t recieved[50];
+
+  w5500_read_data(w5500, s1, recieved);
+
+while(1) {
+  for(int i = 0; i < 50; i++) {
+    printf("%x ", recieved[i]);
+  }
+  printf("\n");
+  sleep_ms(500);
+}
+
 
   w5500_print_all(w5500, s1);
   
