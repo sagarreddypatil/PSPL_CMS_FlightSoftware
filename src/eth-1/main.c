@@ -7,11 +7,12 @@ SPI_DEVICE(w5500, spi0, 0);
 
 int main() {
   stdio_init_all();
+  while (!stdio_usb_connected())
+    ;
 
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 10; i++) {
     printf("Program: %s\n", PICO_PROGRAM_NAME);
     printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
-    fflush(stdout);
   }
 
   spi_init(spi0, 1000);
@@ -21,7 +22,6 @@ int main() {
 
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
-  fflush(stdout);
 
   ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
@@ -29,6 +29,10 @@ int main() {
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   w5500_init(w5500, src_mac, src_ip, subnet_mask, gateway);
+  // print ip
+  ip_t ip;
+  w5500_rw(w5500, W5500_COMMON, W5500_SIPR0, false, ip, sizeof(ip));
+  printf("IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
   while (1)
     ;

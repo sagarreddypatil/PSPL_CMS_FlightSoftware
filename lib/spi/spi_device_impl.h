@@ -1,8 +1,8 @@
 #pragma once
 
-#include <spi_device.h>
 #include <hardware/spi.h>
 #include <pico/stdlib.h>
+#include <spi_device.h>
 
 /// @brief Initialize CS pin as output and set it high
 /// @param cs_pin

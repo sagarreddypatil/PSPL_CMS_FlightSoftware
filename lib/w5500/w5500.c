@@ -8,7 +8,7 @@
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
-const uint baudrate = 80 * 1000000;  // 80 MHz
+const uint baudrate = 5000000;
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
@@ -28,7 +28,17 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void
     memset(src + 3, 0, len);
   }
 
+  printf("src:");
+  for (int i = 0; i < 3 + len; i++) {
+    printf(" %02x", src[i]);
+  }
+  printf("\n");
   SPI_TRANSFER(src, dst, 3 + len);
+  printf("dst:");
+  for (int i = 0; i < 3 + len; i++) {
+    printf(" %02x", dst[i]);
+  }
+  printf("\n\n");
 
   if (!write) {
     memcpy(data, dst + 3, len);
@@ -36,13 +46,16 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void
 }
 
 void w5500_init(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway) {
-  uint8_t RST = 1 << 7;
+  // w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);       // reset
+  // w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);   // PHY reset
+  // w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0xf8);  // PHY set to auto-negotiation
 
-  w5500_rw(spi, W5500_COMMON, W5500_MR, true, &RST, 1);   // reset chip
-  while (w5500_read8(spi, W5500_COMMON, W5500_MR) & RST)  // wait for reset to complete
-    ;
+  // poll until power on
+  while (!(w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1)) {
+    sleep_ms(100);
+  }
 
-  // // Physical Layer and Default Options
+  // Physical Layer and Default Options
   uint8_t mode = 0;
   w5500_rw(spi, W5500_COMMON, W5500_MR, true, &mode, 1);
 
