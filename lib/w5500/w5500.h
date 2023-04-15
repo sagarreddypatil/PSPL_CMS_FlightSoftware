@@ -103,15 +103,15 @@ typedef enum {
 /* Socket numbers */
 
 typedef enum {
-  W5500_COMMON = 0x00,
-  W5500_S0     = 0x01,
-  W5500_S1     = 0x05,
-  W5500_S2     = 0x00,
-  W5500_S3     = 0x0D,
-  W5500_S4     = 0x11,
-  W5500_S5     = 0x15,
-  W5500_S6     = 0x19,
-  W5500_S7     = 0x1E,
+  W5500_COMMON = 0b00000,
+  W5500_S0     = 0b00001,
+  W5500_S1     = 0b00101,
+  W5500_S2     = 0b01001,
+  W5500_S3     = 0b01101,
+  W5500_S4     = 0b10001,
+  W5500_S5     = 0b10101,
+  W5500_S6     = 0b11001,
+  W5500_S7     = 0b11101,
 } w5500_socket_t;
 
 /*Errors*/
@@ -178,8 +178,8 @@ w5500_error_t w5500_create_tcp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16
 void w5500_wait_socket_status(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_socket_status_t status);
 
 /*Writing and Reading for Data Transfer*/
-w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t length);
 void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data, size_t len);
+w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, bool keep_alive, void* data, size_t len);  // keep alive is for TCP only
 
 /* Sends commands to w5500*/
 w5500_error_t w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_socket_command_t command);

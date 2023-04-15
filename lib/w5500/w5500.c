@@ -8,7 +8,7 @@
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
-const uint baudrate = 1000 * 1000;  // 80 MHz
+const uint baudrate = 80 * 1000000;  // 80 MHz
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
@@ -20,7 +20,7 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void
   src[0] = (reg >> 8) & 0xFF;
   src[1] = reg & 0xFF;
 
-  src[2] = MS(s, 0x1F, 3) | MS(write, 0x01, 2) | MS(00, 0x03, 0);
+  src[2] = MS(s, 0b11111, 3) | MS(write, 0b1, 2) | MS(00, 0b11, 0);
 
   if (write) {
     memcpy(src + 3, data, len);
@@ -89,9 +89,24 @@ void w5500_wait_socket_status(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_socket_s
 }
 
 void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data, size_t len) {
+  uint16_t avail = w5500_read16(spi, s, W5500_Sn_RX_RSR0);
+  if (avail < len) {
+    len = avail;
+  }
+  if (len == 0) {
+    return;
+  }
+
+  uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0);
+  w5500_rw(spi, s + 2, start_addr, false, data, len);
+
+  start_addr += len;
+  w5500_write16(spi, s, W5500_Sn_RX_RD0, start_addr);
+
+  w5500_command(spi, s, W5500_CMD_RECV);
 }
 
-w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
+w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, bool keep_alive, void* data, size_t len) {
   // get current free size
   uint16_t free_size = w5500_read16(spi, s, W5500_Sn_TX_FSR0);
 
@@ -104,11 +119,16 @@ w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, s
   uint16_t write_addr = w5500_read16(spi, s, W5500_Sn_TX_WR0);
 
   // write len bytes to tx buffer starting at write_addr
-  w5500_rw(spi, s, write_addr, true, data, len);
+  w5500_rw(spi, s + 1, write_addr, true, data, len);
 
   // update write address
   write_addr += len;
   w5500_write16(spi, s, W5500_Sn_TX_WR0, write_addr);
+
+  if (keep_alive)
+    w5500_command(spi, s, W5500_CMD_SEND_KEEP);
+  else
+    w5500_command(spi, s, W5500_CMD_SEND);
 
   return SUCCESS;
 }
