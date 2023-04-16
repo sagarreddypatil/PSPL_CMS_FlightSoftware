@@ -15,9 +15,8 @@
         },
     },
     "files.associations": {
-        "example.h": "c",
-        "stdlib.h": "c",
-        "pico.h": "c",
-        "version.h": "c"
+        "spi_device.h": "c",
+        "spi.h": "c",
+        "pico.h": "c"
     },
 }
