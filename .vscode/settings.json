@@ -14,11 +14,4 @@
             "visibility": "hidden"
         },
     },
-    "files.associations": {
-        "example.h": "c",
-        "stdlib.h": "c",
-        "pico.h": "c",
-        "version.h": "c",
-        "tcp_server.h": "c"
-    },
 }
