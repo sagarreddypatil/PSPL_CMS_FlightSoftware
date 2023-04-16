@@ -19,7 +19,8 @@ typedef struct {
 #define SPI_DEVICE_PARAM \
   const spi_device_t *spi
 
-#define SPI_INITFUNC(name) \
+#define SPI_INITFUNC(name)              \
+  /** @brief Set the SPI HW settings */ \
   uint name##_set(SPI_DEVICE_PARAM);
 
 #define SPI_INST \

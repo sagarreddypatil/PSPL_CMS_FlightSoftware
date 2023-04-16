@@ -1,6 +1,7 @@
 
 #include <pico/stdlib.h>
 #include <stdio.h>
+#include <tcp_server/tcp_server.h>
 #include <w5500.h>
 
 SPI_DEVICE(w5500, spi0, 17);
@@ -39,42 +40,36 @@ int main() {
   // print ip
   ip_t ip;
   w5500_rw(w5500, W5500_COMMON, W5500_SIPR0, false, ip, sizeof(ip));
-  printf("IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+  printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  w5500_create_tcp_socket(w5500, W5500_S0, 8080);
+  uint16_t avail      = 0;
+  bool prev_connected = false;
+  bool connected      = false;
+  tcp_client_data_t client;
+  tcp_server_t server;
+  tcp_server_init(&server, w5500, W5500_S0, 8080);
 
   while (true) {
-    uint8_t status = w5500_read8(w5500, W5500_S0, W5500_Sn_SR);
+    tcp_server_poll(&server);
 
-    if (status == W5500_SOCK_CLOSED) {
-      printf("Socket closed, reopening\n");
-      w5500_command(w5500, W5500_S0, W5500_CMD_OPEN);
+    connected = tcp_server_connected(&server);
+    if (!prev_connected && connected) {
+      client = tcp_server_get_client(&server);
+      printf("Client connected: %d.%d.%d.%d:%d\n", client.ip[0], client.ip[1], client.ip[2], client.ip[3], client.port);
     }
-
-    if (status == W5500_SOCK_INIT) {
-      printf("Socket init, listening\n");
-      w5500_command(w5500, W5500_S0, W5500_CMD_LISTEN);
+    if (prev_connected && !connected) {
+      printf("Client disconnected\n");
     }
+    prev_connected = connected;
 
-    if (status == W5500_SOCK_CLOSE_WAIT) {
-      printf("Socket close wait, disconnecting\n");
-      w5500_command(w5500, W5500_S0, W5500_CMD_DISCON);
-    }
+    if (connected && (avail = tcp_server_available(&server)) > 0) {
+      uint8_t data[avail + 1];
+      tcp_server_read(&server, data, avail);
+      data[avail] = 0;
 
-    if (status == W5500_SOCK_ESTABLISHED) {
-      printf("Socket established\n");
-      while ((status = w5500_read8(w5500, W5500_S0, W5500_Sn_SR)) == W5500_SOCK_ESTABLISHED) {
-        uint16_t rx_size = w5500_read16(w5500, W5500_S0, W5500_Sn_RX_RSR0);
-        if (rx_size > 0) {
-          uint8_t data[rx_size + 1];
-          w5500_read_data(w5500, W5500_S0, data, rx_size);
-          data[rx_size] = 0;
+      printf("Received: %s\n", data);
 
-          printf("Read from client: %s\n", data);
-
-          w5500_write_data(w5500, W5500_S0, false, data, rx_size);
-        }
-      }
+      tcp_server_send(&server, data, avail);
     }
   }
 }
