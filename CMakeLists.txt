@@ -49,7 +49,7 @@ foreach(libname ${libs})
     target_link_libraries(${libname} ${stdlibs})
 
     # target_include_directories(${libname} PUBLIC ${CMAKE_SOURCE_DIR}/lib/${libname})
-    include_directories(${CMAKE_SOURCE_DIR}/lib/${libname}) # this is kinda dangerous, libraries cannot depend on each other, but can reference headers
+    include_directories(${CMAKE_SOURCE_DIR}/lib/${libname}/include)
 endforeach()
 
 # ---------- Boards  ----------

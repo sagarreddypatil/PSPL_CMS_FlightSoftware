@@ -1,8 +1,8 @@
 
 #include <pico/stdlib.h>
 #include <stdio.h>
-#include <tcp_server/tcp_server.h>
 #include <w5500.h>
+#include <w5500/tcp_server.h>
 
 SPI_DEVICE(w5500, spi0, 17);
 

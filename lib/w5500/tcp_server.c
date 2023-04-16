@@ -1,4 +1,4 @@
-#include <tcp_server/tcp_server.h>
+#include <w5500/tcp_server.h>
 
 void tcp_server_init(tcp_server_t *server, const spi_device_t *w5500, w5500_socket_t socket, uint16_t port) {
   server->w5500  = w5500;
