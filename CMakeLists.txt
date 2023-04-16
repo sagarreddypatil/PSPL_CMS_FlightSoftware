@@ -54,11 +54,7 @@ endforeach()
 
 # ---------- Boards  ----------
 set(boards
-
-    # emu
-    # tc-test-board
-    eth-1
-    #eth-2
+    echo
 )
 
 foreach(board ${boards})
