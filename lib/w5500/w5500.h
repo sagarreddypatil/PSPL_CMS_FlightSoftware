@@ -166,7 +166,9 @@ static inline void w5500_set_flag(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t r
 }
 
 /*W5500 Constructors*/
-void w5500_init(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway);
+void w5500_init(SPI_DEVICE_PARAM);
+bool w5500_ready(SPI_DEVICE_PARAM);
+void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway);
 void w5500_set_wol(SPI_DEVICE_PARAM, bool wol);
 void w5500_set_ping_block(SPI_DEVICE_PARAM, bool block_ping);
 void w5500_set_force_arp(SPI_DEVICE_PARAM, bool force_arp);

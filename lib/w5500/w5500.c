@@ -28,32 +28,26 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void
     memset(src + 3, 0, len);
   }
 
-  printf("src:");
-  for (int i = 0; i < 3 + len; i++) {
-    printf(" %02x", src[i]);
-  }
-  printf("\n");
   SPI_TRANSFER(src, dst, 3 + len);
-  printf("dst:");
-  for (int i = 0; i < 3 + len; i++) {
-    printf(" %02x", dst[i]);
-  }
-  printf("\n\n");
 
   if (!write) {
     memcpy(data, dst + 3, len);
   }
 }
 
-void w5500_init(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway) {
-  // w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);       // reset
-  // w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);   // PHY reset
-  // w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0xf8);  // PHY set to auto-negotiation
+void w5500_init(SPI_DEVICE_PARAM) {
+  w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);       // reset
+  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);   // PHY reset
+  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0xf8);  // PHY set to auto-negotiation
+}
 
-  // poll until power on
-  while (!(w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1)) {
-    sleep_ms(100);
-  }
+bool w5500_ready(SPI_DEVICE_PARAM) {
+  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;
+}
+
+void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway) {
+  while (!w5500_ready(spi))
+    ;
 
   // Physical Layer and Default Options
   uint8_t mode = 0;
