@@ -120,6 +120,15 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/c_cpp_properties.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
 # Local History for Visual Studio Code
 .history/
 
