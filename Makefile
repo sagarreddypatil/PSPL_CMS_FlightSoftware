@@ -1,10 +1,10 @@
 all: build
 
-build: pico-sdk
+build: deps
 	-@sh -c 'mkdir build 2>/dev/null || true'
 	@cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make
 
-release: pico-sdk
+release: deps
 	-@rm -rf release
 	-@mkdir release
 	cd release && cmake -DCMAKE_BUILD_TYPE=Release .. && make
@@ -12,12 +12,11 @@ release: pico-sdk
 clean:
 	rm -rf build
 
-pico-sdk:
-	git clone --depth 1 --branch 1.5.0 https://github.com/raspberrypi/pico-sdk.git
-	cd pico-sdk && git submodule update --init lib/tinyusb
+deps: external/pico-sdk
 
-clean-sdk:
-	rm -rf pico-sdk
+external/pico-sdk:
+	git clone --depth 1 --branch 1.5.0 https://github.com/raspberrypi/pico-sdk.git external/pico-sdk
+	cd external/pico-sdk && git submodule update --init lib/tinyusb
 
 docs:
 	doxygen Doxyfile

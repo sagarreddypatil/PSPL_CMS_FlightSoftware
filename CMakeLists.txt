@@ -9,7 +9,7 @@ set(VERSION_PATCH 0)
 
 # ---------- Setup  ----------
 # Importing the pico-sdk importer
-include(pico-sdk/pico_sdk_init.cmake)
+include(external/pico-sdk/pico_sdk_init.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 include(util)
