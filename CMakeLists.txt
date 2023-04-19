@@ -7,7 +7,7 @@ set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
 set(VERSION_PATCH 0)
 
-# ---------- Setup  ----------
+# ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
 include(external/pico-sdk/pico_sdk_init.cmake)
 
@@ -37,6 +37,16 @@ if(PICO_PLATFORM MATCHES "host")
         -Wno-error # host compilation redefines shit for some reason, and it prevents compilation
     )
 endif()
+
+# ---------- MPack  ----------
+
+file(GLOB_RECURSE mpack_srcs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.c)
+file(GLOB_RECURSE mpack_hdrs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.h)
+
+add_library(mpack ${mpack_srcs} ${mpack_hdrs})
+target_link_libraries(mpack pico_stdlib)
+
+include_directories(${CMAKE_SOURCE_DIR}/external/mpack/src/mpack)
 
 # ---------- Libraries  ----------
 subdirlist(libs ${CMAKE_SOURCE_DIR}/lib)

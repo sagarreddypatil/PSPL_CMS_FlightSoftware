@@ -92,7 +92,7 @@ $RECYCLE.BIN/
 .history
 .ionide
 
-build/
-release/
-external/
-docs/
+build/*
+release/*
+external/*
+docs/*

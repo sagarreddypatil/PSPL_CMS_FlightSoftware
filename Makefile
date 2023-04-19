@@ -12,11 +12,14 @@ release: deps
 clean:
 	rm -rf build
 
-deps: external/pico-sdk
+deps: external/pico-sdk external/mpack
 
 external/pico-sdk:
 	git clone --depth 1 --branch 1.5.0 https://github.com/raspberrypi/pico-sdk.git external/pico-sdk
 	cd external/pico-sdk && git submodule update --init lib/tinyusb
+
+external/mpack:
+	git clone --depth 1 --branch v1.1.1 https://github.com/ludocode/mpack.git external/mpack
 
 docs:
 	doxygen Doxyfile
