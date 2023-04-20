@@ -29,6 +29,13 @@ PSPL_CMS_Avionics_Code/
 ```
 
 ## Usage
+### Dependencies
+ - `cmake`
+ - `make`
+ - `gcc-arm-none-eabi`
+ - `newlib-arm-none-eabi`
+ - `git`
+
 ### Cloning this Repo
 This repo uses Git submodules, so you need to clone it with the `--recursive` flag.
 ```
