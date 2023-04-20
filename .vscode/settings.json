@@ -14,9 +14,4 @@
             "visibility": "hidden"
         },
     },
-    "files.associations": {
-        "spi_device.h": "c",
-        "spi.h": "c",
-        "pico.h": "c"
-    },
 }
