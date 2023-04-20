@@ -1,4 +1,5 @@
 BasedOnStyle: Google
-ColumnLimit: 0
+ColumnLimit: 80
 AlignConsecutiveAssignments: true
 SortIncludes: false
+AllowShortFunctionsOnASingleLine: false
