@@ -40,27 +40,48 @@ endif()
 
 # ---------- MPack  ----------
 
+set(MPACK_STDIO 0)
+set(MPACK_FLOAT 0)
+set(MPACK_DOUBLE 0)
+
 file(GLOB_RECURSE mpack_srcs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.c)
 file(GLOB_RECURSE mpack_hdrs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.h)
 
 add_library(mpack ${mpack_srcs} ${mpack_hdrs})
-target_link_libraries(mpack pico_stdlib)
-
-include_directories(${CMAKE_SOURCE_DIR}/external/mpack/src/mpack)
+# target_link_libraries(mpack)
+target_include_directories(mpack PUBLIC ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack)
 
 # ---------- Libraries  ----------
-subdirlist(libs ${CMAKE_SOURCE_DIR}/lib)
 
-foreach(libname ${libs})
+set(libs)
+
+macro(psp_lib libname)
+    set(deps ${ARGN})
+
     file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.c)
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.h)
 
-    add_library(${libname} ${srcs} ${hdrs})
-    target_link_libraries(${libname} ${stdlibs})
+    message("libname: ${libname}")
+    message("deps: ${deps}")
 
-    # target_include_directories(${libname} PUBLIC ${CMAKE_SOURCE_DIR}/lib/${libname})
-    include_directories(${CMAKE_SOURCE_DIR}/lib/${libname}/include)
-endforeach()
+    if(NOT srcs)
+        add_library(${libname} INTERFACE)
+        target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
+    else()
+        add_library(${libname} INTERFACE)
+        target_sources(${libname} PUBLIC ${srcs})
+        target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
+
+        target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
+        list(APPEND libs ${libname})
+    endif()
+
+endmacro()
+
+psp_lib(spi ${})
+psp_lib(max31856 spi)
+psp_lib(w5500 spi)
+psp_lib(commandnet w5500 mpack)
 
 # ---------- Boards  ----------
 set(boards
