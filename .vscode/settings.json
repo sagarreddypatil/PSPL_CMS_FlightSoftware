@@ -19,6 +19,7 @@
         "tcp_server.h": "c",
         "mpack_socket.h": "c",
         "mpack.h": "c",
-        "spi_device.h": "c"
+        "spi_device.h": "c",
+        "stdlib.h": "c"
     },
 }

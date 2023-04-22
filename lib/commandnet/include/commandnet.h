@@ -52,9 +52,9 @@ typedef struct {
   cmdnet_status_t (*handler)();
 } cmdnet_cmd_t;
 
-#define CMDNET_COMMAND_START(name)                            \
-  cmdnet_status_t cmdnet_handle_##name();                     \
-  cmdnet_cmd_t cmdnet_##name = {#name, cmdnet_handle_##name}; \
+#define CMDNET_COMMAND(name)                                         \
+  cmdnet_status_t cmdnet_handle_##name();                            \
+  const cmdnet_cmd_t cmdnet_##name = {#name, &cmdnet_handle_##name}; \
   cmdnet_status_t cmdnet_handle_##name()
 
 typedef struct {
@@ -62,9 +62,9 @@ typedef struct {
   int64_t* valptr;
 } cmdnet_var_t;
 
-#define CMDNET_VAR(name, val)       \
-  int64_t name               = val; \
-  cmdnet_var_t cmdnet_##name = {#name, &name};
+#define CMDNET_VAR(name, val)             \
+  int64_t name                     = val; \
+  const cmdnet_var_t cmdnet_##name = {#name, &name};
 
 typedef int (*cmdnet_io_func_t)(void* data, size_t len);
 
@@ -78,8 +78,8 @@ typedef struct {
   tcp_server_t* socket;
 } cmdnet_t;
 
-void cmdnet_init(cmdnet_t* cmdnet, cmdnet_cmd_t* cmds, size_t cmds_len,
-                 cmdnet_var_t* vars, size_t vars_len, tcp_server_t* socket);
+void cmdnet_init(cmdnet_t* cmdnet, tcp_server_t* socket, cmdnet_cmd_t* cmds,
+                 size_t cmds_len, cmdnet_var_t* vars, size_t vars_len);
 
 void cmdnet_handle(cmdnet_t* cmdnet);
 
