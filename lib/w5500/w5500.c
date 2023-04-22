@@ -8,12 +8,13 @@
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
-const uint baudrate = 5000000;
+static const uint baudrate = 5000000;
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
-void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void* data, size_t len) {
+void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write,
+              void* data, size_t len) {
   uint8_t src[3 + len];
   uint8_t dst[3 + len];
 
@@ -36,16 +37,18 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write, void
 }
 
 void w5500_init(SPI_DEVICE_PARAM) {
-  w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);       // reset
-  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);   // PHY reset
-  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0xf8);  // PHY set to auto-negotiation
+  w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);      // reset
+  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);  // PHY reset
+  w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR,
+               0xf8);  // PHY set to auto-negotiation
 }
 
 bool w5500_ready(SPI_DEVICE_PARAM) {
   return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;
 }
 
-void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask, ip_t gateway) {
+void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip,
+                  ip_t subnet_mask, ip_t gateway) {
   while (!w5500_ready(spi))
     ;
 
@@ -60,11 +63,15 @@ void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip, ip_t subnet_mask
   w5500_rw(spi, W5500_COMMON, W5500_GAR0, true, gateway, 4);
 }
 
-w5500_error_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port, bool multicast, bool block_broadcast, bool block_unicast) {
+w5500_error_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s,
+                                      uint16_t src_port, bool multicast,
+                                      bool block_broadcast,
+                                      bool block_unicast) {
   w5500_command(spi, s, W5500_CMD_CLOSE);
 
   // Writing Socket Mode Register
-  uint8_t config = (uint8_t)W5500_PROTOCOL_UDP | MS(block_unicast, 1, 4) | MS(block_broadcast, 1, 6) | MS(multicast, 1, 7);
+  uint8_t config = (uint8_t)W5500_PROTOCOL_UDP | MS(block_unicast, 1, 4) |
+                   MS(block_broadcast, 1, 6) | MS(multicast, 1, 7);
   w5500_write8(spi, s, W5500_Sn_MR, config);
 
   // Writing Socket Ports
@@ -74,7 +81,8 @@ w5500_error_t w5500_create_udp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16
   return SUCCESS;
 }
 
-w5500_error_t w5500_create_tcp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t src_port) {
+w5500_error_t w5500_create_tcp_socket(SPI_DEVICE_PARAM, w5500_socket_t s,
+                                      uint16_t src_port) {
   w5500_command(spi, s, W5500_CMD_CLOSE);
 
   // Writing Socket Mode Register
@@ -90,13 +98,14 @@ w5500_error_t w5500_create_tcp_socket(SPI_DEVICE_PARAM, w5500_socket_t s, uint16
   return SUCCESS;
 }
 
-void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data, size_t len) {
+size_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data,
+                       size_t len) {
   uint16_t avail = w5500_read16(spi, s, W5500_Sn_RX_RSR0);
   if (avail < len) {
     len = avail;
   }
   if (len == 0) {
-    return;
+    return 0;
   }
 
   uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0);
@@ -106,9 +115,12 @@ void w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data, size_t l
   w5500_write16(spi, s, W5500_Sn_RX_RD0, start_addr);
 
   w5500_command(spi, s, W5500_CMD_RECV);
+
+  return len;
 }
 
-w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, size_t len) {
+w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data,
+                               size_t len) {
   // get current free size
   uint16_t free_size = w5500_read16(spi, s, W5500_Sn_TX_FSR0);
 
@@ -132,6 +144,7 @@ w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data, s
   return SUCCESS;
 }
 
-void w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s, w5500_socket_command_t command) {
+void w5500_command(SPI_DEVICE_PARAM, w5500_socket_t s,
+                   w5500_socket_command_t command) {
   w5500_write8(spi, s, W5500_Sn_CR, command);
 }

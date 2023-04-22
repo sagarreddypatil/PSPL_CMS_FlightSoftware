@@ -78,7 +78,7 @@ macro(psp_lib libname)
 
 endmacro()
 
-psp_lib(spi ${})
+psp_lib(spi)
 psp_lib(max31856 spi)
 psp_lib(w5500 spi)
 psp_lib(commandnet w5500 mpack)

@@ -1,8 +1,20 @@
-
-#include <pico/stdlib.h>
 #include <stdio.h>
+#include <pico/stdlib.h>
+
 #include <w5500.h>
 #include <w5500/tcp_server.h>
+
+typedef struct {
+  const char* name;
+  int64_t val;
+} cmdnet_var_t;
+
+const char* commands[]   = {"LOX_ENABLE", "LOX_DISABLE", "ETH_ENABLE", "ETH_DISABLE", "LOX_ON", "LOX_OFF", "ETH_ON", "ETH_OFF"};
+cmdnet_var_t variables[] = {
+    {"lox_usp", -1},
+    {"lox_lsp", -1},
+    {"eth_usp", -1},
+    {"eth_lsp", -1}};
 
 SPI_DEVICE(w5500, spi0, 17);
 
