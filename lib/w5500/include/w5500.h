@@ -166,16 +166,26 @@ typedef uint8_t mac_t[6];
 SPI_INITFUNC(w5500);
 
 /**
- * @brief Read or write memory on the W5500
+ * @brief Read memory on the W5500
  * @param spi Pointer to the SPI device
  * @param s Socket number, use W5500_COMMON for common registers
  * @param reg Register address
- * @param write True if writing, false if reading
+ * @param data Pointer to the data buffer to read into
+ * @param len Length of the data buffer
+ */
+void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, void* data,
+                size_t len);
+
+/**
+ * @brief Write memory on the W5500
+ * @param spi Pointer to the SPI device
+ * @param s Socket number, use W5500_COMMON for common registers
+ * @param reg Register address
  * @param data Pointer to the data buffer
  * @param len Length of the data buffer
  */
-void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write,
-              void* data, size_t len);
+void w5500_write(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg,
+                 const void* data, size_t len);
 
 /**
  * @brief Read a 1-byte register and return it
@@ -187,7 +197,7 @@ void w5500_rw(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, bool write,
 static inline uint8_t w5500_read8(SPI_DEVICE_PARAM, w5500_socket_t s,
                                   uint16_t reg) {
   uint8_t data;
-  w5500_rw(spi, s, reg, false, &data, 1);
+  w5500_read(spi, s, reg, &data, 1);
   return data;
 }
 
@@ -200,7 +210,7 @@ static inline uint8_t w5500_read8(SPI_DEVICE_PARAM, w5500_socket_t s,
  */
 static inline void w5500_write8(SPI_DEVICE_PARAM, w5500_socket_t s,
                                 uint16_t reg, uint8_t data) {
-  w5500_rw(spi, s, reg, true, &data, 1);
+  w5500_write(spi, s, reg, &data, 1);
 }
 
 /**
@@ -213,7 +223,7 @@ static inline void w5500_write8(SPI_DEVICE_PARAM, w5500_socket_t s,
 static inline uint16_t w5500_read16(SPI_DEVICE_PARAM, w5500_socket_t s,
                                     uint16_t reg) {
   uint8_t buf[2];
-  w5500_rw(spi, s, reg, false, buf, 2);
+  w5500_read(spi, s, reg, buf, 2);
   return ((uint16_t)(buf[0]) << 8) | buf[1];
 }
 
@@ -227,7 +237,7 @@ static inline uint16_t w5500_read16(SPI_DEVICE_PARAM, w5500_socket_t s,
 static inline void w5500_write16(SPI_DEVICE_PARAM, w5500_socket_t s,
                                  uint16_t reg, uint16_t data) {
   uint8_t buf[2] = {data >> 8, data & 0xFF};
-  w5500_rw(spi, s, reg, true, buf, 2);
+  w5500_write(spi, s, reg, buf, 2);
 }
 
 /**
@@ -266,8 +276,8 @@ bool w5500_ready(SPI_DEVICE_PARAM);
  * @param subnet_mask Device subnet mask
  * @param gateway Network gateway address
  */
-void w5500_config(SPI_DEVICE_PARAM, mac_t src_mac, ip_t src_ip,
-                  ip_t subnet_mask, ip_t gateway);
+void w5500_config(SPI_DEVICE_PARAM, const mac_t src_mac, const ip_t src_ip,
+                  const ip_t subnet_mask, const ip_t gateway);
 
 /**
  * @brief Set WOL mode

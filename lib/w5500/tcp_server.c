@@ -30,8 +30,8 @@ bool tcp_server_connected(tcp_server_t *server) {
 
 tcp_client_data_t tcp_server_get_client(tcp_server_t *server) {
   tcp_client_data_t client;
-  w5500_rw(server->w5500, server->socket, W5500_Sn_DIPR0, false, client.ip,
-           sizeof(client.ip));
+  w5500_read(server->w5500, server->socket, W5500_Sn_DIPR0, client.ip,
+             sizeof(client.ip));
   client.port = w5500_read16(server->w5500, server->socket, W5500_Sn_DPORT0);
   return client;
 }

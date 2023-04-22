@@ -39,7 +39,7 @@ int main() {
 
   // print ip
   ip_t ip;
-  w5500_rw(w5500, W5500_COMMON, W5500_SIPR0, false, ip, sizeof(ip));
+  w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
   uint16_t avail      = 0;

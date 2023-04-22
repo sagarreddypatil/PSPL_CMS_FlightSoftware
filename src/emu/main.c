@@ -1,58 +1,11 @@
-#include <pico/stdlib.h>
+#include "emu.h"
 #include <pico/unique_id.h>
 #include <stdio.h>
-#include <w5500.h>
 #include <commandnet.h>
 
-const uint LOX_SOLENOID = 26;
-const uint ETH_SOLENOID = 27;
-
 //------------Runtime Values and Behaviour------------
-CMDNET_VAR(lox_period, 140000)
-CMDNET_VAR(lox_duty_cycle, 50000)
-CMDNET_VAR(eth_period, 140000)
-CMDNET_VAR(eth_duty_cycle, 50000)
-CMDNET_VAR(lox_run, 1)
-CMDNET_VAR(eth_run, 1)
-
-CMDNET_COMMAND(lox_on) {
-  gpio_put(LOX_SOLENOID, 1);
-  return CMD_SUCCESS;
-}
-
-CMDNET_COMMAND(lox_off) {
-  gpio_put(LOX_SOLENOID, 0);
-  return CMD_SUCCESS;
-}
-
-CMDNET_COMMAND(eth_on) {
-  gpio_put(ETH_SOLENOID, 1);
-  return CMD_SUCCESS;
-}
-
-CMDNET_COMMAND(eth_off) {
-  gpio_put(ETH_SOLENOID, 0);
-  return CMD_SUCCESS;
-}
-
-cmdnet_cmd_t cmds[] = {
-    cmdnet_eth_on,
-    cmdnet_eth_off,
-    cmdnet_lox_on,
-    cmdnet_lox_off,
-};
-
-cmdnet_var_t vars[] = {
-    cmdnet_lox_period,     cmdnet_lox_duty_cycle, cmdnet_eth_period,
-    cmdnet_eth_duty_cycle, cmdnet_lox_run,        cmdnet_eth_run,
-};
 
 SPI_DEVICE(w5500, spi0, 17);
-
-//------------Network Constants------------
-ip_t gateway     = {192, 168, 2, 1};
-ip_t subnet_mask = {255, 255, 255, 0};
-ip_t src_ip      = {192, 168, 2, 50};
 
 int main() {
   //------------All Initialization------------
@@ -98,7 +51,7 @@ int main() {
   // W5500 Configuration
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
   ip_t ip;
-  w5500_rw(w5500, W5500_COMMON, W5500_SIPR0, false, ip, sizeof(ip));
+  w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", src_mac[0], src_mac[1],
          src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
   printf("IP: %d.%d.%d.%d\n", src_ip[0], src_ip[1], src_ip[2], src_ip[3]);
@@ -111,8 +64,7 @@ int main() {
   // Protocol
   cmdnet_t _cmdnet;
   cmdnet_t* cmdnet = &_cmdnet;
-  cmdnet_init(cmdnet, server, cmds, sizeof(cmds) / sizeof(cmds[0]), vars,
-              sizeof(vars) / sizeof(vars[0]));
+  cmdnet_init(cmdnet, server, cmds, cmds_len, vars, vars_len);
 
   int64_t eth_cycle_start = 0;
   int64_t lox_cycle_start = 0;
