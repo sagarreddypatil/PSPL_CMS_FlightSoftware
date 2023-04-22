@@ -29,7 +29,7 @@ void solenoid_task_run() {
       gpio_put(ETH_SOLENOID, 1);
     }
   } else {
-    gpio_put(ETH_SOLENOID, 0);
+    gpio_put(ETH_SOLENOID, (eth_state == 1));
   }
 
   solenoid_time = time_us_64();
@@ -46,6 +46,6 @@ void solenoid_task_run() {
       gpio_put(LOX_SOLENOID, 1);
     }
   } else {
-    gpio_put(LOX_SOLENOID, 0);
+    gpio_put(LOX_SOLENOID, (lox_state == 1));
   }
 }

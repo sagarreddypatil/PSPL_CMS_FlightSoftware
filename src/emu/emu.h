@@ -8,10 +8,17 @@ SPI_DEVICE(w5500, spi0, 17)
 //------------Global Vars------------
 extern int64_t lox_period;
 extern int64_t lox_duty_cycle;
+
 extern int64_t eth_period;
 extern int64_t eth_duty_cycle;
+
 extern int64_t lox_run;
 extern int64_t eth_run;
+
+extern int64_t lox_state;
+extern int64_t eth_state;
+
+// CommandNet Arrays
 
 extern cmdnet_cmd_t cmds[];
 extern const size_t cmds_len;
