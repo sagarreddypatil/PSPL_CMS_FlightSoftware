@@ -30,6 +30,7 @@ add_compile_options(
     -Wall # Enable all warnings
     -O3 # I am speed
     -Werror # Treat warnings as errors
+    -Wno-unused-variable
 )
 
 if(PICO_PLATFORM MATCHES "host")
