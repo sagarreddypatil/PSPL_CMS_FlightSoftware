@@ -85,7 +85,8 @@ psp_lib(commandnet w5500 mpack)
 
 # ---------- Boards  ----------
 set(boards
-    echo
+    # echo
+    emu
 )
 
 foreach(board ${boards})

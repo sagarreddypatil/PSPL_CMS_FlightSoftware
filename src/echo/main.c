@@ -4,18 +4,6 @@
 #include <w5500.h>
 #include <w5500/tcp_server.h>
 
-typedef struct {
-  const char* name;
-  int64_t val;
-} cmdnet_var_t;
-
-const char* commands[]   = {"LOX_ENABLE", "LOX_DISABLE", "ETH_ENABLE", "ETH_DISABLE", "LOX_ON", "LOX_OFF", "ETH_ON", "ETH_OFF"};
-cmdnet_var_t variables[] = {
-    {"lox_usp", -1},
-    {"lox_lsp", -1},
-    {"eth_usp", -1},
-    {"eth_lsp", -1}};
-
 SPI_DEVICE(w5500, spi0, 17);
 
 int main() {
@@ -67,7 +55,8 @@ int main() {
     connected = tcp_server_connected(&server);
     if (!prev_connected && connected) {
       client = tcp_server_get_client(&server);
-      printf("Client connected: %d.%d.%d.%d:%d\n", client.ip[0], client.ip[1], client.ip[2], client.ip[3], client.port);
+      printf("Client connected: %d.%d.%d.%d:%d\n", client.ip[0], client.ip[1],
+             client.ip[2], client.ip[3], client.port);
     }
     if (prev_connected && !connected) {
       printf("Client disconnected\n");
