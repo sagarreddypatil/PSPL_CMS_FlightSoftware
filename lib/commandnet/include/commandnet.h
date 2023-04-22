@@ -52,6 +52,11 @@ typedef struct {
   cmdnet_status_t (*handler)();
 } cmdnet_cmd_t;
 
+#define CMDNET_COMMAND_START(name)                            \
+  cmdnet_status_t cmdnet_handle_##name();                     \
+  cmdnet_cmd_t cmdnet_##name = {#name, cmdnet_handle_##name}; \
+  cmdnet_status_t cmdnet_handle_##name()
+
 typedef struct {
   const char* name;
   int64_t* valptr;
