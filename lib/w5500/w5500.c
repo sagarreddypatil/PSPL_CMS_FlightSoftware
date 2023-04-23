@@ -114,7 +114,7 @@ size_t w5500_read_data(SPI_DEVICE_PARAM, w5500_socket_t s, uint8_t* data,
   }
 
   uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0);
-  w5500_read(spi, s, start_addr, data, len);
+  w5500_read(spi, s + 2, start_addr, data, len);
 
   start_addr += len;
   w5500_write16(spi, s, W5500_Sn_RX_RD0, start_addr);
@@ -138,7 +138,7 @@ w5500_error_t w5500_write_data(SPI_DEVICE_PARAM, w5500_socket_t s, void* data,
   uint16_t write_addr = w5500_read16(spi, s, W5500_Sn_TX_WR0);
 
   // write len bytes to tx buffer starting at write_addr
-  w5500_write(spi, s, write_addr, data, len);
+  w5500_write(spi, s + 1, write_addr, data, len);
 
   // update write address
   write_addr += len;

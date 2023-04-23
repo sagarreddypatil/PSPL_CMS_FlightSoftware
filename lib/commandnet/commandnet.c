@@ -90,7 +90,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     cmdnet_status_t status = cmdnet_exec(cmdnet, name);
 
     mpack_start_array(&writer, 1);
-    mpack_write_u8(&writer, status);
+    mpack_write_i8(&writer, status);
     mpack_finish_array(&writer);
   } else if (req == ALL_CMDS) {
     DEBUG_PRINT("sending all commands\n");
@@ -102,7 +102,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     size_t cmds_len        = cmdnet->cmds_len;
 
     mpack_start_array(&writer, 2);
-    mpack_write_u8(&writer, status);
+    mpack_write_i8(&writer, status);
     mpack_start_array(&writer, cmds_len);
     for (size_t i = 0; i < cmds_len; i++) {
       mpack_write_cstr(&writer, cmds[i].name);
@@ -122,7 +122,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     cmdnet_status_t status = cmdnet_set_var(cmdnet, name, &oldval, newval);
 
     mpack_start_array(&writer, 2);
-    mpack_write_u8(&writer, status);
+    mpack_write_i8(&writer, status);
     mpack_write_i64(&writer, oldval);
     mpack_finish_array(&writer);
   } else if (req == GET_VAR) {
@@ -134,7 +134,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     cmdnet_status_t status = cmdnet_get_var(cmdnet, name, &val);
 
     mpack_start_array(&writer, 2);
-    mpack_write_u8(&writer, status);
+    mpack_write_i8(&writer, status);
     mpack_write_i64(&writer, val);
     mpack_finish_array(&writer);
   } else if (req == ALL_VARS) {
@@ -146,7 +146,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     size_t vars_len        = cmdnet->vars_len;
 
     mpack_start_array(&writer, 2);
-    mpack_write_u8(&writer, status);
+    mpack_write_i8(&writer, status);
     mpack_start_array(&writer, vars_len);
     for (size_t i = 0; i < vars_len; i++) {
       mpack_start_array(&writer, 2);
@@ -162,7 +162,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     mpack_reader_destroy(&reader);
 
     mpack_start_array(&writer, 1);
-    mpack_write_u8(&writer, CMD_INVALID);
+    mpack_write_i8(&writer, CMD_INVALID);
     mpack_finish_array(&writer);
   }
 
