@@ -13,7 +13,7 @@ int main() {
   gpio_set_function(16, GPIO_FUNC_SPI);
 
   w5500_set(w5500);
-  w5500_init(w5500);
+  w5500_reset(w5500);
 
   pico_unique_board_id_t board_id;
   pico_get_unique_board_id(&board_id);

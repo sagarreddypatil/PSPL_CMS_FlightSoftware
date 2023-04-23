@@ -258,7 +258,7 @@ static inline void w5500_set_flag(SPI_DEVICE_PARAM, w5500_socket_t s,
  * @brief Reset the W5500
  * @param spi Pointer to the SPI device
  */
-void w5500_init(SPI_DEVICE_PARAM);
+void w5500_reset(SPI_DEVICE_PARAM);
 
 /**
  * @brief Check if the W5500 is powered on and ready, poll this function until

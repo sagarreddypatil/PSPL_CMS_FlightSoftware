@@ -41,7 +41,7 @@ void w5500_write(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg,
   SPI_WRITE(src, 3 + len);
 }
 
-void w5500_init(SPI_DEVICE_PARAM) {
+void w5500_reset(SPI_DEVICE_PARAM) {
   w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);      // reset
   w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR, 0x0);  // PHY reset
   w5500_write8(spi, W5500_COMMON, W5500_PHYCFGR,

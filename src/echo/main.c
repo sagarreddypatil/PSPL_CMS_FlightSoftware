@@ -29,7 +29,7 @@ int main() {
   ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
-  w5500_init(w5500);
+  w5500_reset(w5500);
   uint64_t start = time_us_64();
   while (!w5500_ready(w5500))
     ;
