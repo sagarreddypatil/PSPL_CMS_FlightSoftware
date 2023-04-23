@@ -15,12 +15,4 @@
         },
     },
     "editor.tabSize": 2,
-    "files.associations": {
-        "tcp_server.h": "c",
-        "mpack_socket.h": "c",
-        "mpack.h": "c",
-        "spi_device.h": "c",
-        "stdlib.h": "c",
-        "w5500.h": "c"
-    },
 }
