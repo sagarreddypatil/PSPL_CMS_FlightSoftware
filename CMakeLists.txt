@@ -79,12 +79,14 @@ endmacro()
 psp_lib(spi)
 psp_lib(max31856 spi)
 psp_lib(w5500 spi)
+psp_lib(ads13x spi)
 psp_lib(commandnet w5500 mpack)
 
 # ---------- Boards  ----------
 set(boards
     # echo
-    emu
+    # emu
+    adc-test
 )
 
 foreach(board ${boards})

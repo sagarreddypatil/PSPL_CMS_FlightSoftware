@@ -18,7 +18,7 @@ typedef enum {
   ads13x_regmap_crc      = 0x3E,
 } ads13x_reg_t;
 
-typedef enum GAIN_SETTING {
+typedef enum {
   GAIN_1   = 0,
   GAIN_2   = 1,
   GAIN_4   = 2,
@@ -27,15 +27,15 @@ typedef enum GAIN_SETTING {
   GAIN_32  = 5,
   GAIN_64  = 6,
   GAIN_128 = 7,
-} ads13x_GAIN_SETTING;
+} ads13x_gain_setting;
 
-typedef enum PWR_SETTING {
+typedef enum {
   VERY_LOW_POWER  = 0,
   LOW_POWER       = 1,
   HIGH_RESOLUTION = 2,
-} ads13x_PWR_SETTING;
+} ads13x_pwr_setting;
 
-typedef enum SAMPLE_RATE {
+typedef enum {
   SR_32K = 0,  // OSR = 128
   SR_16K = 1,
   SR_8K  = 2,
@@ -44,9 +44,13 @@ typedef enum SAMPLE_RATE {
   SR_1K  = 5,
   SR_500 = 6,
   SR_250 = 7  // OSR = 16384
-} ads13x_SAMPLE_RATE;
+} ads13x_sample_rate;
 
 SPI_INITFUNC(ads13x);
+
+void ads13x_init(SPI_DEVICE_PARAM);
+void ads13x_ready(SPI_DEVICE_PARAM);
+void ads13x_config(SPI_DEVICE_PARAM);
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg);
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
@@ -57,7 +61,8 @@ uint32_t ads13x_read_data(SPI_DEVICE_PARAM);
 
 // Convenience Functions
 
-void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_GAIN_SETTING gain_setting);
+void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting);
 
-void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3, ads13x_SAMPLE_RATE sampleRate,
-                     ads13x_PWR_SETTING powerSetting);
+void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3,
+                     ads13x_sample_rate sample_rate,
+                     ads13x_pwr_setting pwr_setting);
