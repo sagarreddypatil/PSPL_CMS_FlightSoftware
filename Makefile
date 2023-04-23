@@ -2,12 +2,12 @@ all: build
 
 build: deps
 	-@sh -c 'mkdir build 2>/dev/null || true'
-	@cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make
+	@cd build && cmake -DCMAKE_BUILD_TYPE=Debug -G "Ninja" .. && ninja
 
 release: deps
 	-@rm -rf release
 	-@mkdir release
-	cd release && cmake -DCMAKE_BUILD_TYPE=Release .. && make
+	cd release && cmake -DCMAKE_BUILD_TYPE=Release -G "Ninja" .. && ninja
 
 clean:
 	rm -rf build
