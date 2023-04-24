@@ -1,120 +1,160 @@
 #include "ads13x.h"
 
-#include <spi_device_impl.h>
 #include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <spi_device_impl.h>
 
 SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
 
-static const uint baudrate = 100000;
+static const uint baudrate = 1000000;
 SPI_INITFUNC_IMPL(ads13x, baudrate)
 
-#define WREG_AND_MASK 0x7FFF  //  0b0111111111111111
-#define WREG_OR_MASK 0x6000   //  0b0110000000000000
+// Commands
+#define RESET 0b10001
+#define STANDBY 0b100010
+#define WAKEUP 0b0000000000110011
+#define LOCK 0b0000010101010101
+#define UNLOCK 0b0000011001010101
+#define RREG 0b1010000000000000
+#define WREG 0b0110000000000000
 
-#define RREG_AND_MASK 0xbFFF  //  0b1011111111111111
-#define RREG_OR_MASK 0xa000   //  0b1010000000000000
+// Command Responses
+#define RESET_RESP 0b1111111100100010
+#define STANDBY_RESP 0b0000000000100010
+#define WAKEUP_RESP 0b0000000000110011
+#define LOCK_RESP 0b0000010101010101
+#define UNLOCK_RESP 0b0000011001010101
+#define RREG_RESP 0b1110000000000000
+#define WREG_RESP 0b0100000000000000
 
-//                                 FEDCBA9876543210
-#define MODE_AND_MASK 0x3F12  // 0b0011111100010010
-#define GAIN_AND_MASK 0x7777  // 0b0111011101110111
-#define CLOCK_AND_MASK 0xF9F  // 0b0000111110011111
-#define CH_CFG_AND_MASK 0x3   // 0b0000000000000011
+#define REG_ADDR_MASK (1 << 6) - 1
+#define REG_ADDR_SHIFT 7
+
+#define REG_NUM_MASK (1 << 7) - 1
+#define REG_NUM_SHIFT 0
 
 // Mask and shift macro
 #define MS(val, mask, shift) (((val) & (mask)) << (shift))  // for multiple bits
 #define S(val, shift) ((val & 1) << (shift))                // for single bit
 
-#define WREG(a, n)                                                   \
-  MASK((SET_BITS(a, 7, 6) | SET_BITS((n - 1), 0, 6)), WREG_AND_MASK, \
-       WREG_OR_MASK)
+// num - 1 because 0 is 1 reg, don't pass 0, chip designers are dumb
+#define REG_OP(op, reg, num)                     \
+  (op | MS(reg, REG_ADDR_MASK, REG_ADDR_SHIFT) | \
+   MS((num - 1), REG_NUM_MASK, REG_NUM_SHIFT))
 
-#define RREG(a, n)                                                   \
-  MASK((SET_BITS(a, 0, 6) | SET_BITS((n - 1), 0, 6)), RREG_AND_MASK, \
-       RREG_OR_MASK)
+#define REG_OP_SINGLE(op, reg) (op | MS(reg, REG_ADDR_MASK, REG_ADDR_SHIFT))
 
-#define MODE(REG_CRC_EN, RX_CRC_EN, CRC_TYPE, RESET, WLENGTH, TIMEOUT, \
-             DRDY_HiZ)                                                 \
-  MASK(SET_BIT(REG_CRC_EN, 13) | SET_BIT(RX_CRC_EN, 12) |              \
-           SET_BIT(CRC_TYPE, 11) | SET_BIT(RESET, 10) |                \
-           SET_BITS(WLENGTH, 8, 2) | SET_BIT(TIMEOUT, 4) |             \
-           SET_BIT(DRDY_HiZ, 1),                                       \
-       MODE_AND_MASK, 0)
+// Host byte-order to peripheral, 16, 24, 32 bit
+// Remember to pad LSBs for data types shorter than the set word size
+#define HTOP16(val) ((val >> 8) & 0xFF), (val & 0xFF)
+#define HTOP24(val) ((val >> 16) & 0xFF), ((val >> 8) & 0xFF), (val & 0xFF)
+#define HTOP32(val) \
+  ((val >> 24) & 0xFF), ((val >> 16) & 0xFF), ((val >> 8) & 0xFF), (val & 0xFF)
 
-// Gain
-#define GAIN(CH0, CH1, CH2, CH3)                                          \
-  MASK(SET_BITS(CH0, 12, 3) | SET_BITS(CH1, 8, 3) | SET_BITS(CH2, 4, 3) | \
-           SET_BITS(CH3, 0, 3),                                           \
-       GAIN_AND_MASK, 0)
+// Peripheral byte-order to Host, 16, 24, 32 bit
+#define PTOH16(ptr) ((ptr)[0] << 8 | (ptr)[1])
+// sign extend 24-bits to 32-bits
+#define PTOH24(ptr) (((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8) >> 8)
+#define PTOH32(ptr) ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | (ptr)[3])
 
-// Clock
+void ads13x_reset(SPI_DEVICE_PARAM) {
+  // try both 24-bit and 32-bit word size
 
-#define CLOCK(CH0_EN, CH1_EN, CH2_EN, CH3_EN, CLK_SEL, OSR, PWR)            \
-  MASK(SET_BIT(CH3_EN, 11) | SET_BIT(CH2_EN, 10) | SET_BIT(CH1_EN, 9) |     \
-           SET_BIT(CH0_EN, 8) | SET_BIT(CLK_SEL, 7) | SET_BITS(OSR, 2, 2) | \
-           SET_BITS(PWR, 0, 2),                                             \
-       CLOCK_AND_MASK, 0)
+  uint8_t src24[4 * 3] = {HTOP16(RESET)};
+  uint8_t dst24[4 * 3];
 
-// Channel Configuration
+  SPI_TRANSFER(src24, dst24, 4 * 3);
 
-enum CH_CFG_SETTING {
-  AIN0P_AND_AIN0N             = 0,  // AIN0P and AIN0N
-  AIN0_DISCONNECTED_ADC_SHORT = 1,  // AIN0 disconnected, ADC inputs shorted
-  POS_DC_TEST_SIGNAL          = 2,  // Positive DC test signal
-  NEG_DC_TEST_SIGNAL          = 3   // Negative DC test signal
-};
+  uint8_t src32[4 * 4] = {HTOP16(RESET)};
+  uint8_t dst32[4 * 4];
 
-#define CH_CFG(MUX) MASK(SET_BITS(MUX, 0, 2), CH_CFG_AND_MASK, 0)
+  SPI_TRANSFER(src32, dst32, 4 * 4);
+}
 
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)                                \
-  (byte & 0x80 ? '1' : '0'), (byte & 0x40 ? '1' : '0'),     \
-      (byte & 0x20 ? '1' : '0'), (byte & 0x10 ? '1' : '0'), \
-      (byte & 0x08 ? '1' : '0'), (byte & 0x04 ? '1' : '0'), \
-      (byte & 0x02 ? '1' : '0'), (byte & 0x01 ? '1' : '0')
+bool ads13x_ready(SPI_DEVICE_PARAM) {
+  uint8_t src[4 * 3] = {0};
+  uint8_t dst[4 * 3];
 
-void ads13x_config(SPI_DEVICE_PARAM) {
+  SPI_TRANSFER(src, dst, 4 * 3);
+
+  uint16_t status = PTOH16(dst);
+
+  return (status & 0xFF00) == 0x0500;  // check status is init state
+}
+
+void ads13x_init(SPI_DEVICE_PARAM) {
+  // set the chip to 32-bit word size
+  uint16_t cmd = REG_OP_SINGLE(WREG, ads13x_mode);
+
+  // also inadvertently disables SPI timeout, oh well, we don't need it
+  uint16_t val = MS(0b11, 0b11, 8);  // set WLENGTH to 0b11
+  val |= MS(0, 1, 10);               // clear RESET bit
+  // ob11 is 32-bit word size with sign extension
+
+  uint8_t src[4 * 3] = {HTOP16(cmd), 0, HTOP16(val), 0};
+  uint8_t dst[4 * 3];
+
+  SPI_TRANSFER(src, dst, 4 * 3);
+
+  memset(dst, 0, 4 * 3);
+
+  SPI_READ(dst, 4 * 3);
+
+  uint16_t resp     = (dst[0] << 8) | dst[1];
+  uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
+
+  // TOOD: error checking
 }
 
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
+  uint8_t src[4 * 4] = {
+      HTOP16(REG_OP_SINGLE(WREG, reg)), 0, 0, HTOP16(data), 0, 0};
+  uint8_t dst[4 * 4];
+
+  SPI_WRITE(src, 4 * 4);
+  SPI_READ(dst, 4 * 4);
+
+  uint16_t resp     = (dst[0] << 8) | dst[1];
+  uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
+
+  assert(resp == expected);
 }
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
-  uint8_t rreg_cmd = RREG(reg, 1);
-  uint8_t cmd[3]   = {rreg_cmd, 0, 0};
-  uint8_t data[12] = {};
-  SPI_TRANSFER(cmd, data, 3);
-  SPI_READ(data + 3, 9);
-  for (int i = 0; i < 12; i++) {
-    printf("%02x ", data[i]);
-  }
-  printf("\n");
-  //  uint16_t register_data = (data[0] << 8) | data[1];
-  return 0;
-}
-#define data_len 12
-// int global_counter = 1;
-uint32_t ads13x_read_data(SPI_DEVICE_PARAM) {
-  uint8_t data[data_len] = {};
-  for (int i = 0; i < 1; i++) {
-    SPI_READ(data, data_len);
-  }
-  //  global_counter++;
-  //  if (global_counter % 100 == 0) {
-  for (int i = 0; i < data_len; i++) {
-    printf("0x%02X ", data[i]);
-  }
-  printf("\n");
+  uint8_t src[4 * 4] = {HTOP16(REG_OP_SINGLE(RREG, reg))};
+  uint8_t dst[4 * 4] = {0};
 
-  return 0;
+  SPI_WRITE(src, 4 * 4);
+  SPI_READ(dst, 4 * 4);
+
+  uint16_t resp = (dst[0] << 8) | dst[1];
+  return resp;
 }
 
-void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting) {
-  ads13x_wreg_single(spi, ads13x_mode, GAIN(gain_setting, 0, 0, 0));
+bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, uint32_t *data,
+                      uint32_t len) {
+  if (len > 2) len = 2;
+
+  uint8_t dst[4 * 4];
+  SPI_READ(dst, 4 * 4);
+
+  *status = PTOH16(dst);
+  for (int i = 0; i < len; i++) {
+    data[i] = PTOH32(&dst[4 + (i * 4)]);
+  }
+
+  return true;
 }
 
-void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3,
-                     ads13x_sample_rate sample_rate,
-                     ads13x_pwr_setting pwr_setting) {
-  ads13x_wreg_single(spi, ads13x_mode,
-                     CLOCK(ch0, ch1, ch2, ch3, 0, sample_rate, pwr_setting));
-}
+// void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting) {
+//   ads13x_wreg_single(spi, ads13x_mode, GAIN(gain_setting, 0, 0, 0));
+// }
+
+// void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool
+// ch3,
+//                      ads13x_sample_rate sample_rate,
+//                      ads13x_pwr_setting pwr_setting) {
+//   ads13x_wreg_single(spi, ads13x_mode,
+//                      CLOCK(ch0, ch1, ch2, ch3, 0, sample_rate, pwr_setting));
+// }

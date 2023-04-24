@@ -18,7 +18,7 @@ include(util)
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi)
+set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_bootsel_via_double_reset)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -31,6 +31,7 @@ add_compile_options(
     -O3 # I am speed
     -Werror # Treat warnings as errors
     -Wno-unused-variable
+    -Wno-comment
 )
 
 if(PICO_PLATFORM MATCHES "host")

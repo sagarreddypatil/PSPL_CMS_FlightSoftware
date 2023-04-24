@@ -15,4 +15,7 @@
         },
     },
     "editor.tabSize": 2,
+    "files.associations": {
+        "assert.h": "c"
+    },
 }

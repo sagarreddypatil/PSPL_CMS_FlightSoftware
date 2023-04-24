@@ -5,17 +5,16 @@
 // Register Addresses
 
 typedef enum {
-  ads13x_id              = 0x00,
-  ads13x_status          = 0x01,
-  ads13x_mode            = 0x02,
-  ads13x_clock           = 0x03,
-  ads13x_gain            = 0x04,
-  ads13x_global_chop_cfg = 0x06,
-  ads13x_ch0_cfg         = 0x09,
-  ads13x_ch1_cfg         = 0x0E,
-  ads13x_ch2_cfg         = 0x13,
-  ads13x_ch3_cfg         = 0x18,
-  ads13x_regmap_crc      = 0x3E,
+  ads13x_id         = 0x00,
+  ads13x_status     = 0x01,
+  ads13x_mode       = 0x02,
+  ads13x_clock      = 0x03,
+  ads13x_gain       = 0x04,
+  ads13x_cfg        = 0x06,
+  ads13x_ch0_cfg    = 0x09,
+  ads13x_ch1_cfg    = 0x0E,
+  ads13x_ch2_cfg    = 0x13,
+  ads13x_regmap_crc = 0x3E,
 } ads13x_reg_t;
 
 typedef enum {
@@ -48,16 +47,17 @@ typedef enum {
 
 SPI_INITFUNC(ads13x);
 
+void ads13x_reset(SPI_DEVICE_PARAM);
+bool ads13x_ready(SPI_DEVICE_PARAM);
 void ads13x_init(SPI_DEVICE_PARAM);
-void ads13x_ready(SPI_DEVICE_PARAM);
-void ads13x_config(SPI_DEVICE_PARAM);
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg);
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
-void ads13x_init(SPI_DEVICE_PARAM);
 
 // Read Data
-uint32_t ads13x_read_data(SPI_DEVICE_PARAM);
+// check that len is <= adc channels
+bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, uint32_t *data,
+                      uint32_t len);
 
 // Convenience Functions
 
