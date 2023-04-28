@@ -13,6 +13,14 @@ int main() {
   stdio_init_all();
   while (!stdio_usb_connected()) tight_loop_contents();
 
+  // for (int i = 0; i < 15; i++) {
+  //   printf("iter %d, time %llu\n", i, time_us_64());
+  // }
+  // printf("\n");
+
+  // while (true)
+  //   ;
+
   for (int i = 0; i < 50; i++) printf("\n");
 
   printf("Program: %s\n", PICO_PROGRAM_NAME);
@@ -26,36 +34,34 @@ int main() {
   spi_init(spi1, 100000);
 
   printf("Initializing ADS13x...\n");
-  ads13x_set(ads13x);
+  uint baud = ads13x_set(ads13x);
   ads13x_reset(ads13x);
   while (!ads13x_ready(ads13x)) tight_loop_contents();
   ads13x_init(ads13x);
-  printf("ADS13x Init\n");
+  printf("ADC Baud: %u\n", baud);
 
   while (true) {
-    // print all regs
-    uint16_t id     = ads13x_rreg_single(ads13x, ads13x_id);
-    uint16_t status = ads13x_rreg_single(ads13x, ads13x_status);
-    uint16_t mode   = ads13x_rreg_single(ads13x, ads13x_mode);
-    uint16_t clock  = ads13x_rreg_single(ads13x, ads13x_clock);
-    uint16_t gain   = ads13x_rreg_single(ads13x, ads13x_gain);
-    uint16_t cfg    = ads13x_rreg_single(ads13x, ads13x_cfg);
+    // // print all regs
+    // uint16_t id     = ads13x_rreg_single(ads13x, ads13x_id);
+    // uint16_t status = ads13x_rreg_single(ads13x, ads13x_status);
+    // uint16_t mode   = ads13x_rreg_single(ads13x, ads13x_mode);
+    // uint16_t clock  = ads13x_rreg_single(ads13x, ads13x_clock);
+    // uint16_t gain   = ads13x_rreg_single(ads13x, ads13x_gain);
+    // uint16_t cfg    = ads13x_rreg_single(ads13x, ads13x_cfg);
 
-    printf("ID:     %04x\n", id);
-    printf("Status: %04x\n", status);
-    printf("Mode:   %04x\n", mode);
-    printf("Clock:  %04x\n", clock);
-    printf("Gain:   %04x\n", gain);
-    printf("Cfg:    %04x\n", cfg);
-
-    sleep_ms(100);
-    continue;
-
-    // uint16_t status;
-    // uint32_t data[2];
-    // ads13x_read_data(ads13x, &status, data, 2);
-
+    // printf("ID:     %04x\n", id);
     // printf("Status: %04x\n", status);
-    // printf("Data: %lu %lu\n", data[0], data[1]);
+    // printf("Mode:   %04x\n", mode);
+    // printf("Clock:  %04x\n", clock);
+    // printf("Gain:   %04x\n", gain);
+    // printf("Cfg:    %04x\n", cfg);
+
+    // sleep_ms(100);
+
+    uint16_t statA;
+    uint16_t statB;
+    int32_t data[2];
+    ads13x_read_data(ads13x, &statA, data, 2);
+    printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
   }
 }

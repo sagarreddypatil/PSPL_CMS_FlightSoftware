@@ -54,9 +54,11 @@ void ads13x_init(SPI_DEVICE_PARAM);
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg);
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
 
+void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate);
+
 // Read Data
 // check that len is <= adc channels
-bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, uint32_t *data,
+bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len);
 
 // Convenience Functions

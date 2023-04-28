@@ -7,7 +7,7 @@
 
 SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
 
-static const uint baudrate = 1000000;
+static const uint baudrate = 10000000;
 SPI_INITFUNC_IMPL(ads13x, baudrate)
 
 // Commands
@@ -132,7 +132,14 @@ uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
   return resp;
 }
 
-bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, uint32_t *data,
+void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate) {
+  uint16_t clock_reg = ads13x_rreg_single(spi, ads13x_clock);
+  clock_reg |= MS(sample_rate, 0b111, 2);
+
+  ads13x_wreg_single(spi, ads13x_clock, clock_reg);
+}
+
+bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len) {
   if (len > 2) len = 2;
 
