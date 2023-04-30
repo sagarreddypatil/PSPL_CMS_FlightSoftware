@@ -22,6 +22,7 @@ PSPL_CMS_Avionics_Code/
 │           └── example/ <- secondary headers
 │               └── whatever.h <- included with `#include <example/whatever.h>`
 ├── external/ <- Gitignored, for automatically downloaded libraries(in Makefile), contains pico-sdk
+├── include/ <- Global include directory, used for configs and stuff
 ├── build/ <- not uploaded to the repo, contains compilation outputs
 │   └── bin/ <- contains the files to be uploaded to the boards
 ├── .clang-format <- file containing autoformatter rules

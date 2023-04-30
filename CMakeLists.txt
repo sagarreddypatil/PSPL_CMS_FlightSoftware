@@ -18,7 +18,7 @@ include(util)
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_bootsel_via_double_reset)
+set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_mbedtls pico_bootsel_via_double_reset)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -75,6 +75,10 @@ macro(psp_lib libname)
     endif()
 
 endmacro()
+
+# this one is special
+add_library(crypto INTERFACE)
+include_directories(${CMAKE_SOURCE_DIR}/lib/crypto/include)
 
 psp_lib(spi)
 psp_lib(max31856 spi)
