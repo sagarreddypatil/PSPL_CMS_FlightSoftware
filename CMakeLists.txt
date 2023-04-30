@@ -62,17 +62,12 @@ macro(psp_lib libname)
     file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.c)
     file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.h)
 
-    if(NOT srcs)
-        add_library(${libname} INTERFACE)
-        target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
-    else()
-        add_library(${libname} INTERFACE)
-        target_sources(${libname} PUBLIC ${srcs})
-        target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
+    add_library(${libname} INTERFACE)
+    target_sources(${libname} PUBLIC ${srcs})
+    target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
 
-        target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
-        list(APPEND libs ${libname})
-    endif()
+    target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
+    list(APPEND libs ${libname})
 
 endmacro()
 
