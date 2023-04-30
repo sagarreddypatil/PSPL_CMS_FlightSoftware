@@ -34,11 +34,13 @@ PSPL_CMS_Avionics_Code/
 
 ## Usage
 ### Dependencies
- - `cmake`
- - `make`
- - `gcc-arm-none-eabi`
- - `newlib-arm-none-eabi`
- - `git`
+ - `cmake` (build system)
+ - `compdb` (compile database for headers)
+ - `make` (for running CMake)
+ - `ninja` (CMake backend)
+ - `gcc-arm-none-eabi` (compiler)
+ - `newlib-arm-none-eabi` (C standard library)
+ - `git` (to clone this repo)
 
 ### Cloning this Repo
 This repo uses Git submodules, so you need to clone it with the `--recursive` flag.
