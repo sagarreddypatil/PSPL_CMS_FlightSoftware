@@ -15,9 +15,6 @@
         },
     },
     "editor.tabSize": 2,
-    "files.associations": {
-        "spi.h": "c"
-    },
     "C_Cpp.autoAddFileAssociations": false,
     "debug.internalConsoleOptions": "neverOpen"
 }
