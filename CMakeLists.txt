@@ -77,9 +77,9 @@ macro(psp_lib libname)
 endmacro()
 
 # this one is special
-add_library(crypto INTERFACE)
 include_directories(${CMAKE_SOURCE_DIR}/lib/crypto/include)
 
+psp_lib(crypto)
 psp_lib(spi)
 psp_lib(max31856 spi)
 psp_lib(w5500 spi)
