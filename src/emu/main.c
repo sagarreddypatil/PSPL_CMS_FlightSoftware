@@ -23,6 +23,11 @@ int main() {
   gpio_set_drive_strength(18, GPIO_DRIVE_STRENGTH_4MA);
   gpio_set_drive_strength(19, GPIO_DRIVE_STRENGTH_4MA);
 
+  /* See:
+   * Falstad Circuit Simulator
+   * https://tinyurl.com/2m9dxu53
+   */
+
   w5500_set(w5500);
   w5500_reset(w5500);
 
