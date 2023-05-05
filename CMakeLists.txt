@@ -12,7 +12,6 @@ set(VERSION_PATCH 0)
 include(external/pico-sdk/pico_sdk_init.cmake)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-include(util)
 
 # Project
 project(CMS_Avionics_Code)
