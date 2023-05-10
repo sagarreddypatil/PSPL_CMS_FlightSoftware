@@ -3,7 +3,7 @@ all: build
 build: deps
 	-@sh -c 'mkdir build 2>/dev/null || true'
 	@cd build && cmake -DCMAKE_BUILD_TYPE=Debug -G "Ninja" .. && ninja
-	@echo "Generating Intellisense Files" && compdb -p build/ list > .vscode/compile_commands.json 2>/dev/null
+	@echo "Generating Intellisense Files in background" && compdb -p build/ list > .vscode/compile_commands.json 2>/dev/null &
 
 release: deps
 	-@rm -rf release
