@@ -25,10 +25,11 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: make deps
 
-      - name: Toolchain
-        uses: daaku/gh-action-apt-install@v4
+      - name: Packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+          version: 1.0
 
       - name: Build
         run: make build-nocompdb
