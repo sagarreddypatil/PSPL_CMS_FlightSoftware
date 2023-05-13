@@ -1,4 +1,4 @@
-name: Debug Build
+name: Release Build
 run-name: ${{ github.actor }} performed ${{ github.event_name }}
 
 on:
@@ -32,4 +32,4 @@ jobs:
           version: 1.0
 
       - name: Build
-        run: make build-nocompdb
+        run: make release
