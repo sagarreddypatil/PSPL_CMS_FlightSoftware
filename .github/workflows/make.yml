@@ -1,0 +1,29 @@
+name: Makefile CI
+run-name: ${{ github.actor }} on ${{ github.event_name }}
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache Dependencies
+        id: cache-deps
+        uses: actions/cache@v3
+        with:
+          path: external
+          key: deps-${{ hashFiles('Makefile') }}
+
+      - name: Download dependencies
+        if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: make deps
+
+      - name: build
+        run: make build-nocompdb
