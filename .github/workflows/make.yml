@@ -1,5 +1,5 @@
 name: Makefile CI
-run-name: ${{ github.actor }} / ${{ github.event_name }}
+run-name: ${{ github.actor }} performed ${{ github.event_name }}
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
       - name: Toolchain
         uses: daaku/gh-action-apt-install@v4
         with:
-          packages: gcc-arm-none-eabi libnewlib-arm-none-eabi ninja
+          packages: gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
 
       - name: Build
         run: make build-nocompdb
