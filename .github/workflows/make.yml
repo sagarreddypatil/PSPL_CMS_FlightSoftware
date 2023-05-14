@@ -48,7 +48,10 @@ jobs:
         id: cache-apt-restore
         uses: actions/cache/restore@v3
         with:
-          path: /var/cache/apt/archives/
+          path: |
+            /var/cache/apt/archives/**.deb
+            !/var/cache/apt/archives/partial
+            !/var/cache/apt/archives/lock
           key: apt-cache-3
 
       - name: Install tools
