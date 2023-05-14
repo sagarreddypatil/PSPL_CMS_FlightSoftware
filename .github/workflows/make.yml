@@ -31,8 +31,5 @@ jobs:
           packages: gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
           version: 1.0
 
-      - name: Check Compiler
-        run: ls /usr/arm-none-eabi/include
-
       - name: Build
         run: make release
