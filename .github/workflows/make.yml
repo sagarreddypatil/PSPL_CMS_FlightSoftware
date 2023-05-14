@@ -1,5 +1,4 @@
 name: Debug Build
-run-name: ${{ github.actor }} performed ${{ github.event_name }}
 
 on:
   push:
@@ -8,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  debug:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,12 +24,22 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: make deps
 
-      - name: Packages
-        uses: awalsh128/cache-apt-pkgs-action@latest
+      - name: Restore APT Cache
+        id: cache-apt-restore
+        uses: actions/cache/restore@v3
         with:
-          packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libnewlib-dev ninja-build
-          version: 1.0
-          execute_install_scripts: true
+          path: /var/cache/apt/archives/
+          key: apt-cache
+
+      - name: Install tools
+        run: sudo apt install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+
+      - name: Save APT Cache
+        id: cache-apt-save
+        uses: actions/cache/save@v3
+        with:
+          path: /var/cache/apt/archives/
+          key: ${{ steps.cache-apt-restore.outputs.cache-primary-key }}
 
       - name: Build
         run: make release
