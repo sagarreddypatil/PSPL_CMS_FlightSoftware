@@ -12,6 +12,10 @@ release: deps
 	-@mkdir release
 	cd release && cmake -DCMAKE_BUILD_TYPE=Release -G "Ninja" .. && ninja
 
+host: deps
+	-@mkdir host
+	cd host && cmake -DCMAKE_BUILD_TYPE=Debug -DPICO_PLATFORM=host -G "Ninja" .. && ninja
+
 clean:
 	rm -rf build
 
