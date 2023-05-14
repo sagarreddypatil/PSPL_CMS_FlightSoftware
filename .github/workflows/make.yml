@@ -30,9 +30,7 @@ jobs:
         with:
           packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libnewlib-dev ninja-build
           version: 1.0
-
-      - name: Check newlib
-        run: ls /usr/include/newlib
+          execute_install_scripts: true
 
       - name: Build
         run: make release
