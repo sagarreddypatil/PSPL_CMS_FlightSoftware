@@ -28,8 +28,11 @@ jobs:
       - name: Packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+          packages: gcc-arm-none-eabi libnewlib-arm-none-eabi libnewlib-dev ninja-build
           version: 1.0
+
+      - name: Check newlib
+        run: ls /usr/include/newlib
 
       - name: Build
         run: make release
