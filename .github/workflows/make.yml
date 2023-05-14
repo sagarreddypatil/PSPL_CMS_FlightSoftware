@@ -24,6 +24,9 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: make deps
 
+      - name: APT Cache Perms
+        run: sudo chmod -R 777 /var/cache/apt/archives
+
       - name: Restore APT Cache
         id: cache-apt-restore
         uses: actions/cache/restore@v3
@@ -38,7 +41,10 @@ jobs:
         id: cache-apt-save
         uses: actions/cache/save@v3
         with:
-          path: /var/cache/apt/archives/
+          path: |
+            /var/cache/apt/archives/**.deb
+            !/var/cache/apt/archives/partial
+            !/var/cache/apt/archives/lock
           key: ${{ steps.cache-apt-restore.outputs.cache-primary-key }}
 
       - name: Build
