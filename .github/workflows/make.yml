@@ -49,7 +49,7 @@ jobs:
         uses: actions/cache/restore@v3
         with:
           path: /var/cache/apt/archives/
-          key: apt-cache-2
+          key: apt-cache-3
 
       - name: Install tools
         run: sudo apt install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
