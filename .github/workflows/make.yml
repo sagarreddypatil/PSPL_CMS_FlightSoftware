@@ -39,6 +39,8 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: make deps
 
+      - run: echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/99-keep-downloads
+
       - name: APT Cache Perms
         run: sudo chmod -R 777 /var/cache/apt/archives
 
