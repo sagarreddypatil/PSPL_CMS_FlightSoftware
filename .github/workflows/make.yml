@@ -1,4 +1,4 @@
-name: Debug Build
+name: Makefile CI
 
 on:
   push:
@@ -39,7 +39,11 @@ jobs:
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: make deps
 
-      - run: echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/99-keep-downloads
+      - name: APT Cache Hash File
+        run: sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build > apt-sim.txt
+
+      - name: APT Enable Cache
+        run: echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' | sudo tee /etc/apt/apt.conf.d/99-keep-downloads
 
       - name: APT Cache Perms
         run: sudo chmod -R 777 /var/cache/apt/archives
@@ -52,10 +56,10 @@ jobs:
             /var/cache/apt/archives/**.deb
             !/var/cache/apt/archives/partial
             !/var/cache/apt/archives/lock
-          key: apt-cache-3
+          key: apt-cache-${{ hashFiles('apt-sim.txt') }}
 
-      - name: Install tools
-        run: sudo apt install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
+      - name: APT Install
+        run: sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi ninja-build
 
       - name: Save APT Cache
         id: cache-apt-save
