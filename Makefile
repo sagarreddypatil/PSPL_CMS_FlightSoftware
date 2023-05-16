@@ -1,20 +1,24 @@
-all: build
+CMAKE_FLAGS := -G "Ninja"
 
-build: build-nocompdb deps
+all: build-compdb
+
+build-compdb: build
 	@echo "Generating Intellisense Files in background" && compdb -p build/ list > .vscode/compile_commands.json 2>/dev/null &
 
-build-nocompdb: deps
+host: CMAKE_FLAGS += -DPICO_PLATFORM=host
+host: build
+
+build: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Debug
+build: cmake
+
+release: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Release
+release: cmake
+
+cmake: deps build-folder
+	@cd build && cmake $(CMAKE_FLAGS) .. && ninja
+
+build-folder:
 	-@sh -c 'mkdir build 2>/dev/null || true'
-	@cd build && cmake -DCMAKE_BUILD_TYPE=Debug -G "Ninja" .. && ninja
-
-release: deps
-	-@rm -rf release
-	-@mkdir release
-	cd release && cmake -DCMAKE_BUILD_TYPE=Release -G "Ninja" .. && ninja
-
-host: deps
-	-@mkdir host
-	cd host && cmake -DCMAKE_BUILD_TYPE=Debug -DPICO_PLATFORM=host -G "Ninja" .. && ninja
 
 clean:
 	rm -rf build
@@ -35,6 +39,5 @@ external/mpack:
 docs:
 	doxygen Doxyfile
 
-.PHONY: build
-.PHONY: release
+.PHONY: cmake
 .PHONY: docs
