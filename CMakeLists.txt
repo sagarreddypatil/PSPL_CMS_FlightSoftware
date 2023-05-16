@@ -11,7 +11,7 @@ set(VERSION_PATCH 0)
 # Importing the pico-sdk importer
 include(external/pico-sdk/pico_sdk_init.cmake)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake/")
 
 # Project
 project(CMS_Avionics_Code)
@@ -44,12 +44,12 @@ set(MPACK_STDIO 0)
 set(MPACK_FLOAT 0)
 set(MPACK_DOUBLE 0)
 
-file(GLOB_RECURSE mpack_srcs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.c)
-file(GLOB_RECURSE mpack_hdrs ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack/*.h)
+file(GLOB_RECURSE mpack_srcs external/mpack/src/mpack/*.c)
+file(GLOB_RECURSE mpack_hdrs external/mpack/src/mpack/*.h)
 
 add_library(mpack ${mpack_srcs} ${mpack_hdrs})
 # target_link_libraries(mpack)
-target_include_directories(mpack PUBLIC ${CMAKE_SOURCE_DIR}/external/mpack/src/mpack)
+target_include_directories(mpack PUBLIC external/mpack/src/mpack)
 
 # ---------- Libraries  ----------
 
@@ -58,20 +58,20 @@ set(libs)
 macro(psp_lib libname)
     set(deps ${ARGN})
 
-    file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.c)
-    file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/lib/${libname}/*.h)
+    file(GLOB_RECURSE srcs lib/${libname}/*.c)
+    file(GLOB_RECURSE hdrs lib/${libname}/*.h)
 
     add_library(${libname} INTERFACE)
     target_sources(${libname} PUBLIC ${srcs})
     target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
 
-    target_include_directories(${libname} INTERFACE ${CMAKE_SOURCE_DIR}/lib/${libname}/include)
+    target_include_directories(${libname} INTERFACE lib/${libname}/include)
     list(APPEND libs ${libname})
 
 endmacro()
 
 # this one is special
-include_directories(${CMAKE_SOURCE_DIR}/lib/crypto/include)
+include_directories(lib/crypto/include)
 
 psp_lib(crypto)
 psp_lib(spi)
@@ -86,8 +86,8 @@ set(boards
 )
 
 foreach(board ${boards})
-    file(GLOB_RECURSE srcs ${CMAKE_SOURCE_DIR}/src/${board}/*.c)
-    file(GLOB_RECURSE hdrs ${CMAKE_SOURCE_DIR}/src/${board}/*.h)
+    file(GLOB_RECURSE srcs src/${board}/*.c)
+    file(GLOB_RECURSE hdrs src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
     pico_set_program_name(${board} "${board}")
