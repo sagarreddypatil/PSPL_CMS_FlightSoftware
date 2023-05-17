@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
@@ -29,7 +29,8 @@ add_compile_options(
     -Wall # Enable all warnings
     -O3 # I am speed
     -Werror # Treat warnings as errors
-    -Wno-unused-variable
+    -Wno-unused-variable # annoying, don't keep it tho
+    -Wno-strict-aliasing # pico-sdk fails this
 )
 
 if(PICO_PLATFORM MATCHES "host")
