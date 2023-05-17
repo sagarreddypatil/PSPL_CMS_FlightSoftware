@@ -33,7 +33,7 @@ build-folder:
 	-@sh -c 'mkdir build 2>/dev/null || true'
 
 clean:
-	rm -rf build
+	cmake --build build --target clean
 
 deps: external/pico-sdk external/mpack
 
