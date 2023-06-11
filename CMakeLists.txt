@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 11)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
@@ -63,7 +63,7 @@ macro(psp_lib libname)
     file(GLOB_RECURSE hdrs lib/${libname}/*.h)
 
     add_library(${libname} INTERFACE)
-    target_sources(${libname} PUBLIC ${srcs})
+    target_sources(${libname} INTERFACE ${srcs})
     target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
 
     target_include_directories(${libname} INTERFACE lib/${libname}/include)
