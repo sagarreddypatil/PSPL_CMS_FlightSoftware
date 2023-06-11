@@ -9,16 +9,9 @@ raspi-gpio set $BOOTSEL op
 raspi-gpio set $RUN dh
 raspi-gpio set $BOOTSEL dh
 
-# Enable bootsel
-raspi-gpio set $BOOTSEL dl
-sleep 0.1
-
 # Reset the board
 raspi-gpio set $RUN dl
-sleep 0.5
+sleep 0.1
 raspi-gpio set $RUN dh
-sleep 0.5
-
-# Set bootsel to base state
-raspi-gpio set $BOOTSEL dh
+sleep 0.1
 
