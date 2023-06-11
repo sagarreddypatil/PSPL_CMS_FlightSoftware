@@ -269,6 +269,13 @@ void w5500_reset(SPI_DEVICE_PARAM);
 bool w5500_ready(SPI_DEVICE_PARAM);
 
 /**
+ * @brief Check if the W5500 has established link
+ * @param spi Pointer to the SPI device
+ * @return true if link established, false if not
+ */
+bool w5500_has_link(SPI_DEVICE_PARAM);
+
+/**
  * @brief Configure the common settings of the W5500
  * @param spi Pointer to the SPI device
  * @param src_mac Deive MAC address

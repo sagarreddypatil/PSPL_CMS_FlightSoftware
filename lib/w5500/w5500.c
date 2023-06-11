@@ -13,6 +13,8 @@ static const uint baudrate = 5000000;
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
 
+// #define DEBUG_SPI_TRANSFER
+
 void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, void* data,
                 size_t len) {
   uint8_t src[3 + len];
@@ -24,6 +26,18 @@ void w5500_read(SPI_DEVICE_PARAM, w5500_socket_t s, uint16_t reg, void* data,
   memset(src + 3, 0, len);
 
   SPI_TRANSFER(src, dst, 3 + len);
+
+#ifdef DEBUG_SPI_TRANSFER
+  printf("write: ");
+  for (int i = 0; i < 3 + len; i++) {
+    printf("%02x ", src[i]);
+  }
+  printf("\nread: ");
+  for (int i = 0; i < 3 + len; i++) {
+    printf("%02x ", dst[i]);
+  }
+  printf("\n");
+#endif
 
   memcpy(data, dst + 3, len);
 }
@@ -49,7 +63,11 @@ void w5500_reset(SPI_DEVICE_PARAM) {
 }
 
 bool w5500_ready(SPI_DEVICE_PARAM) {
-  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;
+  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x80;  // RST bit
+}
+
+bool w5500_has_link(SPI_DEVICE_PARAM) {
+  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;  // LNK bit
 }
 
 void w5500_config(SPI_DEVICE_PARAM, const mac_t src_mac, const ip_t src_ip,
