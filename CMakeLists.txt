@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 
 # ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
