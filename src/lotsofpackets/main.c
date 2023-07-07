@@ -56,6 +56,12 @@ int main() {
   while (true) {
     // blast UDP packets to victim
     w5500_write_data(w5500, W5500_S0, msg, sizeof(msg));
+    while (true) {
+      uint8_t _iv                 = w5500_read8(w5500, W5500_S0, W5500_Sn_IR);
+      w5500_socket_interrupt_t iv = (w5500_socket_interrupt_t)_iv;
+
+      if (iv.SEND_OK) break;
+    }
     w5500_command(w5500, W5500_S0, W5500_CMD_SEND);
   }
 }
