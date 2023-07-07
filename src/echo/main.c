@@ -4,7 +4,7 @@
 #include <w5500.h>
 #include <w5500/tcp_server.h>
 
-SPI_DEVICE(w5500, spi0, 17);
+SPI_DEVICE(w5500, spi1, 13);
 
 int main() {
   stdio_init_all();
@@ -16,17 +16,17 @@ int main() {
     printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
   }
 
-  spi_init(spi0, 5000 * 1000);  // 5MHz
-  gpio_set_function(18, GPIO_FUNC_SPI);
-  gpio_set_function(19, GPIO_FUNC_SPI);
-  gpio_set_function(16, GPIO_FUNC_SPI);
+  spi_init(spi1, 5000);  // 5MHz
+  gpio_set_function(11, GPIO_FUNC_SPI);
+  gpio_set_function(12, GPIO_FUNC_SPI);
+  gpio_set_function(14, GPIO_FUNC_SPI);
 
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
 
-  ip_t gateway     = {192, 168, 2, 1};
+  ip_t gateway     = {192, 168, 1, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
-  ip_t src_ip      = {192, 168, 2, 50};
+  ip_t src_ip      = {192, 168, 1, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   w5500_reset(w5500);
