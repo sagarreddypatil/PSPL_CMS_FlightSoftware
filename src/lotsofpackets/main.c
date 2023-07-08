@@ -32,7 +32,11 @@ int main() {
   uint64_t start = time_us_64();
   while (!w5500_ready(w5500))
     ;
-  printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
+  printf("W5500 ready, awaiting link, took %d us\n", (int)(time_us_64() - start));
+
+  while (!w5500_has_link(w5500))
+    ;
+  printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
 
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
@@ -41,7 +45,7 @@ int main() {
   w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  ip_t victim          = {192, 168, 1, 3};
+  ip_t victim          = {192, 168, 1, 4};
   uint16_t victim_port = 5000;
   w5500_create_udp_socket(w5500, W5500_S0, 5000, false, false, false);
 
@@ -51,17 +55,10 @@ int main() {
   }
 
   w5500_write(w5500, W5500_S0, W5500_Sn_DIPR0, victim, 4);
-  w5500_write(w5500, W5500_S0, W5500_Sn_DPORT0, &victim_port, 2);
+  w5500_write16(w5500, W5500_S0, W5500_Sn_DPORT0, victim_port);
 
   while (true) {
     // blast UDP packets to victim
     w5500_write_data(w5500, W5500_S0, msg, sizeof(msg));
-    while (true) {
-      uint8_t _iv                 = w5500_read8(w5500, W5500_S0, W5500_Sn_IR);
-      w5500_socket_interrupt_t iv = (w5500_socket_interrupt_t)_iv;
-
-      if (iv.SEND_OK) break;
-    }
-    w5500_command(w5500, W5500_S0, W5500_CMD_SEND);
   }
 }

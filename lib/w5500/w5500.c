@@ -8,7 +8,7 @@
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
-static const uint baudrate = 5000000;
+static const uint baudrate = 50000000;
 
 SPI_MODE0;
 SPI_INITFUNC_IMPL(w5500, baudrate);
