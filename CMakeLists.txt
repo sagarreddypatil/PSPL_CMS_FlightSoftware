@@ -74,6 +74,7 @@ endmacro()
 # this one is special
 include_directories(lib/crypto/include)
 
+psp_lib(psp)
 psp_lib(crypto)
 psp_lib(spi)
 psp_lib(max31856 spi)

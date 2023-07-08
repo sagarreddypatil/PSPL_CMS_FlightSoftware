@@ -1,7 +1,7 @@
 /*
 */
 
-const char* logo = 
+const char* psp_logo = 
 "                                                                                                   // "
 "                                                                                               /////  "
 "                                                                                          /////////   "
