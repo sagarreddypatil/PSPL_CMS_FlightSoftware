@@ -1,4 +1,5 @@
 #include "emu.h"
+
 #include <pico/unique_id.h>
 #include <stdio.h>
 #include <commandnet.h>
@@ -6,27 +7,17 @@
 int main() {
   //------------All Initialization------------
   stdio_init_all();
-
-  spi_init(spi0, 5000);
-  gpio_set_function(16, GPIO_FUNC_SPI);
-  gpio_set_function(18, GPIO_FUNC_SPI);
-  gpio_set_function(19, GPIO_FUNC_SPI);
-
-  gpio_set_slew_rate(16, GPIO_SLEW_RATE_FAST);
-  gpio_set_slew_rate(18, GPIO_SLEW_RATE_FAST);
-  gpio_set_slew_rate(19, GPIO_SLEW_RATE_FAST);
-
-  // below rates are default, fast slew not yet tested, need to scope
-  // if signal ripples ripples, lower the rate
-  // if doesn't rise/fall to correct voltages, raise the rate
-  gpio_set_drive_strength(16, GPIO_DRIVE_STRENGTH_4MA);
-  gpio_set_drive_strength(18, GPIO_DRIVE_STRENGTH_4MA);
-  gpio_set_drive_strength(19, GPIO_DRIVE_STRENGTH_4MA);
-
-  /* See:
+  /*
+   * below rates are default, fast slew not yet tested, need to scope
+   * if signal ripples ripples, lower the rate
+   * if doesn't rise/fall to correct voltages, raise the rate
+   *
+   * See:
    * Falstad Circuit Simulator
    * https://tinyurl.com/2m9dxu53
    */
+  spi_init_bus_adv(spi0, 16, 18, 19, GPIO_SLEW_RATE_FAST,
+                   GPIO_DRIVE_STRENGTH_4MA);
 
   w5500_set(w5500);
   w5500_reset(w5500);

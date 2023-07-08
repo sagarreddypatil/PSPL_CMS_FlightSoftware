@@ -84,7 +84,7 @@ psp_lib(commandnet w5500 mpack)
 set(boards
     echo
     lotsofpackets
-    # emu
+    emu
     sanity-check
 )
 

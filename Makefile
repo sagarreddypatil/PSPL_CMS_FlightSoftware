@@ -8,7 +8,7 @@ else
     $(warning ccache not found, build may be slower)
 endif
 
-all: build compdb
+all: build
 
 compdb: cmake
 ifdef COMPDB_EXISTS
