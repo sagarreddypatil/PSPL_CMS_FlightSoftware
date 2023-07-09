@@ -83,10 +83,10 @@ psp_lib(commandnet w5500 mpack)
 
 # ---------- Boards  ----------
 set(boards
-    echo
-    lotsofpackets
-    emu
-    sanity-check
+     echo
+    #lotsofpackets
+    # emu
+    # sanity-check
 )
 
 foreach(board ${boards})
