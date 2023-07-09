@@ -4,7 +4,7 @@
 
 #include <w5500.h>
 
-SPI_DEVICE(w5500, spi1, 13);
+SPI_DEVICE(w5500, spi1, 15);
 
 int main() {
   stdio_init_all();
