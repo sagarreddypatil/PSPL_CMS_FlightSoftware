@@ -22,6 +22,7 @@ PSPL_CMS_Avionics_Code/
 │           └── example/ <- secondary headers
 │               └── whatever.h <- included with `#include <example/whatever.h>`
 ├── external/ <- Gitignored, for automatically downloaded libraries(in Makefile), contains pico-sdk
+├── include/ <- Global include directory, used for configs and stuff
 ├── build/ <- not uploaded to the repo, contains compilation outputs
 │   └── bin/ <- contains the files to be uploaded to the boards
 ├── .clang-format <- file containing autoformatter rules
@@ -33,11 +34,14 @@ PSPL_CMS_Avionics_Code/
 
 ## Usage
 ### Dependencies
- - `cmake`
- - `make`
- - `gcc-arm-none-eabi`
- - `newlib-arm-none-eabi`
- - `git`
+ - `git` (to clone this repo)
+ - `make` (for running CMake)
+ - `ninja` (CMake backend)
+ - `cmake` (build system)
+ - `compdb` (compile database for headers, optional)
+ - `gcc-arm-none-eabi` (compiler)
+ - `ccache` (compiler cache, optional)
+ - `newlib-arm-none-eabi` (C standard library)
 
 ### Cloning this Repo
 This repo uses Git submodules, so you need to clone it with the `--recursive` flag.

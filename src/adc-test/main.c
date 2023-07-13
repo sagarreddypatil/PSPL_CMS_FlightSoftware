@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <ads13x.h>
 
-#define ADC_SCLK 10
-#define ADC_PICO 11
-#define ADC_POCI 12
-#define ADC_CS 13
+#define ADC_SCLK 19
+#define ADC_PICO 15
+#define ADC_POCI 16
+#define ADC_CS 20
 
 SPI_DEVICE(ads13x, spi1, ADC_CS)
 
@@ -59,7 +59,7 @@ int main() {
     // sleep_ms(100);
 
     uint16_t statA;
-    uint16_t statB;
+    // uint16_t statB;
     int32_t data[2];
     ads13x_read_data(ads13x, &statA, data, 2);
     printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
