@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <ads13x.h>
 
-#define ADC_SCLK 19
-#define ADC_PICO 15
-#define ADC_POCI 16
-#define ADC_CS 20
+#define ADC_SCLK 14
+#define ADC_PICO 11
+#define ADC_POCI 12
+#define ADC_CS 15
 
 SPI_DEVICE(ads13x, spi1, ADC_CS)
 

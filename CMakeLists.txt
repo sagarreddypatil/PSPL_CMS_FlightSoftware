@@ -87,6 +87,7 @@ set(boards
     # echo
     # emu
     adc-test
+    ads131m02-raw
 )
 
 foreach(board ${boards})

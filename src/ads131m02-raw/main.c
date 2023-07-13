@@ -5,10 +5,10 @@
 
 #define BAUD 1000000  // 1 MHz
 
-#define ADC_SCLK 10
+#define ADC_SCLK 14
 #define ADC_PICO 11
 #define ADC_POCI 12
-#define ADC_CS 13
+#define ADC_CS 15
 
 int main() {
   stdio_init_all();
