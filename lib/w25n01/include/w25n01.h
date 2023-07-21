@@ -29,9 +29,11 @@ static const uint8_t w25n01_ins_fast_read_4byte_addr     = 0x0C;
 /*
  * Status Register Address Definitions
  */
-static const uint8_t w25n01_protection_register = 0xA0;
-static const uint8_t w25n01_config_register     = 0xB0;
-static const uint8_t w25n01_status_register     = 0xC0;
+typedef enum {
+  w25n01_protection_register = 0xA0,
+  w25n01_config_register     = 0xB0,
+  w25n01_status_register     = 0xC0
+} w25n01_status_register_t;
 
 typedef struct {
   bool enabled;
@@ -45,17 +47,34 @@ typedef struct {
  */
 SPI_INITFUNC(w25n01);
 
-void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst, size_t len);  // basic transfer function for all of library
-void w25n01_write(SPI_DEVICE_PARAM, void* src, size_t len);                // write only, without read
+void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst,
+                     size_t len);  // basic transfer function for all of library
+void w25n01_write(SPI_DEVICE_PARAM, void* src,
+                  size_t len);  // write only, without read
 
-void w25n01_read_buffer(SPI_DEVICE_PARAM, uint16_t col, void* buf, size_t len);                // read from the current page in the buffer
-void w25n01_write_buffer(SPI_DEVICE_PARAM, uint16_t col, void* buf, size_t len, bool random);  // write to the current page in the buffer, needs write enable
+void w25n01_read_buffer(
+    SPI_DEVICE_PARAM, uint16_t col, void* buf,
+    size_t len);  // read from the current page in the buffer
+void w25n01_write_buffer(SPI_DEVICE_PARAM, uint16_t col, void* buf, size_t len,
+                         bool random);  // write to the current page in the
+                                        // buffer, needs write enable
 
-void w25n01_write_status_register(SPI_DEVICE_PARAM, uint8_t addr, uint8_t value);  // write a value to a status register (protection, config, status)
-uint8_t w25n01_read_status_register(SPI_DEVICE_PARAM, uint8_t addr);               // read a status register
+void w25n01_write_status_register(
+    SPI_DEVICE_PARAM, w25n01_status_register_t addr,
+    uint8_t value);  // write a value to a status register (protection, config,
+                     // status)
+uint8_t w25n01_read_status_register(
+    SPI_DEVICE_PARAM,
+    w25n01_status_register_t addr);  // read a status register
 
-void bbm_add(SPI_DEVICE_PARAM, uint16_t logical_block_address, uint16_t physical_block_address);  // note it's block address, not page address, needs write enable
-void bbm_read(SPI_DEVICE_PARAM, w25n01_bbm_entry* entries);                                       // read the bbm lut into the entries array, array must be 20 entries long
+void bbm_add(
+    SPI_DEVICE_PARAM, uint16_t logical_block_address,
+    uint16_t physical_block_address);  // note it's block address, not page
+                                       // address, needs write enable
+void bbm_read(
+    SPI_DEVICE_PARAM,
+    w25n01_bbm_entry* entries);  // read the bbm lut into the entries array,
+                                 // array must be 20 entries long
 
 // This is used for instructions that only need the instruction byte
 #define __INSTR_SINGLE(name, ins)                      \
@@ -71,13 +90,18 @@ void bbm_read(SPI_DEVICE_PARAM, w25n01_bbm_entry* entries);                     
     w25n01_write(spi, src, 4);                                        \
   }
 
-__INSTR_SINGLE(reset, w25n01_ins_reset);                  // reset the chip, erases chip's buffer
+__INSTR_SINGLE(reset,
+               w25n01_ins_reset);  // reset the chip, erases chip's buffer
 __INSTR_SINGLE(write_enable, w25n01_ins_write_enable);    // enable writes
 __INSTR_SINGLE(write_disable, w25n01_ins_write_disable);  // disable writes
 
-__INSTR_PAGE(read_page, w25n01_ins_page_data_read);    // reads page into buffer
-__INSTR_PAGE(write_page, w25n01_ins_program_execute);  // writes buffer to page, needs write enable
-__INSTR_PAGE(block_erase, w25n01_ins_block_erase);     // erases block based on first page address of block, needs write enable
+__INSTR_PAGE(read_page, w25n01_ins_page_data_read);  // reads page into buffer
+__INSTR_PAGE(
+    write_page,
+    w25n01_ins_program_execute);  // writes buffer to page, needs write enable
+__INSTR_PAGE(block_erase,
+             w25n01_ins_block_erase);  // erases block based on first page
+                                       // address of block, needs write enable
 
 #undef __INSTR_PAGE
 #undef __INSTR_SINGLE
@@ -110,7 +134,8 @@ __INSTR_PAGE(block_erase, w25n01_ins_block_erase);     // erases block based on 
   }
 
 // the following lines are just for setting bitfields in the status registers
-// we're not gonna fuck with any of the OTP lockable areas, so we're not gonna define any of those
+// we're not gonna fuck with any of the OTP lockable areas, so we're not gonna
+// define any of those
 
 // SR-2 (Config Register)
 __RREG_BITFIELD_BOOL(buffer_mode, w25n01_config_register, 3);
