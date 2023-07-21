@@ -1,9 +1,21 @@
-CMAKE_FLAGS := -G "Ninja"
+CMAKE_FLAGS := -GNinja
+CCACHE_EXISTS := $(shell command -v ccache 2> /dev/null)
+COMPDB_EXISTS := $(shell command -v compdb 2> /dev/null)
 
-all: build-compdb
+ifdef CCACHE_EXISTS
+    CMAKE_FLAGS += -DCMAKE_C_COMPILER_LAUNCHER=ccache
+else
+    $(warning ccache not found, build may be slower)
+endif
 
-build-compdb: build
+all: build
+
+compdb: cmake
+ifdef COMPDB_EXISTS
 	@echo "Generating Intellisense Files in background" && compdb -p build/ list > .vscode/compile_commands.json 2>/dev/null &
+else
+	$(warning compdb not found, Intellisense might be broken)
+endif
 
 host: CMAKE_FLAGS += -DPICO_PLATFORM=host
 host: build

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(CMAKE_C_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
 set(VERSION_MINOR 1)
-set(VERSION_PATCH 0)
+set(VERSION_PATCH 1)
 
 # ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
@@ -29,7 +29,8 @@ add_compile_options(
     -Wall # Enable all warnings
     -O3 # I am speed
     -Werror # Treat warnings as errors
-    -Wno-unused-variable
+    -Wno-unused-variable # annoying, don't keep it tho
+    -Wno-strict-aliasing # pico-sdk fails this
 )
 
 if(PICO_PLATFORM MATCHES "host")
@@ -62,7 +63,7 @@ macro(psp_lib libname)
     file(GLOB_RECURSE hdrs lib/${libname}/*.h)
 
     add_library(${libname} INTERFACE)
-    target_sources(${libname} PUBLIC ${srcs})
+    target_sources(${libname} INTERFACE ${srcs})
     target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
 
     target_include_directories(${libname} INTERFACE lib/${libname}/include)
@@ -73,6 +74,7 @@ endmacro()
 # this one is special
 include_directories(lib/crypto/include)
 
+psp_lib(psp)
 psp_lib(crypto)
 psp_lib(spi)
 psp_lib(max31856 spi)
@@ -81,8 +83,10 @@ psp_lib(commandnet w5500 mpack)
 
 # ---------- Boards  ----------
 set(boards
-    # echo
-    emu
+     echo
+    #lotsofpackets
+    # emu
+    # sanity-check
 )
 
 foreach(board ${boards})
