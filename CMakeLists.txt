@@ -11,13 +11,15 @@ set(VERSION_PATCH 1)
 # Importing the pico-sdk importer
 include(external/pico-sdk/pico_sdk_init.cmake)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake/")
+# setting FreeRTOS path
+set(FREERTOS_KERNEL_PATH "${CMAKE_SOURCE_DIR}/external/freertos")
+include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 # Project
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_mbedtls pico_bootsel_via_double_reset)
+set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_mbedtls pico_bootsel_via_double_reset FreeRTOS-Kernel)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -74,6 +76,7 @@ endmacro()
 # this one is special
 include_directories(lib/crypto/include)
 
+psp_lib(freertos_config)
 psp_lib(psp)
 psp_lib(crypto)
 psp_lib(spi)
@@ -104,7 +107,7 @@ foreach(board ${boards})
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/elf
     )
 
-    target_link_libraries(${board} ${stdlibs} ${libs})
+    target_link_libraries(${board} ${stdlibs} ${libs} FreeRTOS-Kernel)
 
     pico_enable_stdio_usb(${board} 1)
     pico_enable_stdio_uart(${board} 0)
