@@ -4,6 +4,8 @@ import RPi.GPIO as GPIO
 from time import sleep
 import argparse
 
+GPIO.setmode(GPIO.BCM)
+
 class PicoPort:
     def __init__(self, run, bootsel):
         self.run_pin = run

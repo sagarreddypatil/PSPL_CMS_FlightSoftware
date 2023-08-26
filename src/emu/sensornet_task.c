@@ -12,17 +12,20 @@ void sensornet_task_init() {
   adc_gpio_init(PYRO_CONT_0);
   adc_gpio_init(PYRO_CONT_1);
 
-  w5500_write(w5500, W5500_S0, W5500_Sn_DIPR0, recv_ip, 4);
-  w5500_write16(w5500, W5500_S0, W5500_Sn_DPORT0, recv_port);
+  w5500_write(w5500, W5500_S1, W5500_Sn_DIPR0, recv_ip, 4);
+  w5500_write16(w5500, W5500_S1, W5500_Sn_DPORT0, recv_port);
 }
 
-uint64_t lastSampleTime           = 0;
+const uint64_t epoch =
+    1693108800000000;  // Aug 27, 2023 00:00:00 UTC, beacuse NTP not here yet
+
+uint64_t lastSampleTime           = epoch;
 const uint64_t PYRO_SAMPLE_PERIOD = 10000;
 
 uint64_t counter = 0;
 
 void sensornet_task_run() {
-  const uint64_t now = time_us_64();
+  const uint64_t now = time_us_64() + epoch;
 
   if (now - lastSampleTime > PYRO_SAMPLE_PERIOD) {
     lastSampleTime = now;
@@ -34,22 +37,25 @@ void sensornet_task_run() {
     uint16_t pyro_cont_1 = adc_read();
 
     sensornet_packet_t packet_cont_0 = {.type    = "SEN",
-                                        .id      = 0,
+                                        .id      = 1,
                                         .time_us = now,
                                         .counter = counter,
                                         .value   = pyro_cont_0};
 
     sensornet_packet_t packet_cont_1 = {.type    = "SEN",
-                                        .id      = 1,
+                                        .id      = 2,
                                         .time_us = now,
                                         .counter = counter + 1,
                                         .value   = pyro_cont_1};
 
-    w5500_write_data(w5500, W5500_S0, &packet_cont_0,
-                     sizeof(sizeof(sensornet_packet_t)));
+    printf("time:\t%lld\tpyro_cont_0:\t%d\tpyro_cont_1:\t%d\n", now,
+           pyro_cont_0, pyro_cont_1);
 
-    w5500_write_data(w5500, W5500_S0, &packet_cont_1,
-                     sizeof(sizeof(sensornet_packet_t)));
+    w5500_write_data(w5500, W5500_S1, &packet_cont_0,
+                     sizeof(sensornet_packet_t));
+
+    w5500_write_data(w5500, W5500_S1, &packet_cont_1,
+                     sizeof(sensornet_packet_t));
 
     counter += 2;
   }

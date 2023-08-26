@@ -20,6 +20,9 @@ int main() {
   spi_init_bus_adv(spi0, 16, 18, 19, GPIO_SLEW_RATE_FAST,
                    GPIO_DRIVE_STRENGTH_4MA);
 
+  spi_init_bus_adv(spi1, 11, 12, 14, GPIO_SLEW_RATE_FAST,
+                   GPIO_DRIVE_STRENGTH_4MA);
+
   w5500_set(w5500);
   w5500_reset(w5500);
 
