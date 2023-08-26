@@ -3,6 +3,7 @@
 #include <pico/unique_id.h>
 #include <stdio.h>
 #include <commandnet.h>
+#include <sensornet.h>
 
 int main() {
   //------------All Initialization------------
@@ -51,10 +52,12 @@ int main() {
   printf("IP: %d.%d.%d.%d\n", src_ip[0], src_ip[1], src_ip[2], src_ip[3]);
 
   cmdnet_task_init();
-  solenoid_task_init();
+  sensornet_task_init();
+  // solenoid_task_init();
 
   while (true) {
     cmdnet_task_run();
-    solenoid_task_run();
+    sensornet_task_run();
+    // solenoid_task_run();
   }
 }

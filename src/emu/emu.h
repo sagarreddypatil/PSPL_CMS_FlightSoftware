@@ -33,12 +33,24 @@ static const ip_t subnet_mask = {255, 255, 255, 0};
 static const ip_t src_ip      = {192, 168, 2, 50};
 
 // GPIO
-static const uint LOX_SOLENOID = 26;
-static const uint ETH_SOLENOID = 27;
+static const uint LOX_SOLENOID = 16;
+static const uint ETH_SOLENOID = 17;
+
+static const uint PYRO = 28;
+
+// ADC Builtin
+
+static const uint PYRO_CONT_0       = 26;
+static const uint PYRO_CONT_0_INPUT = 0;
+static const uint PYRO_CONT_1       = 27;
+static const uint PYRO_CONT_1_INPUT = 1;
 
 //------------Tasks------------
 void cmdnet_task_init();
 void cmdnet_task_run();
+
+void sensornet_task_init();
+void sensornet_task_run();
 
 void solenoid_task_init();
 void solenoid_task_run();

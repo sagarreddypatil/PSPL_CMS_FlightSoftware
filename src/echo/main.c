@@ -47,7 +47,7 @@ int main() {
   w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  while (true){
+  while (true) {
     uint8_t phyreg = w5500_read8(w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phyreg);
     sleep_ms(500);
@@ -87,4 +87,3 @@ int main() {
     }
   }
 }
-
