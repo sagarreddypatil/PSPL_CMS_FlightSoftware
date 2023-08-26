@@ -18,6 +18,8 @@ extern int64_t eth_run;
 extern int64_t lox_state;
 extern int64_t eth_state;
 
+extern int64_t pyro_state;
+
 // CommandNet Arrays
 
 extern cmdnet_cmd_t cmds[];

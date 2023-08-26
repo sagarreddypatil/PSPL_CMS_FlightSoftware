@@ -2,7 +2,7 @@
 #include <sensornet.h>
 #include <hardware/adc.h>
 
-ip_t recv_ip       = {192, 168, 2, 10};
+ip_t recv_ip       = {192, 168, 2, 1};
 uint16_t recv_port = 5001;
 
 void sensornet_task_init() {

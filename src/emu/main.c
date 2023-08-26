@@ -55,9 +55,15 @@ int main() {
   sensornet_task_init();
   // solenoid_task_init();
 
+  gpio_init(PYRO);
+  gpio_put(PYRO, false);
+  gpio_set_dir(PYRO, true);
+
   while (true) {
     cmdnet_task_run();
     sensornet_task_run();
     // solenoid_task_run();
+
+    gpio_put(PYRO, pyro_state);
   }
 }
