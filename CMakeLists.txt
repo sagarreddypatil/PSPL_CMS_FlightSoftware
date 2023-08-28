@@ -17,7 +17,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "cmake/")
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_spi pico_mbedtls pico_bootsel_via_double_reset)
+set(stdlibs pico_stdlib hardware_gpio hardware_adc hardware_spi pico_mbedtls pico_bootsel_via_double_reset)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -81,11 +81,10 @@ psp_lib(max31856 spi)
 psp_lib(w5500 spi)
 psp_lib(ads13x spi)
 psp_lib(commandnet w5500 mpack)
+psp_lib(sensornet)
 
 # ---------- Boards  ----------
 set(boards
-    # echo
-    # emu
     adc-test
     ads131m02-raw
 )
