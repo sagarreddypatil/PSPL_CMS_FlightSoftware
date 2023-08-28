@@ -7,11 +7,11 @@
 
 SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
 
-static const uint baudrate = 10000000;
+static const uint baudrate = 20000000;
 SPI_INITFUNC_IMPL(ads13x, baudrate)
 
 // Commands
-#define RESET 0b10001
+#define RESET 0b11001
 #define STANDBY 0b100010
 #define WAKEUP 0b0000000000110011
 #define LOCK 0b0000010101010101
@@ -61,22 +61,22 @@ SPI_INITFUNC_IMPL(ads13x, baudrate)
 void ads13x_reset(SPI_DEVICE_PARAM) {
   // try both 24-bit and 32-bit word size
 
-  uint8_t src24[4 * 3] = {HTOP16(RESET)};
-  uint8_t dst24[4 * 3];
+  // uint8_t src24[4 * 4] = {HTOP16(RESET)};
+  // uint8_t dst24[4 * 4];
 
-  SPI_TRANSFER(src24, dst24, 4 * 3);
+  // SPI_TRANSFER(src24, dst24, 4 * 4);
 
-  uint8_t src32[4 * 4] = {HTOP16(RESET)};
+  uint8_t src32[4 * 4] = {HTOP32(RESET)};
   uint8_t dst32[4 * 4];
 
   SPI_TRANSFER(src32, dst32, 4 * 4);
 }
 
 bool ads13x_ready(SPI_DEVICE_PARAM) {
-  uint8_t src[4 * 3] = {0};
-  uint8_t dst[4 * 3];
+  uint8_t src[4 * 4] = {0};
+  uint8_t dst[4 * 4];
 
-  SPI_TRANSFER(src, dst, 4 * 3);
+  SPI_TRANSFER(src, dst, 4 * 4);
 
   uint16_t status = PTOH16(dst);
 
@@ -92,14 +92,14 @@ void ads13x_init(SPI_DEVICE_PARAM) {
   val |= MS(0, 1, 10);               // clear RESET bit
   // ob11 is 32-bit word size with sign extension
 
-  uint8_t src[4 * 3] = {HTOP16(cmd), 0, HTOP16(val), 0};
-  uint8_t dst[4 * 3];
+  uint8_t src[4 * 4] = {HTOP16(cmd), 0, HTOP16(val), 0};
+  uint8_t dst[4 * 4];
 
-  SPI_TRANSFER(src, dst, 4 * 3);
+  SPI_TRANSFER(src, dst, 4 * 4);
 
-  memset(dst, 0, 4 * 3);
+  memset(dst, 0, 4 * 4);
 
-  SPI_READ(dst, 4 * 3);
+  SPI_READ(dst, 4 * 4);
 
   uint16_t resp     = (dst[0] << 8) | dst[1];
   uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
@@ -145,6 +145,11 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
   uint8_t dst[4 * 4];
   SPI_READ(dst, 4 * 4);
+  // for (int i = 0; i < 4 * 4; i++) {
+  //   printf("%02X ", dst[i]);
+  // }
+
+  // printf("\n");
 
   *status = PTOH16(dst);
   for (int i = 0; i < len; i++) {

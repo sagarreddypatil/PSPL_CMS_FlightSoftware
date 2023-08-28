@@ -6,12 +6,17 @@
 #define ADC_PICO 11
 #define ADC_POCI 12
 #define ADC_CS 15
+#define ADC_RST 3
 
 SPI_DEVICE(ads13x, spi1, ADC_CS)
 
 int main() {
+  gpio_init(ADC_RST);
+  gpio_set_dir(ADC_RST, GPIO_OUT);
+  gpio_put(ADC_RST, 1);
   stdio_init_all();
   while (!stdio_usb_connected()) tight_loop_contents();
+
 
   // for (int i = 0; i < 15; i++) {
   //   printf("iter %d, time %llu\n", i, time_us_64());
@@ -31,7 +36,7 @@ int main() {
   gpio_set_function(ADC_SCLK, GPIO_FUNC_SPI);
   gpio_set_function(ADC_PICO, GPIO_FUNC_SPI);
   gpio_set_function(ADC_POCI, GPIO_FUNC_SPI);
-  spi_init(spi1, 100000);
+  spi_init(spi1, 2 * 1000 * 1000);
 
   printf("Initializing ADS13x...\n");
   uint baud = ads13x_set(ads13x);
@@ -40,6 +45,7 @@ int main() {
   ads13x_init(ads13x);
   printf("ADC Baud: %u\n", baud);
 
+  printf("chan1,chan2\n");
   while (true) {
     // // print all regs
     // uint16_t id     = ads13x_rreg_single(ads13x, ads13x_id);
@@ -62,6 +68,7 @@ int main() {
     // uint16_t statB;
     int32_t data[2];
     ads13x_read_data(ads13x, &statA, data, 2);
-    printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
+    //printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
+    printf("%ld, %ld\n", data[0], data[1]);
   }
 }

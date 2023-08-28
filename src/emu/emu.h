@@ -1,9 +1,11 @@
 #include <pico/stdlib.h>
 #include <w5500.h>
+#include <ads13x.h>
 #include <commandnet.h>
 
 //------------Devices------------
 SPI_DEVICE(w5500, spi0, 17)
+SPI_DEVICE(emu_adc, spi1, 15)
 
 //------------Global Vars------------
 extern int64_t lox_period;
