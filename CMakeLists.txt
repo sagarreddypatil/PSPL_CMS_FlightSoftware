@@ -84,11 +84,7 @@ psp_lib(sensornet)
 
 # ---------- Boards  ----------
 set(boards
-    #  echo
-    #lotsofpackets
     emu
-    # pyro-test
-    # sanity-check
 )
 
 foreach(board ${boards})
