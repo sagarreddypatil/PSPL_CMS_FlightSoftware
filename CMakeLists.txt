@@ -77,10 +77,11 @@ include_directories(lib/crypto/include)
 psp_lib(psp)
 psp_lib(crypto)
 psp_lib(spi)
+psp_lib(sensornet)
 psp_lib(max31856 spi)
 psp_lib(w5500 spi)
 psp_lib(commandnet w5500 mpack)
-psp_lib(sensornet)
+psp_lib(ntp w5500)
 
 # ---------- Boards  ----------
 set(boards

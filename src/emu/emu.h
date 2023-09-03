@@ -1,6 +1,7 @@
 #include <pico/stdlib.h>
 #include <w5500.h>
 #include <commandnet.h>
+#include <ntp.h>
 
 //------------Devices------------
 SPI_DEVICE(w5500, spi0, 17)
