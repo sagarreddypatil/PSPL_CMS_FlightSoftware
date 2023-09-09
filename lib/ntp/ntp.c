@@ -33,7 +33,7 @@ ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
 
   if (read != sizeof(ntp_packet_t)) {
     printf("Error reading NTP packet\n");
-    return (server_time_t){0};
+    return (ntp_resp_t){0};
   }
 
   packet.txTm_s = ntohl(packet.txTm_s);  // Time-stamp seconds.
