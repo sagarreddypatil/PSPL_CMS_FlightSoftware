@@ -18,6 +18,7 @@ extern int64_t eth_run;
 extern int64_t lox_state;
 extern int64_t eth_state;
 
+extern uint64_t time_offset;
 extern int64_t pyro_state;
 
 // CommandNet Arrays
