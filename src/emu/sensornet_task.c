@@ -2,7 +2,7 @@
 #include <sensornet.h>
 #include <hardware/adc.h>
 
-ip_t recv_ip       = {192, 168, 2, 1};
+ip_t recv_ip       = {192, 168, 2, 20};
 uint16_t recv_port = 5001;
 
 void sensornet_task_init() {
@@ -19,13 +19,13 @@ void sensornet_task_init() {
 const uint64_t epoch =
     1693108800000000;  // Aug 27, 2023 00:00:00 UTC, beacuse NTP not here yet
 
-uint64_t lastSampleTime           = epoch;
+uint64_t lastSampleTime           = 0;
 const uint64_t PYRO_SAMPLE_PERIOD = 10000;
 
 uint64_t counter = 0;
 
 void sensornet_task_run() {
-  const uint64_t now = time_us_64() + epoch;
+  const uint64_t now = time_us_64() + time_offset;
 
   if (now - lastSampleTime > PYRO_SAMPLE_PERIOD) {
     lastSampleTime = now;
