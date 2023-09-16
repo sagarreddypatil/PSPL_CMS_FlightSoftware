@@ -85,7 +85,9 @@ psp_lib(ntp w5500)
 
 # ---------- Boards  ----------
 set(boards
-    emu
+    # emu
+    # sanity-check
+    lotsofpackets
 )
 
 foreach(board ${boards})
