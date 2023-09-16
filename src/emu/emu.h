@@ -2,6 +2,7 @@
 #include <w5500.h>
 #include <ads13x.h>
 #include <commandnet.h>
+#include <ntp.h>
 
 //------------Devices------------
 SPI_DEVICE(w5500, spi0, 17)
@@ -20,6 +21,7 @@ extern int64_t eth_run;
 extern int64_t lox_state;
 extern int64_t eth_state;
 
+extern uint64_t time_offset;
 extern int64_t pyro_state;
 
 // CommandNet Arrays

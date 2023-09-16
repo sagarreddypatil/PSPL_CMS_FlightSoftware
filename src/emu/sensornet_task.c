@@ -2,7 +2,7 @@
 #include <sensornet.h>
 #include <hardware/adc.h>
 
-ip_t recv_ip       = {192, 168, 2, 1};
+ip_t recv_ip       = {192, 168, 2, 20};
 uint16_t recv_port = 5001;
 
 void sensornet_task_init() {
@@ -26,7 +26,7 @@ uint64_t adcLastSampleTime       = epoch;
 const uint64_t ADC_SAMPLE_PERIOD = 10000;  // 100 hz
 
 void sensornet_task_run() {
-  const uint64_t now = time_us_64() + epoch;
+  const uint64_t now = time_us_64() + time_offset;
 
   if (now - adcLastSampleTime > ADC_SAMPLE_PERIOD) {
     uint16_t status;

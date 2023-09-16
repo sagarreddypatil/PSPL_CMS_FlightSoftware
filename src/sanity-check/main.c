@@ -3,7 +3,7 @@
 #include <pico/time.h>
 
 #include <w5500.h>
-SPI_DEVICE(w5500, spi1, 13);
+SPI_DEVICE(w5500, spi1, 15);
 
 int main() {
   stdio_init_all();
@@ -15,10 +15,7 @@ int main() {
     printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
   }
 
-  spi_init(spi1, 5000);  // 5MHz
-  gpio_set_function(11, GPIO_FUNC_SPI);
-  gpio_set_function(12, GPIO_FUNC_SPI);
-  gpio_set_function(14, GPIO_FUNC_SPI);
+  spi_init_bus(spi1, 11, 12, 14);
 
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
@@ -28,10 +25,10 @@ int main() {
   while (!w5500_ready(w5500))
     ;
 
-  printf("W5500 ready, awaiting link, took %d us\n", (int)(time_us_64() - start));
+  printf("W5500 ready, awaiting link, took %d us\n",
+         (int)(time_us_64() - start));
 
-  while (!w5500_has_link(w5500))
-  {
+  while (!w5500_has_link(w5500)) {
     uint8_t phycfgr = w5500_read8(w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phycfgr);
     sleep_ms(250);
@@ -39,9 +36,7 @@ int main() {
 
   printf("W5500 has link\n");
 
-
-  while (true)
-  {
+  while (true) {
     uint8_t phycfgr = w5500_read8(w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phycfgr);
     sleep_ms(250);
