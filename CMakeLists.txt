@@ -92,8 +92,9 @@ psp_lib(lib ntp)
 # ---------- Boards  ----------
 set(boards
     # adc-test
-    emu
+    # emu
     # tc-test-board
+    emu-rtos
 )
 
 foreach(board ${boards})
