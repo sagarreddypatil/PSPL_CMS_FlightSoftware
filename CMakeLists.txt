@@ -4,8 +4,8 @@ set(CMAKE_C_STANDARD 11)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 1)
-set(VERSION_PATCH 1)
+set(VERSION_MINOR 2)
+set(VERSION_PATCH 0)
 
 # ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
@@ -80,14 +80,14 @@ psp_lib(spi)
 psp_lib(sensornet)
 psp_lib(max31856 spi)
 psp_lib(w5500 spi)
+psp_lib(ads13x spi)
 psp_lib(commandnet w5500 mpack)
 psp_lib(ntp w5500)
 
 # ---------- Boards  ----------
 set(boards
+    adc-test
     # emu
-    # sanity-check
-    lotsofpackets
 )
 
 foreach(board ${boards})
