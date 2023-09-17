@@ -32,6 +32,7 @@ add_compile_options(
     -O3 # I am speed
     -Werror # Treat warnings as errors
     -Wno-unused-variable # annoying, don't keep it tho
+    -Wno-unused-function # FreeRTOS
     -Wno-strict-aliasing # pico-sdk fails this
 )
 
@@ -91,8 +92,8 @@ psp_lib(lib ntp)
 # ---------- Boards  ----------
 set(boards
     # adc-test
-    # emu
-    tc-test-board
+    emu
+    # tc-test-board
 )
 
 foreach(board ${boards})
@@ -119,5 +120,4 @@ foreach(board ${boards})
 
     # pico_set_float_implementation(${board} none)
     pico_add_uf2_output(${board})
-
 endforeach()

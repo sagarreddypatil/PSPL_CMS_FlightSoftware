@@ -1,10 +1,22 @@
 #pragma once
 
+/*-----------------------------------------------------------
+ * Application specific definitions.
+ *
+ * These definitions should be adjusted for your particular hardware and
+ * application requirements.
+ *
+ * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+ * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+ *
+ * See http://www.freertos.org/a00110.html
+ *----------------------------------------------------------*/
+
 /* Scheduler Related */
 #define configUSE_PREEMPTION     1
 #define configUSE_TICKLESS_IDLE  0
 #define configUSE_IDLE_HOOK      0
-#define configUSE_TICK_HOOK      0
+#define configUSE_TICK_HOOK      1
 #define configTICK_RATE_HZ       ((TickType_t)1000)
 #define configMAX_PRIORITIES     32
 #define configMINIMAL_STACK_SIZE (configSTACK_DEPTH_TYPE)256
@@ -31,7 +43,7 @@
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION  1
 #define configSUPPORT_DYNAMIC_ALLOCATION 0
-// #define configTOTAL_HEAP_SIZE            (128 * 1024)
+#define configTOTAL_HEAP_SIZE            0
 #define configAPPLICATION_ALLOCATED_HEAP 0
 
 /* Hook function related definitions. */
@@ -49,6 +61,14 @@
 #define configTIMER_TASK_PRIORITY    (configMAX_PRIORITIES - 1)
 #define configTIMER_QUEUE_LENGTH     10
 #define configTIMER_TASK_STACK_DEPTH 1024
+
+/* Interrupt nesting behaviour configuration. */
+/*
+#define configKERNEL_INTERRUPT_PRIORITY         [dependent of processor]
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY    [dependent on processor and
+application] #define configMAX_API_CALL_INTERRUPT_PRIORITY   [dependent on
+processor and application]
+*/
 
 /* SMP port only */
 #define configNUMBER_OF_CORES         2
