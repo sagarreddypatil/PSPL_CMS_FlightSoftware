@@ -86,8 +86,9 @@ psp_lib(ntp w5500)
 
 # ---------- Boards  ----------
 set(boards
-    adc-test
+    # adc-test
     # emu
+    tc-test-board
 )
 
 foreach(board ${boards})

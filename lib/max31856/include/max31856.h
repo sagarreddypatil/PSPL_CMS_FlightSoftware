@@ -3,22 +3,33 @@
 #include <spi_device.h>
 
 // Register Addresses, from Table 6
-static const uint8_t max31856_cr0    = 0x00;  // Configuration 0 Register
-static const uint8_t max31856_cr1    = 0x01;  // Configuration 1 Register
-static const uint8_t max31856_mask   = 0x02;  // Fault Mask Register
-static const uint8_t max31856_cjhf   = 0x03;  // Cold-Junction High Fault Threshold
-static const uint8_t max31856_cjlf   = 0x04;  // Cold-Junction Low Fault Threshold
-static const uint8_t max31856_lthfth = 0x05;  // Linearized Temperature High Fault Threshold MSB
-static const uint8_t max31856_lthftl = 0x06;  // Linearized Temperature High Fault Threshold LSB
-static const uint8_t max31856_ltlfth = 0x07;  // Linearized Temperature Low Fault Threshold MSB
-static const uint8_t max31856_ltlftl = 0x08;  // Linearized Temperature Low Fault Threshold LSB
-static const uint8_t max31856_cjto   = 0x09;  // Cold-Junction Temperature Offset Register
-static const uint8_t max31856_cjth   = 0x0A;  // Cold-Junction Temperature Register, MSB
-static const uint8_t max31856_cjtl   = 0x0B;  // Cold-Junction Temperature Register, LSB
-static const uint8_t max31856_ltcbh  = 0x0C;  // Linearized TC Temperature, Byte 2
-static const uint8_t max31856_ltcbm  = 0x0D;  // Linearized TC Temperature, Byte 1
-static const uint8_t max31856_ltcbl  = 0x0E;  // Linearized TC Temperature, Byte 0
-static const uint8_t max31856_sr     = 0x0F;  // Fault Status Register
+static const uint8_t max31856_cr0  = 0x00;  // Configuration 0 Register
+static const uint8_t max31856_cr1  = 0x01;  // Configuration 1 Register
+static const uint8_t max31856_mask = 0x02;  // Fault Mask Register
+static const uint8_t max31856_cjhf =
+    0x03;  // Cold-Junction High Fault Threshold
+static const uint8_t max31856_cjlf = 0x04;  // Cold-Junction Low Fault Threshold
+static const uint8_t max31856_lthfth =
+    0x05;  // Linearized Temperature High Fault Threshold MSB
+static const uint8_t max31856_lthftl =
+    0x06;  // Linearized Temperature High Fault Threshold LSB
+static const uint8_t max31856_ltlfth =
+    0x07;  // Linearized Temperature Low Fault Threshold MSB
+static const uint8_t max31856_ltlftl =
+    0x08;  // Linearized Temperature Low Fault Threshold LSB
+static const uint8_t max31856_cjto =
+    0x09;  // Cold-Junction Temperature Offset Register
+static const uint8_t max31856_cjth =
+    0x0A;  // Cold-Junction Temperature Register, MSB
+static const uint8_t max31856_cjtl =
+    0x0B;  // Cold-Junction Temperature Register, LSB
+static const uint8_t max31856_ltcbh =
+    0x0C;  // Linearized TC Temperature, Byte 2
+static const uint8_t max31856_ltcbm =
+    0x0D;  // Linearized TC Temperature, Byte 1
+static const uint8_t max31856_ltcbl =
+    0x0E;                                 // Linearized TC Temperature, Byte 0
+static const uint8_t max31856_sr = 0x0F;  // Fault Status Register
 
 // Register Default Values, also from Table 6
 static const uint8_t max31856_cr0_default = 0x00;
@@ -67,6 +78,9 @@ static const uint8_t max31856_fr_ovuv     = 1 << 1;
 static const uint8_t max31856_fr_open     = 1 << 0;
 
 SPI_INITFUNC(max31856)
+
+// initialize the chip
+void max31856_init(SPI_DEVICE_PARAM);
 
 // read a single register
 uint8_t max31856_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg);
