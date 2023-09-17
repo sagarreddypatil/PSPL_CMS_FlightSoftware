@@ -53,10 +53,9 @@ SPI_INITFUNC_IMPL(ads13x, baudrate)
   ((val >> 24) & 0xFF), ((val >> 16) & 0xFF), ((val >> 8) & 0xFF), (val & 0xFF)
 
 // Peripheral byte-order to Host, 16, 24, 32 bit
-#define PTOH16(ptr) ((ptr)[0] << 8 | (ptr)[1])
-// sign extend 24-bits to 32-bits
-#define PTOH24(ptr) (((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8) >> 8)
-#define PTOH32(ptr) ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | (ptr)[3])
+#define PTOH16(ptr) ((ptr)[0] << 8 | (ptr)[1]) // short, swapping bytes
+#define PTOH24(ptr) (((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8) >> 8) // sign extended 32-bit
+#define PTOH32(ptr) ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | (ptr)[3]) // just byte order swapping
 
 void ads13x_reset(SPI_DEVICE_PARAM) {
   // try both 24-bit and 32-bit word size
@@ -73,10 +72,12 @@ void ads13x_reset(SPI_DEVICE_PARAM) {
 }
 
 bool ads13x_ready(SPI_DEVICE_PARAM) {
-  uint8_t src[4 * 4] = {0};
-  uint8_t dst[4 * 4];
+  // ready waits for chip to start after a reset
 
-  SPI_TRANSFER(src, dst, 4 * 4);
+  uint8_t src[4 * 3] = {0}; // default 3-byte word size
+  uint8_t dst[4 * 3];
+
+  SPI_TRANSFER(src, dst, 4 * 3);
 
   uint16_t status = PTOH16(dst);
 

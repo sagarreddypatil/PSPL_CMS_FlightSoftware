@@ -62,7 +62,6 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len);
 
 // Convenience Functions
-
 void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting);
 
 void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3,
