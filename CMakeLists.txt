@@ -4,8 +4,8 @@ set(CMAKE_C_STANDARD 11)
 
 # ---------- Version ----------
 set(VERSION_MAJOR 0)
-set(VERSION_MINOR 1)
-set(VERSION_PATCH 1)
+set(VERSION_MINOR 2)
+set(VERSION_PATCH 0)
 
 # ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
@@ -51,44 +51,48 @@ file(GLOB_RECURSE mpack_srcs external/mpack/src/mpack/*.c)
 file(GLOB_RECURSE mpack_hdrs external/mpack/src/mpack/*.h)
 
 add_library(mpack ${mpack_srcs} ${mpack_hdrs})
-# target_link_libraries(mpack)
 target_include_directories(mpack PUBLIC external/mpack/src/mpack)
 
 # ---------- Libraries  ----------
 
-set(libs)
+set(libs
+    mpack
+)
 
-macro(psp_lib libname)
-    set(deps ${ARGN})
-
-    file(GLOB_RECURSE srcs lib/${libname}/*.c)
-    file(GLOB_RECURSE hdrs lib/${libname}/*.h)
+macro(psp_lib loc libname)
+    file(GLOB_RECURSE srcs ${loc}/${libname}/*.c)
+    file(GLOB_RECURSE hdrs ${loc}/${libname}/*.h)
 
     add_library(${libname} INTERFACE)
     target_sources(${libname} INTERFACE ${srcs})
-    target_link_libraries(${libname} INTERFACE ${stdlibs} ${deps})
+    target_link_libraries(${libname} INTERFACE ${stdlibs} ${libs})
 
-    target_include_directories(${libname} INTERFACE lib/${libname}/include)
+    target_include_directories(${libname} INTERFACE ${loc}/${libname}/include)
     list(APPEND libs ${libname})
-
 endmacro()
 
 # this one is special
 include_directories(lib/crypto/include)
 
-psp_lib(freertos_config)
-psp_lib(psp)
-psp_lib(crypto)
-psp_lib(spi)
-psp_lib(sensornet)
-psp_lib(max31856 spi)
-psp_lib(w5500 spi)
-psp_lib(commandnet w5500 mpack)
-psp_lib(ntp w5500)
+# list these in topoligical order
+psp_lib(lib freertos_config)
+psp_lib(lib psp)
+
+psp_lib(device spi)
+psp_lib(device max31856)
+psp_lib(device w5500)
+psp_lib(device ads13x)
+
+psp_lib(lib crypto)
+psp_lib(lib sensornet)
+psp_lib(lib commandnet)
+psp_lib(lib ntp)
 
 # ---------- Boards  ----------
 set(boards
-    emu
+    # adc-test
+    # emu
+    tc-test-board
 )
 
 foreach(board ${boards})

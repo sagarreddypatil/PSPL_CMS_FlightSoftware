@@ -18,9 +18,7 @@ int main() {
 
   int actual_baud = (int)max31856_set(tc_spi);
 
-  for (int i = 0; i < 100; i++) {
-    max31856_wreg_byte(tc_spi, max31856_cr0, max31856_cr0_default | max31856_cr0_cmode);  // build off of default cr0, enable continous mode
-  }
+  max31856_init(tc_spi);
 
   // set builtin LED to output
   gpio_init(PICO_DEFAULT_LED_PIN);

@@ -24,9 +24,9 @@ int main() {
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
 
-  ip_t gateway     = {192, 168, 1, 1};
+  ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
-  ip_t src_ip      = {192, 168, 1, 50};
+  ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   w5500_reset(w5500);
@@ -47,7 +47,7 @@ int main() {
   w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  ip_t victim          = {192, 168, 1, 4};
+  ip_t victim          = {192, 168, 2, 1};
   uint16_t victim_port = 5000;
   w5500_create_udp_socket(w5500, W5500_S0, 5000, false, false, false);
 
