@@ -76,7 +76,7 @@ processor and application]
 #define configRUN_MULTIPLE_PRIORITIES 0
 
 /* RP2040 specific */
-#define configSUPPORT_PICO_SYNC_INTEROP 0
+#define configSUPPORT_PICO_SYNC_INTEROP 1
 #define configSUPPORT_PICO_TIME_INTEROP 0
 
 #include <assert.h>
