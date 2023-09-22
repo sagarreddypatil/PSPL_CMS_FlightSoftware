@@ -10,13 +10,15 @@
 
 SPI_DEVICE(ads13x, spi1, ADC_CS)
 
+static const int32_t ADC_MAX = 0x7FFFFF;
+static const int32_t ADC_MIN = -0x800000;
+
 int main() {
   gpio_init(ADC_RST);
   gpio_set_dir(ADC_RST, GPIO_OUT);
   gpio_put(ADC_RST, 1);
   stdio_init_all();
   while (!stdio_usb_connected()) tight_loop_contents();
-
 
   // for (int i = 0; i < 15; i++) {
   //   printf("iter %d, time %llu\n", i, time_us_64());
@@ -68,7 +70,11 @@ int main() {
     // uint16_t statB;
     int32_t data[2];
     ads13x_read_data(ads13x, &statA, data, 2);
-    //printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
-    printf("%ld, %ld\n", data[0], data[1]);
+
+    float fdata[2] = {1.2 * data[0] / (float)ADC_MAX,
+                      1.2 * data[1] / (float)ADC_MAX};
+    // printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
+    // printf("%ld, %ld\n", data[0], data[1]);
+    printf("%f,%f\n", fdata[0], fdata[1]);
   }
 }
