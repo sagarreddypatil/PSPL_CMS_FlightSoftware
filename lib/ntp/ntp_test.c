@@ -43,13 +43,11 @@ void run_ntp_test() {
 
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
-  ip_t dest = {192, 168, 2, 1};
-
   while (true) {
-    ntp_resp_t response = get_server_time(w5500, dest, W5500_S3);
-    printf("server time: %lld\n", response.server_us);
-    printf("local time: %lld\n", response.local_us);
-    printf("delay: %lld\n", response.local_us - response.server_us);
+    ntp_resp_t response = get_server_time(w5500, gateway, W5500_S3);
+    printf("server time us: %lld\n", response.server_us);
+    printf("local time us: %lld\n", response.local_us);
+    printf("server to local delay time us: %lld\n", response.local_us - response.server_us);
     sleep_ms(500);
   }
 }
