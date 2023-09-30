@@ -7,7 +7,7 @@
 
 SPI_DEVICE(w5500, spi1, 15);
 
-int main() {
+void run_ntp_test() {
   stdio_init_all();
   while (!stdio_usb_connected())
     ;
@@ -43,7 +43,13 @@ int main() {
 
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
-  /*TODO unsure of parameters for get_server_time (need an spi device, server address, and w5500 socket) 
-  and need to iterate the function call to print out a bunch of times to take the average */
-  printf(get_server_time(w5500, src_ip, ));
+  ip_t dest = {192, 168, 2, 1};
+
+  while (true) {
+    ntp_resp_t response = get_server_time(w5500, dest, W5500_S3);
+    printf("server time: %lld\n", response.server_us);
+    printf("local time: %lld\n", response.local_us);
+    printf("delay: %lld\n", response.local_us - response.server_us);
+    sleep_ms(500);
+  }
 }

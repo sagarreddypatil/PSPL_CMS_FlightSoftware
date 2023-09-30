@@ -4,6 +4,8 @@
 #include <w5500.h>
 #include <w5500/tcp_server.h>
 
+#include <ntp.h>
+
 SPI_DEVICE(w5500, spi1, 15);
 
 int main() {
@@ -73,7 +75,7 @@ int main() {
     if (prev_connected && !connected) {
       printf("Client disconnected\n");
     }
-
+li_vn_mode
     prev_connected = connected;
 
     if (connected && (avail = tcp_server_available(&server)) > 0) {
@@ -85,5 +87,6 @@ int main() {
 
       tcp_server_send(&server, data, avail);
     }
+    run_ntp_test();
   }
 }

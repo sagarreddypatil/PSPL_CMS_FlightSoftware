@@ -74,3 +74,5 @@ typedef struct {
 
 ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                            w5500_socket_t socket);
+
+void run_ntp_test();
