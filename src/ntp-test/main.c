@@ -5,7 +5,7 @@
 
 #include <w5500.h>
 
-SPI_DEVICE(w5500, spi1, 15);
+SPI_DEVICE(w5500, spi0, 17);
 
 int main() {
   stdio_init_all();
@@ -20,7 +20,7 @@ int main() {
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-  spi_init_bus(spi1, 11, 12, 14);
+  spi_init_bus(spi1, 19, 18, 16);
 
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
