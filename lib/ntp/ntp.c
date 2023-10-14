@@ -21,7 +21,7 @@ ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
   w5500_write16(spi, socket, W5500_Sn_DPORT0, NTP_PORT);
 
   w5500_write_data(spi, socket, &packet, sizeof(ntp_packet_t));
-  uint64_t write_time = time_us_64();
+  uint64_t write_time = time_us_64();  // t0
 
   int read           = 0;
   uint64_t recv_time = 0;
@@ -29,7 +29,7 @@ ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                                  sizeof(ntp_packet_t))) == 0) {
     tight_loop_contents();
   }
-  recv_time = time_us_64();
+  recv_time = time_us_64();  // t3
 
   if (read != sizeof(ntp_packet_t)) {
     printf("Error reading NTP packet\n");
