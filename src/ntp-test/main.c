@@ -5,7 +5,7 @@
 
 #include <w5500.h>
 
-SPI_DEVICE(w5500, spi0, 17);
+SPI_DEVICE(w5500, spi1, 17);
 
 int main() {
   stdio_init_all();
@@ -25,10 +25,11 @@ int main() {
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);
 
-  ip_t gateway     = {192, 168, 2, 1};
-  ip_t subnet_mask = {255, 255, 255, 0};
-  ip_t src_ip      = {192, 168, 2, 50};
-  mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
+  ip_t gateway       = {192, 168, 2, 1};
+  ip_t ntp_server_ip = {192, 168, 2, 1};
+  ip_t subnet_mask   = {255, 255, 255, 0};
+  ip_t src_ip        = {192, 168, 2, 50};
+  mac_t src_mac      = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   w5500_reset(w5500);
   uint64_t start = time_us_64();
@@ -44,7 +45,7 @@ int main() {
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
   while (true) {
-    ntp_resp_t response = get_server_time(w5500, gateway, W5500_S3);
+    ntp_resp_t response = get_server_time(w5500, ntp_server_ip, W5500_S3);
     printf("server time us: %lld\n", response.server_us);
     printf("local time us: %lld\n", response.local_us);
     printf("server to local delay time us: %lld\n",
