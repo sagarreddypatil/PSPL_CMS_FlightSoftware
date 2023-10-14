@@ -7,7 +7,7 @@
 
 SPI_DEVICE(w5500, spi1, 15);
 
-void run_ntp_test() {
+int main() {
   stdio_init_all();
   while (!stdio_usb_connected())
     ;
@@ -47,7 +47,8 @@ void run_ntp_test() {
     ntp_resp_t response = get_server_time(w5500, gateway, W5500_S3);
     printf("server time us: %lld\n", response.server_us);
     printf("local time us: %lld\n", response.local_us);
-    printf("server to local delay time us: %lld\n", response.local_us - response.server_us);
+    printf("server to local delay time us: %lld\n",
+           response.local_us - response.server_us);
     sleep_ms(500);
   }
 }

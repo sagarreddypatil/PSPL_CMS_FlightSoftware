@@ -49,7 +49,7 @@ int main() {
   w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  while (true){
+  while (true) {
     uint8_t phyreg = w5500_read8(w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phyreg);
     sleep_ms(500);
@@ -75,7 +75,7 @@ int main() {
     if (prev_connected && !connected) {
       printf("Client disconnected\n");
     }
-li_vn_mode
+
     prev_connected = connected;
 
     if (connected && (avail = tcp_server_available(&server)) > 0) {
@@ -87,6 +87,5 @@ li_vn_mode
 
       tcp_server_send(&server, data, avail);
     }
-    run_ntp_test();
   }
 }
