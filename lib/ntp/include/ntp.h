@@ -54,15 +54,15 @@ typedef struct {
   uint32_t refId;      // 32 bits. Reference clock identifier.
 
   uint32_t refTm_s;  // 32 bits. Reference time-stamp seconds.
-  uint32_t refTm_f;  // 32 bits. Reference time-stamp fraction of a second.
+  uint32_t refTm_f;  // 32 bits. Reference time-stamp fraction of a second. t0
 
   uint32_t origTm_s;  // 32 bits. Originate time-stamp seconds.
-  uint32_t origTm_f;  // 32 bits. Originate time-stamp fraction of a second.
+  uint32_t origTm_f;  // 32 bits. Originate time-stamp fraction of a second. t1
 
   uint32_t rxTm_s;  // 32 bits. Received time-stamp seconds.
-  uint32_t rxTm_f;  // 32 bits. Received time-stamp fraction of a second.
+  uint32_t rxTm_f;  // 32 bits. Received time-stamp fraction of a second. t2
 
-  uint32_t txTm_s;  // 32 bits and the most important field the client cares
+  uint32_t txTm_s;  // 32 bits and the most important field the client cares t3
                     // about. Transmit time-stamp seconds.
   uint32_t txTm_f;  // 32 bits. Transmit time-stamp fraction of a second.
 } ntp_packet_t;
