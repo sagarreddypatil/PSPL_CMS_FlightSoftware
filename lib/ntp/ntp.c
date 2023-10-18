@@ -10,6 +10,8 @@
 
 #define NTP_PORT 123
 
+static const uint64_t RESP_TIMEOUT = 10000;  // microseconds
+
 ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                            w5500_socket_t socket) {
   ntp_packet_t packet = {0};
@@ -25,9 +27,14 @@ ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
 
   int read           = 0;
   uint64_t recv_time = 0;
+
+  uint64_t timeout_start = time_us_64();
   while ((read = w5500_read_data(spi, socket, (uint8_t*)&packet,
                                  sizeof(ntp_packet_t))) == 0) {
     tight_loop_contents();
+    if (time_us_64() - timeout_start > RESP_TIMEOUT) {
+      break;
+    }
   }
   recv_time = time_us_64();  // t3
 
