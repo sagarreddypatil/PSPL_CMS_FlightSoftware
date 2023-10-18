@@ -10,7 +10,7 @@
 
 #define NTP_PORT 123
 
-static const uint64_t RESP_TIMEOUT = 10000;  // microseconds
+static const uint64_t RESP_TIMEOUT = 10000000;  // microseconds
 
 ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                            w5500_socket_t socket) {
