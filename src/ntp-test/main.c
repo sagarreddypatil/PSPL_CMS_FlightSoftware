@@ -48,8 +48,6 @@ int main() {
     ntp_resp_t response = get_server_time(w5500, ntp_server_ip, W5500_S3);
     printf("server time us: %lld\n", response.server_us);
     printf("local time us: %lld\n", response.local_us);
-    printf("server to local delay time us: %lld\n",
-           response.local_us - response.server_us);
     sleep_ms(500);
   }
 }
