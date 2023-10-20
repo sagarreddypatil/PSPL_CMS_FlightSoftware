@@ -12,8 +12,8 @@
 
 static const uint64_t RESP_TIMEOUT = 5000;  // microseconds
 
-ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
-                           w5500_socket_t socket) {
+int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
+                        w5500_socket_t socket) {
   ntp_packet_t packet = {0};
 
   packet.li_vn_mode = 0b00011011;  // li=0, vn=3, mode=3, DEC 27
@@ -39,8 +39,7 @@ ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
   recv_time = time_us_64();  // t3
 
   if (read != sizeof(ntp_packet_t)) {
-    printf("Error reading NTP packet\n");
-    return (ntp_resp_t){0};
+    return INT64_MIN;  // error value
   }
 
   packet.txTm_s = ntohl(packet.txTm_s);  // Time-stamp seconds.
