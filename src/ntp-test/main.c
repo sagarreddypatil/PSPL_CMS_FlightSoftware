@@ -45,11 +45,7 @@ int main() {
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
   while (true) {
-    ntp_resp_t response = get_server_time(w5500, ntp_server_ip, W5500_S3);
-
-    int64_t offset = response.server_us - response.local_us;
-    // printf("server time us: %lld\n", response.server_us);
-    // printf("local time us: %lld\n", response.local_us);
+    int64_t offset = get_server_time(w5500, ntp_server_ip, W5500_S3);
 
     printf("%lld\n", offset);
 

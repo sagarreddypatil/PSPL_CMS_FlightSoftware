@@ -12,6 +12,12 @@
 
 static const uint64_t RESP_TIMEOUT = 5000;  // microseconds
 
+uint64_t ntp_time_to_us(ntp_time_t ntp_time) {
+  uint64_t time_us = (uint64_t)ntp_time.seconds * SEC_TO_US +
+                     (uint64_t)ntp_time.fraction * SEC_TO_US / UINT32_MAX;
+  return time_us;
+}
+
 int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                         w5500_socket_t socket) {
   ntp_packet_t packet = {0};
@@ -23,10 +29,10 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
   w5500_write16(spi, socket, W5500_Sn_DPORT0, NTP_PORT);
 
   w5500_write_data(spi, socket, &packet, sizeof(ntp_packet_t));
-  uint64_t write_time = time_us_64();  // t0
+  uint64_t t0 = time_us_64();  // t0
 
-  int read           = 0;
-  uint64_t recv_time = 0;
+  int read    = 0;
+  uint64_t t3 = 0;
 
   uint64_t timeout_start = time_us_64();
   while ((read = w5500_read_data(spi, socket, (uint8_t*)&packet,
@@ -36,27 +42,22 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
       break;
     }
   }
-  recv_time = time_us_64();  // t3
+  t3 = time_us_64();  // t3
 
   if (read != sizeof(ntp_packet_t)) {
     return INT64_MIN;  // error value
   }
 
-  packet.txTm_s = ntohl(packet.txTm_s);  // Time-stamp seconds.
-  packet.txTm_f = ntohl(packet.txTm_f);  // Time-stamp fraction of a second.
+  packet.rec.seconds  = ntohl(packet.rec.seconds);
+  packet.rec.fraction = ntohl(packet.rec.fraction);
 
-  uint32_t txTm = (packet.txTm_s - NTP_TIMESTAMP_DELTA);
+  packet.xmt.seconds  = ntohl(packet.xmt.seconds);
+  packet.xmt.fraction = ntohl(packet.xmt.fraction);
 
-  uint64_t server_time =
-      (uint64_t)txTm * SEC_TO_US +
-      (uint64_t)packet.txTm_f * SEC_TO_US / UINT32_MAX;  // i hate ntp now
+  uint64_t t1 = ntp_time_to_us(packet.rec);
+  uint64_t t2 = ntp_time_to_us(packet.xmt);
 
-  // rough approximation where the server time is the average of the write and
-  // recieve times
+  int64_t offset = ((t1 + t2) - (t0 + t3)) / 2;
 
-  const uint64_t local_time_at_server_time =
-      (write_time + recv_time) / 2;  // this is our time at the server time
-
-  return (ntp_resp_t){.local_us  = local_time_at_server_time,
-                      .server_us = server_time};
+  return offset;
 }
