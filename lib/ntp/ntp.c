@@ -62,8 +62,12 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
 
   int64_t offset = server_time_center - local_time_at_server_center;
 
-  printf("%lld  -  ", t1 + t2);
-  printf("%lld  = 2*  ", t0 + t3);
+  printf("t0:  %lld\n", t0);
+  printf("t1: %ld\n", packet.rec.seconds); //t1 and rec.seconds return 0
+  printf("t2: %lld\n", t2); //t2 returns a number 70 years in the future
+  printf("t3: %lld\n", t3); //t0 and t3 appear to return proper numbers
+  //printf("%lld  -  ", t1 + t2);
+  //printf("%lld  = 2*  ", t0 + t3);
 
   return offset;
 }
