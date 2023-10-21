@@ -29,3 +29,4 @@ typedef struct {
   ntp_time_t rec;     /* receive time stamp (t1) */
   ntp_time_t xmt;     /* transmit time stamp (t2) */
 } ntp_packet_t;
+
