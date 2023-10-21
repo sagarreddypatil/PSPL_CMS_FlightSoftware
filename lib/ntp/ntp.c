@@ -38,11 +38,11 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
   while ((read = w5500_read_data(spi, socket, (uint8_t*)&packet,
                                  sizeof(ntp_packet_t))) == 0) {
     tight_loop_contents();
+    t3 = time_us_64();
     if (time_us_64() - timeout_start > RESP_TIMEOUT) {
       break;
     }
   }
-  t3 = time_us_64();  // t3
 
   if (read != sizeof(ntp_packet_t)) {
     return INT64_MIN;  // error value
@@ -56,8 +56,15 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
 
   uint64_t t1 = ntp_time_to_us(packet.rec);
   uint64_t t2 = ntp_time_to_us(packet.xmt);
+ 
+  uint64_t server_time_center          = (t1 + t2) / 2;
+  uint64_t local_time_at_server_center = (t0 + t3) / 2;
 
-  int64_t offset = ((t1 + t2) - (t0 + t3)) / 2;
+  int64_t offset = server_time_center - local_time_at_server_center;
+
+  printf("%lld  -  ", t1 + t2);
+  printf("%lld  = 2*  ", t0 + t3);
 
   return offset;
 }
+
