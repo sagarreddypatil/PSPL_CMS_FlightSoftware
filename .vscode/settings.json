@@ -15,6 +15,9 @@
         },
     },
     "editor.tabSize": 2,
+    "files.associations": {
+        "assert.h": "c"
+    },
     "C_Cpp.autoAddFileAssociations": false,
     "debug.internalConsoleOptions": "neverOpen"
 }

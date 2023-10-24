@@ -15,14 +15,15 @@ static inline void cs_init(uint cs_pin) {
 /// @brief Set CS pin low to enable
 /// @param cs_pin
 static inline void cs_select(uint cs_pin) {
-  asm volatile("nop \n nop \n nop");  // from pico examples, dunno why but monkey see monkey do
+  asm volatile("nop \n nop \n nop");  // from pico examples, dunno why but
+                                      // monkey see monkey do
   gpio_put(cs_pin, 0);
   asm volatile("nop \n nop \n nop");
 }
 
 /// @brief Set CS pin high to disable
 /// @param cs_pin
-static void cs_deselect(uint cs_pin) {
+static inline void cs_deselect(uint cs_pin) {
   asm volatile("nop \n nop \n nop");
   gpio_put(cs_pin, 1);
   asm volatile("nop \n nop \n nop");
@@ -57,12 +58,18 @@ static void cs_deselect(uint cs_pin) {
   x;                       \
   cs_deselect(spi->cs);
 
-#define SPI_TRANSFER(src, dst, len) SPI_BOILERPLATE(spi_write_read_blocking(SPI_INST, src, dst, len))
+#define SPI_TRANSFER(src, dst, len) \
+  SPI_BOILERPLATE(spi_write_read_blocking(SPI_INST, src, dst, len))
 
-#define SPI_TRANSFER16(src, dst, len) SPI_BOILERPLATE(spi_write16_read16_blocking(SPI_INST, src, dst, len))
+#define SPI_TRANSFER16(src, dst, len) \
+  SPI_BOILERPLATE(spi_write16_read16_blocking(SPI_INST, src, dst, len))
 
-#define SPI_WRITE(src, len) SPI_BOILERPLATE(spi_write_blocking(SPI_INST, src, len))
-#define SPI_WRITE16(src, len) SPI_BOILERPLATE(spi_write16_blocking(SPI_INST, src, len))
+#define SPI_WRITE(src, len) \
+  SPI_BOILERPLATE(spi_write_blocking(SPI_INST, src, len))
+#define SPI_WRITE16(src, len) \
+  SPI_BOILERPLATE(spi_write16_blocking(SPI_INST, src, len))
 
-#define SPI_READ(dst, len) SPI_BOILERPLATE(spi_read_blocking(SPI_INST, 0, dst, len))
-#define SPI_READ16(dst, len) SPI_BOILERPLATE(spi_read16_blocking(SPI_INST, 0, dst, len))
+#define SPI_READ(dst, len) \
+  SPI_BOILERPLATE(spi_read_blocking(SPI_INST, 0, dst, len))
+#define SPI_READ16(dst, len) \
+  SPI_BOILERPLATE(spi_read16_blocking(SPI_INST, 0, dst, len))

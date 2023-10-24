@@ -1,11 +1,28 @@
 # Flight Software for Crater Maker Special
 
 ## Overview
- - MCU: RP2040
- - RTOS: None
- - HAL: pico-sdk
+
+- MCU: RP2040
+- RTOS: None
+- HAL: pico-sdk
+
+## Branches
+
+Information as of Aug 28, 2023, bother Sagar if you want it updated
+
+- `main`: development branch, contains latest (mostly) tested code, broken code is not allowed, POC is Sagar Patil
+- `cmdnet-secure`: encrypted version of CommandNet, POC is Sagar Patil, information on Confluence
+- `ads13x`: driver development for ADS13xMXX ADCs, POC is Mihir Patil
+- `lte-modem`: LTE modem driver, POC is Jay Jagani
+- `stuff_on_pi`: random stuff from Taylor's Pi, should probably merge it, POC is Sagar Patil
+- `freertos`: exploratory branch for FreeRTOS, POC is Sagar Patil and Jay Jagani
+- `vn210`: driver for the VN210 IMU, POC no longer contributing, stale
+- `tests`: working test framework, but dead branch, POC is Sagar Patil
+- `host-compilation`: dead branch, host compilation for testing purposes, POC is Jay Jagani (?)
+- `camerons-stuff`: Dead branch, old code written for the ATMega328p, archival, POC is Cameron Williams
 
 ## Filesystem Hirearchy
+
 ```
 PSPL_CMS_Avionics_Code/
 ├── README.md <- This file
@@ -33,29 +50,29 @@ PSPL_CMS_Avionics_Code/
 ```
 
 ## Usage
+
 ### Dependencies
- - `git` (to clone this repo)
- - `make` (for running CMake)
- - `ninja` (CMake backend)
- - `cmake` (build system)
- - `compdb` (compile database for headers, optional)
- - `gcc-arm-none-eabi` (compiler)
- - `ccache` (compiler cache, optional)
- - `newlib-arm-none-eabi` (C standard library)
+
+- `git` (to clone this repo)
+- `make` (for running CMake)
+- `ninja` (CMake backend)
+- `cmake` (build system)
+- `compdb` (compile database for headers, optional)
+- `gcc-arm-none-eabi` (compiler)
+- `ccache` (compiler cache, optional)
+- `newlib-arm-none-eabi` (C standard library)
 
 ### Cloning this Repo
-This repo uses Git submodules, so you need to clone it with the `--recursive` flag.
-```
-git clone --recurse-submodules https://url/to/repo
-```
 
-If you already cloned the repo, you can run `git submodule update --init --recursive` to get the submodules.
+Just clone it like you normally would
 
 ### Working on a project
+
 All Setup and Development Operations information is on Confluence.
 
 ## Building
-Run `make build` for a debug build, or `make release` for a release build.
+
+Run `make` or `make build` for a debug build, or `make release` for a release build.
 `make clean` will delete the build folder.
 
-Output binaries for each board will be present in `build/uf2`
+Output binaries for each board will be present in `build/uf2`.

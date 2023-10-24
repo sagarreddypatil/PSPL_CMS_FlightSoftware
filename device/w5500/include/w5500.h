@@ -335,7 +335,8 @@ w5500_error_t w5500_create_tcp_socket(SPI_DEVICE_PARAM, w5500_socket_t s,
 /*Writing and Reading for Data Transfer*/
 
 /**
- * @brief Read data from a socket
+ * @brief Read data from a socket, you can read W5500_Sn_RX_RSR0 to check how
+ * many bytes are available
  * @param spi Pointer to the SPI device
  * @param s Socket number
  * @param data Pointer to the buffer to store the data in
