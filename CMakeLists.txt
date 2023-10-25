@@ -86,7 +86,9 @@ psp_lib(lib ntp)
 
 # ---------- Boards  ----------
 set(boards
-    adc-test
+    # adc-test
+    # echo
+    ntp-test
     # emu
     # tc-test-board
 )
