@@ -47,8 +47,8 @@ int main() {
   while (true) {
     int64_t offset = get_server_time(w5500, ntp_server_ip, W5500_S3);
 
-    printf("%lld\n", time_us_64() + offset);
+    printf("%lld,%lld\n", time_us_64(), offset);
 
-    sleep_ms(10);
+    sleep_ms(100);
   }
 }

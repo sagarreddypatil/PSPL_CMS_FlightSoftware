@@ -14,7 +14,7 @@ static const uint64_t RESP_TIMEOUT = 5000;  // microseconds
 
 uint64_t ntp_time_to_us(ntp_time_t ntp_time) {
   uint64_t time_us =
-      ((uint64_t)ntp_time.seconds - NTP_TIMESTAMP_DELTA) * SEC_TO_US +
+      (uint64_t)(ntp_time.seconds - NTP_TIMESTAMP_DELTA) * SEC_TO_US +
       (uint64_t)ntp_time.fraction * SEC_TO_US / UINT32_MAX;
   time_us = time_us;
   return time_us;
@@ -25,7 +25,7 @@ ntp_time_t us_to_ntp_time(uint64_t micros) {
   ntp_time_t ntp_time = {
       .fraction = (uint32_t)(((uint64_t)(UINT32_MAX) * (micros % 1000000ull)) /
                              1000000ull),
-      .seconds  = seconds + NTP_TIMESTAMP_DELTA};
+      .seconds  = seconds};
 
   return ntp_time;
 }
@@ -72,23 +72,22 @@ int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
   uint64_t t1 = ntp_time_to_us(packet.rec);
   uint64_t t2 = ntp_time_to_us(packet.xmt);
 
-  uint64_t server_time_center          = (t1 + t2) / 2;
+  // uint64_t server_time_center          = (t1 + t2) / 2;
+  uint64_t server_time_center          = t2;
   uint64_t local_time_at_server_center = (t0 + t3) / 2;
 
-  int64_t temp_offset =
-      t2 - t3;  // While t1 is not working, use this calculation
+  // int64_t temp_offset =
+  //     t2 - t3;  // While t1 is not working, use this calculation
   int64_t offset = server_time_center - local_time_at_server_center;
 
-  printf("t0:  %lld\n", ntp_time_to_us(packet.org));
-  printf("t1: %lld\n", t1);  // t1 receives a 0 input, so returns the -
-                             // conversion from the year 1900
-  printf("t2: %lld\n", t2);  // t2 returns the proper number (current time)
-  printf("t3: %lld\n", t3);  // t0 and t3 return proper numbers (system time
-                             // since start, but called at different times)
+  // printf("t0:  %lld\n", t0);
+  // printf("t1: %lld\n", t1);  // t1 receives a 0 input, so returns the -
+  // conversion from the year 1900
+  // printf("t2: %lld\n", t2);  // t2 returns the proper number (current time)
+  // printf("t3: %lld\n", t3);  // t0 and t3 return proper numbers (system time
+  // since start, but called at different times)
   // printf("%lld  -  ", t1 + t2);
   // printf("%lld  = 2*  ", t0 + t3);
 
-  return temp_offset;
+  return offset;
 }
-
-
