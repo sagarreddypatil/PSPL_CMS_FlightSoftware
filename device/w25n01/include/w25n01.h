@@ -42,6 +42,11 @@ typedef struct {
   uint16_t physical_block_address;
 } w25n01_bbm_entry;
 
+typedef struct {
+  uint8_t mfrId;
+  uint16_t deviceId;
+} w25n01_jedec_id_t;
+
 /*
  * Function Signatures
  */
@@ -51,6 +56,9 @@ void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst,
                      size_t len);  // basic transfer function for all of library
 void w25n01_write(SPI_DEVICE_PARAM, void* src,
                   size_t len);  // write only, without read
+
+w25n01_jedec_id_t w25n01_read_jedec_id(SPI_DEVICE_PARAM);  // read the jedec id
+                                                           // of the chip
 
 void w25n01_read_buffer(
     SPI_DEVICE_PARAM, uint16_t col, void* buf,

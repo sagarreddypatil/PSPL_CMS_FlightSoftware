@@ -1,6 +1,7 @@
 #include <spi_device_impl.h>
 #include <string.h>
 #include <w25n01.h>
+#include <stdio.h>
 
 #define SHORT_MSB(x) (x >> 8)
 #define SHORT_LSB(x) (x & 0xFF)
@@ -12,11 +13,36 @@ SPI_INITFUNC_IMPL(w25n01, baudrate);    // 50 MHz SPI clock
 
 void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst, size_t len) {
   SPI_TRANSFER(src, dst, len);
+
+  printf("\n");
+  for (int i = 0; i < len; i++) {
+    printf("%x ", ((uint8_t*)src)[i]);
+  }
+  printf("\n");
+  for (int i = 0; i < len; i++) {
+    printf("%x ", ((uint8_t*)dst)[i]);
+  }
+  printf("\n");
 }
 
 void w25n01_write(SPI_DEVICE_PARAM, void* src, size_t len) {
   SPI_WRITE(src, len);
 }
+
+w25n01_jedec_id_t w25n01_read_jedec_id(SPI_DEVICE_PARAM) {
+  uint8_t src[5] = {w25n01_ins_jedec_id, 0};
+  uint8_t dst[5];
+
+  w25n01_transfer(spi, src, dst, 5);
+
+  w25n01_jedec_id_t out = {
+      .mfrId    = dst[2],
+      .deviceId = dst[3] << 8 | dst[4],
+  };
+
+  return out;
+}  // read the jedec id
+   // of the chip
 
 void w25n01_read_buffer(SPI_DEVICE_PARAM, uint16_t col, void* buf, size_t len) {
   uint8_t src[len + 4];
