@@ -7,6 +7,12 @@
 
 SPI_DEVICE(w5500, spi0, 17);
 
+int64_t offset = 0;
+
+static inline uint64_t unix_time_us() {
+  return time_us_64() + offset;
+}
+
 int main() {
   stdio_init_all();
   while (!stdio_usb_connected())
@@ -45,9 +51,12 @@ int main() {
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
 
   while (true) {
-    int64_t offset = get_server_time(w5500, ntp_server_ip, W5500_S3);
+    int64_t new_offset = get_server_time(w5500, ntp_server_ip, W5500_S3);
+    if (new_offset > 0) {
+      offset = new_offset;
+    }
 
-    printf("%lld,%lld\n", time_us_64(), offset);
+    printf("%lld,%lld\n", unix_time_us(), offset);
 
     sleep_ms(100);
   }
