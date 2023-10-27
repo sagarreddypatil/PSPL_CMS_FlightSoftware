@@ -13,12 +13,10 @@ int main() {
   w25n01_set(flash);
 
   printf("Flash Test Program Start\n");
-
+  
+  long i = 0;
   while (true) {
-    w25n01_jedec_id_t id = w25n01_read_jedec_id(flash);
-
-    printf("mfr id: %x\tdevice id: %x %x\n", id.mfrId, id.deviceId > 8,
-           id.deviceId & 0xFF);
-    sleep_ms(500);
+    w25n01_read_page(flash, i); 
+    
   }
 }
