@@ -46,8 +46,8 @@ int main() {
   dma_channel_set_irq0_enabled(w5500.rx_dma, true);
   irq_set_enabled(DMA_IRQ_0, true);
 
-  printf("actual baud: %d\n", w5500.baudrate);
-  printf("after baud");
+  // printf("actual baud: %d\n", w5500.baudrate);
+  // printf("after baud");
 
   ip_t gateway     = {192, 168, 1, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
