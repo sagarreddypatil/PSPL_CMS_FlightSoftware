@@ -5,6 +5,8 @@
 #include <pico/stdlib.h>
 #include <pico/time.h>
 #include <stdio.h>
+#include "pico/stdlib.h"
+#include "pico/multicore.h"
 
 spi_device_t w5500 = {
   .spi_inst = spi0,
@@ -17,7 +19,7 @@ spi_device_t w5500 = {
 
 void spi0_dma_isr() { spi_irq_handler(&w5500); }
 
-void echo_main() {
+int main() {
 
   spi_device_init(&w5500);
 
@@ -110,4 +112,5 @@ void echo_main() {
       tcp_server_send(&server, data, avail);
     }
   }
+  return 0;
 }

@@ -24,7 +24,7 @@ StaticTask_t echoTaskBuffer;
 int main(){
     
     TaskHandle_t task_handle = NULL;
-    xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
+    // xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
 
     vTaskStartScheduler();
 
