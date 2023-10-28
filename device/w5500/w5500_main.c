@@ -51,9 +51,11 @@ void echo_main() {
   ip_t src_ip      = {192, 168, 1, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
+  printf("waiting on reset");
   w5500_reset(&w5500);
   uint64_t start = time_us_64();
 
+  printf("readying w5500");
   while (!w5500_ready(&w5500))
     ; // @todo timeout needed
   printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
