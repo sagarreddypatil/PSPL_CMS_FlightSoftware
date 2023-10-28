@@ -135,5 +135,7 @@ to exclude the API function. */
 
 /* A header file that defines trace macro can be included here. */
 
+#define configUSE_PASSIVE_IDLE_HOOK             0 // it told me to do this 
+
 #endif /* FREERTOS_CONFIG_H */
  
