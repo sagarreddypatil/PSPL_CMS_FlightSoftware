@@ -19,7 +19,7 @@ include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_i
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_adc hardware_spi pico_bootsel_via_double_reset FreeRTOS-Kernel)
+set(stdlibs pico_stdlib hardware_gpio hardware_adc hardware_spi hardware_dma pico_bootsel_via_double_reset FreeRTOS-Kernel)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -29,7 +29,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(
     -Wall # Enable all warnings
-    -O3 # I am speed
+    # -O3 # I am speed
+    -Os
     -Werror # Treat warnings as errors
     -Wno-unused-variable # annoying, don't keep it tho
     -Wno-unused-function # FreeRTOS
@@ -95,6 +96,7 @@ set(boards
     # emu
     # tc-test-board
     emu-rtos
+    # ufc-rtos
 )
 
 foreach(board ${boards})

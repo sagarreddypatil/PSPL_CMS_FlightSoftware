@@ -10,7 +10,7 @@
 
 #define NTP_PORT 123
 
-ntp_resp_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
+ntp_resp_t get_server_time(spi_device_t *spi, ip_t server_addr,
                            w5500_socket_t socket) {
   ntp_packet_t packet = {0};
 

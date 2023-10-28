@@ -1,9 +1,9 @@
 #pragma once
-#include <spi_device.h>
+#include <spi.h>
 #include <w5500.h>
 
 typedef struct {
-  const spi_device_t *w5500;
+  spi_device_t *w5500;
   w5500_socket_t socket;
 } tcp_server_t;
 
@@ -12,7 +12,7 @@ typedef struct {
   uint16_t port;
 } tcp_client_data_t;
 
-void tcp_server_init(tcp_server_t *server, const spi_device_t *w5500,
+void tcp_server_init(tcp_server_t *server, spi_device_t *w5500,
                      w5500_socket_t socket, uint16_t port);
 void tcp_server_poll(tcp_server_t *server);
 

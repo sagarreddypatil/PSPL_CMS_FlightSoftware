@@ -1,20 +1,35 @@
-#include "FreeRTOS.h"
-#include "task.h"
-
+/* Kernel includes. */
+#include "FreeRTOS.h" /* Must come first. */
+#include "task.h"     /* RTOS task related API prototypes. */
+#include "queue.h"    /* RTOS queue related API prototypes. */
+#include "timers.h"   /* Software timer related API prototypes. */
+#include "semphr.h"   /* Semaphore related API prototypes. */
+#include <stdio.h>
+#include "pico/stdlib.h"
 #include "pico/multicore.h"
 
-void vLaunch() {
+#include "spi.h"
+#include <w5500.h>
+
+void setupHardware(){
+
 }
 
-void prvSetupHardware() {
-}
+#define STACK_SIZE 4096
 
-int main(void) {
-  prvSetupHardware();
+StackType_t echoTaskStack[STACK_SIZE];
+StaticTask_t echoTaskBuffer;
 
-  vLaunch();
-  multicore_launch_core1(vLaunch);
 
-  while (1) {
-  }
+int main(){
+    
+    TaskHandle_t task_handle = NULL;
+    xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
+
+    vTaskStartScheduler();
+
+    // should not reach here
+    while(1);
+
+    return 1;
 }

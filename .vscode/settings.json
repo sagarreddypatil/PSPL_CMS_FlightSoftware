@@ -14,7 +14,7 @@
             "visibility": "hidden"
         },
     },
-    "editor.tabSize": 2,
+    "editor.tabSize": 4,
     "files.associations": {
         "assert.h": "c"
     },
