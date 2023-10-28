@@ -32,10 +32,10 @@ void echo_main() {
   while (!stdio_usb_connected())
     ; // @todo timeout needed
 
-  for (int i = 0; i < 10; i++) {
-    printf("Program: %s\n", PICO_PROGRAM_NAME);
-    printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
-  }
+
+  printf("Program: %s\n", PICO_PROGRAM_NAME);
+  printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
+
 
   irq_set_exclusive_handler(DMA_IRQ_0, spi0_dma_isr);
   irq_set_priority(DMA_IRQ_0, 0xFF);  // Lowest urgency.
