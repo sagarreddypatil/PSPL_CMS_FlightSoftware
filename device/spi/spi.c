@@ -8,6 +8,7 @@
 #include <hardware/spi.h>
 #include <hardware/dma.h>
 #include <hardware/irq.h>
+#include "hardware/regs/dreq.h"
 
 #include <spi.h>
 #include <stdio.h>
@@ -28,12 +29,12 @@ void spi_device_init(spi_device_t *device){
 	dma_channel_configure(
 		device->tx_dma,
 		&device->tx_dma_config,
-		&spi_get_hw(spi_default)->dr,
+		&spi_get_hw(device->spi_inst)->dr,
 		NULL,
 		1,
 		false 
 	);
-	channel_config_set_dreq(&device->tx_dma_config, DREQ_SPI0_TX);
+	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
 	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 
@@ -44,11 +45,11 @@ void spi_device_init(spi_device_t *device){
 		device->rx_dma,
 		&device->rx_dma_config,
 		NULL,
-		&spi_get_hw(spi_default)->dr,
+		&spi_get_hw(device->spi_inst)->dr,
 		1,
 		false 
 	);
-	channel_config_set_dreq(&device->rx_dma_config, DREQ_SPI0_RX);
+	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, false));
 	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
@@ -70,9 +71,6 @@ void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t
 
 		dma_channel_set_read_addr(device->tx_dma, dst, true);
 		dma_channel_set_write_addr(device->rx_dma, src, true);
-
-		dma_channel_set_trans_count(device->tx_dma, size, false);
-		dma_channel_set_trans_count(device->rx_dma, size, false);
 
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
 
@@ -108,9 +106,6 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 		dma_channel_set_read_addr(device->tx_dma, dst, true);
 		dma_channel_set_write_addr(device->rx_dma, src, true);
 
-		dma_channel_set_trans_count(device->tx_dma, size, false);
-		dma_channel_set_trans_count(device->rx_dma, size, false);
-
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
 
 		// /* Timeout 1 sec */
@@ -137,35 +132,13 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 
 	if (spi_is_writable(device->spi_inst) && spi_is_readable(device->spi_inst)){
 
-		// BaseType_t rc = ulTaskNotifyTake(pdTRUE, 0);
-
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
 		dma_channel_set_read_addr(device->tx_dma, dst, true);
 		dma_channel_set_write_addr(device->rx_dma, src, true);
 
-		dma_channel_set_trans_count(device->tx_dma, size/8 + 1, false);
-		dma_channel_set_trans_count(device->rx_dma, size/8 + 1, false);
-
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-
-		// /* Timeout 1 sec */
-		// uint32_t timeOut = 1000;
-		// /* Wait until master completes transfer or time out has occured. */
-		// rc = ulTaskNotifyTakeIndexed(
-        // 1, pdFALSE, pdMS_TO_TICKS(timeOut));  // Wait for notification from ISR
-
-		// if (!rc) {
-		// 	// This indicates that xTaskNotifyWait() returned without the
-		// 	// calling task receiving a task notification. The calling task will
-		// 	// have been held in the Blocked state to wait for its notification
-		// 	// state to become pending, but the specified block time expired
-		// 	// before that happened.
-		// 	printf("Task %s timed out!!\n",
-		// 			pcTaskGetName(xTaskGetCurrentTaskHandle()));
-		// 	return;
-   		// }
 
 	}
 }

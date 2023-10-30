@@ -35,8 +35,7 @@ int main() {
   ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
-  printf("waiting on reset");
-  sleep_ms(5000);
+  printf("waiting on reset\n");
   w5500_reset(&w5500);
   uint64_t start = time_us_64();
 
