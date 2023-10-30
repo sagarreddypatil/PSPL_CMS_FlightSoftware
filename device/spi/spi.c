@@ -36,7 +36,6 @@ void spi_device_init(spi_device_t *device){
 	);
 	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
 	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
-	dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 
 	// Open and configure DMA channel to SPI RX FIFO
     device->rx_dma = dma_claim_unused_channel(true);
@@ -51,7 +50,6 @@ void spi_device_init(spi_device_t *device){
 	);
 	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, false));
 	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
-	dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
     device->baudrate = spi_init(spi0, device->baudrate);
     // this might just need to just be the max baudrate of all the devices,
@@ -133,6 +131,10 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 	if (spi_is_writable(device->spi_inst) && spi_is_readable(device->spi_inst)){
 
 		channel_config_set_read_increment(&device->tx_dma_config, true);
+		channel_config_set_write_increment(&device->tx_dma_config, false);
+
+
+		channel_config_set_read_increment(&device->rx_dma_config, false);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
 		dma_channel_set_read_addr(device->tx_dma, dst, true);
