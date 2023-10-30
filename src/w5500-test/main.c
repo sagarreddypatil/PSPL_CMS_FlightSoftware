@@ -46,6 +46,7 @@ int main() {
   printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
 
   while (!w5500_has_link(&w5500))
+    sleep_ms(100)
     ; // @todo timeout needed
   printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
 
