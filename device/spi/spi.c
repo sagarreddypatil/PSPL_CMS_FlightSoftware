@@ -166,7 +166,7 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		
 		// Sets number of DMA transfers to do
-		// dma_channel_set_trans_count(device->tx_dma, size, false);
+		dma_channel_set_trans_count(device->tx_dma, size, false);
 		// Sets address to transfer from
 		gpio_put(device->cs_gpio, 0);
 		dma_channel_set_read_addr(device->tx_dma, src, true);
