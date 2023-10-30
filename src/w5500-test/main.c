@@ -37,9 +37,10 @@ int main() {
 
   printf("waiting on reset\n");
   w5500_reset(&w5500);
+  printf("Reset complete.\n");
   uint64_t start = time_us_64();
 
-  printf("readying w5500");
+  printf("readying w5500\n");
   while (!w5500_ready(&w5500))
     ; // @todo timeout needed
   printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
