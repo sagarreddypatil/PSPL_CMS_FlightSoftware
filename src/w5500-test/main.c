@@ -10,13 +10,12 @@
 
 spi_device_t w5500 = {
   .spi_inst = spi0,
-  .miso_gpio = 11,
-  .mosi_gpio = 12,
-  .sck_gpio = 14,
-  .cs_gpio = 15, // CS_0
+  .miso_gpio = 18,
+  .mosi_gpio = 19,
+  .sck_gpio = 16,
+  .cs_gpio = 17,
   .baudrate = 4000000 // 4MHz
   };
-
 
 int main() {
 
