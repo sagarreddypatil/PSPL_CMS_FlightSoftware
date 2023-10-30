@@ -26,6 +26,8 @@ void spi_device_init(spi_device_t *device){
 	// Open and configure DMA channel to SPI TX FIFO
     device->tx_dma = dma_claim_unused_channel(true);
 	device->tx_dma_config = dma_channel_get_default_config(device->tx_dma);
+	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
+	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_configure(
 		device->tx_dma,
 		&device->tx_dma_config,
@@ -34,12 +36,12 @@ void spi_device_init(spi_device_t *device){
 		1,
 		false 
 	);
-	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
-	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 
 	// Open and configure DMA channel to SPI RX FIFO
     device->rx_dma = dma_claim_unused_channel(true);
 	device->rx_dma_config = dma_channel_get_default_config(device->rx_dma);
+	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, false));
+	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_configure(
 		device->rx_dma,
 		&device->rx_dma_config,
@@ -48,8 +50,6 @@ void spi_device_init(spi_device_t *device){
 		1,
 		false 
 	);
-	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, false));
-	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
 
     device->baudrate = spi_init(spi0, device->baudrate);
     // this might just need to just be the max baudrate of all the devices,
@@ -60,73 +60,55 @@ void spi_device_init(spi_device_t *device){
 
 void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t size){
 
-	if (spi_is_writable(device->spi_inst) && spi_is_readable(device->spi_inst)){
-
-		// BaseType_t rc = ulTaskNotifyTake(pdTRUE, 0);
-
 		channel_config_set_read_increment(&device->tx_dma_config, true);
+		channel_config_set_write_increment(&device->tx_dma_config, false);
+
+		channel_config_set_read_increment(&device->rx_dma_config, false);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_set_read_addr(device->tx_dma, dst, true);
-		dma_channel_set_write_addr(device->rx_dma, src, true);
+		dma_channel_set_read_addr(device->tx_dma, src, true);
+		dma_channel_set_write_addr(device->rx_dma, dst, true);
 
+		gpio_put(device->cs_gpio, 0);
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-
-		// /* Timeout 1 sec */
-		// uint32_t timeOut = 1000;
-		// /* Wait until master completes transfer or time out has occured. */
-		// rc = ulTaskNotifyTakeIndexed(
-        // 1, pdFALSE, pdMS_TO_TICKS(timeOut));  // Wait for notification from ISR
-
-		// if (!rc) {
-		// 	// This indicates that xTaskNotifyWait() returned without the
-		// 	// calling task receiving a task notification. The calling task will
-		// 	// have been held in the Blocked state to wait for its notification
-		// 	// state to become pending, but the specified block time expired
-		// 	// before that happened.
-		// 	printf("Task %s timed out!!\n",
-		// 			pcTaskGetName(xTaskGetCurrentTaskHandle()));
-		// 	return;
-   		// }
-
-	}
+		dma_channel_wait_for_finish_blocking(device->tx_dma);
+		gpio_put(device->cs_gpio, 1);
 }
 
 void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t size){
 
-	if (spi_is_writable(device->spi_inst) && spi_is_readable(device->spi_inst)){
-
-		// BaseType_t rc = ulTaskNotifyTake(pdTRUE, 0);
-
 		channel_config_set_read_increment(&device->tx_dma_config, true);
+		channel_config_set_write_increment(&device->tx_dma_config, false);
+
+		channel_config_set_read_increment(&device->rx_dma_config, false);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_set_read_addr(device->tx_dma, dst, true);
-		dma_channel_set_write_addr(device->rx_dma, src, true);
+		dma_channel_set_read_addr(device->tx_dma, src, true);
+		dma_channel_set_write_addr(device->rx_dma, dst, true);
 
+		gpio_put(device->cs_gpio, 0);
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
+		dma_channel_wait_for_finish_blocking(device->tx_dma);
+		gpio_put(device->cs_gpio, 1);
 
-		// /* Timeout 1 sec */
-		// uint32_t timeOut = 1000;
-		// /* Wait until master completes transfer or time out has occured. */
-		// rc = ulTaskNotifyTakeIndexed(
-        // 1, pdFALSE, pdMS_TO_TICKS(timeOut));  // Wait for notification from ISR
-
-		// if (!rc) {
-		// 	// This indicates that xTaskNotifyWait() returned without the
-		// 	// calling task receiving a task notification. The calling task will
-		// 	// have been held in the Blocked state to wait for its notification
-		// 	// state to become pending, but the specified block time expired
-		// 	// before that happened.
-		// 	printf("Task %s timed out!!\n",
-		// 			pcTaskGetName(xTaskGetCurrentTaskHandle()));
-		// 	return;
-   		// }
-
-	}
 }
 
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
+
+		switch (DMA_TRANSFER_SIZE)
+		{
+			case DMA_SIZE_8:
+				break;
+			case DMA_SIZE_16:
+				size = size/2 + 1;
+				break;
+			case DMA_SIZE_32:
+				size = size/4 + 1;
+				break;
+		}
+
+		dma_channel_set_trans_count(device->tx_dma, size, false);
+		dma_channel_set_trans_count(device->rx_dma, size, false);
 
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		channel_config_set_write_increment(&device->tx_dma_config, false);
