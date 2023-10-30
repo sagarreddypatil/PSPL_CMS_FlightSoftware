@@ -41,13 +41,12 @@ int main() {
   uint64_t start = time_us_64();
 
   printf("readying w5500\n");
-  while (!w5500_ready(&w5500))
-    ; // @todo timeout needed
+  while (!w5500_ready(&w5500)){
+    sleep_ms(10000);} // @todo timeout needed
   printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
 
-  while (!w5500_has_link(&w5500))
-    sleep_ms(10000)
-    ; // @todo timeout needed
+  while (!w5500_has_link(&w5500)){
+    sleep_ms(10000);} // @todo timeout needed
   printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
