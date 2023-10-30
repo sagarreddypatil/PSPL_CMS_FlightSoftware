@@ -30,9 +30,9 @@ int main() {
 
   printf("actual baud: %d\n", w5500.baudrate);
 
-  ip_t gateway     = {192, 168, 1, 1};
+  ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
-  ip_t src_ip      = {192, 168, 1, 50};
+  ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   printf("waiting on reset");
