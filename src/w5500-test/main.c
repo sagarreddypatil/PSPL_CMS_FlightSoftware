@@ -17,37 +17,19 @@ spi_device_t w5500 = {
   .baudrate = 4000000 // 4MHz
   };
 
-void spi0_dma_isr() { spi_irq_handler(&w5500); }
 
 int main() {
 
   spi_device_init(&w5500);
 
-#if PICOTOOL_ENABLED
-	bi_decl(bi_3pins_with_func(11, 12, 14, GPIO_FUNC_SPI));
-	bi_decl(bi_1pin_with_name(15, "SPI CS"));
-
-  hw_set_bits(&spi_get_hw(spi1)->cr1, SPI_SSPCR1_LBM_BITS);
-#endif
-
   stdio_init_all();
   while (!stdio_usb_connected())
     ; // @todo timeout needed
 
-
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-
-  irq_set_exclusive_handler(DMA_IRQ_0, spi0_dma_isr);
-  irq_set_priority(DMA_IRQ_0, 0xFF);  // Lowest urgency.
-
-  // Tell the DMA to raise IRQ line 0 when the channel finishes a block
-  dma_channel_set_irq0_enabled(w5500.rx_dma, true);
-  irq_set_enabled(DMA_IRQ_0, true);
-
-  // printf("actual baud: %d\n", w5500.baudrate);
-  // printf("after baud");
+  printf("actual baud: %d\n", w5500.baudrate);
 
   ip_t gateway     = {192, 168, 1, 1};
   ip_t subnet_mask = {255, 255, 255, 0};

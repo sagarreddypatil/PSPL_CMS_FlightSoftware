@@ -1,6 +1,6 @@
 #pragma once
 
-// Kernal Includes
+// FreeRTOS Includes
 #include <FreeRTOS.h>
 #include <task.h>
 #include <semphr.h>
@@ -21,10 +21,10 @@
  *  @param dst
  *  @param size
  */
-#define SPI_WRITE_READ(spi_device, src, dst, size) \
-  _Generic((src), \
-    uint8_t*:  spi_write_read8, \
-    uint16_t*: spi_write_read16, \
+#define SPI_WRITE_READ(spi_device, src, dst, size)          \
+  _Generic((src),                                           \
+    uint8_t*:  spi_write_read8,                             \
+    uint16_t*: spi_write_read16,                            \
     uint32_t*: spi_write_read32)(spi_device, src, dst, size);
 
 // Contains all info about a specific SPI device (TYPES NEED OPTIMIZED, probably)
@@ -55,14 +55,14 @@ void spi_device_init(spi_device_t *device);
 /*! @brief Read from an SPI device to a buffer
 *   @param device SPI device that will be read from
 *   @param dst address of buffer that will be written to
-*   @param size size of buffer in bits
+*   @param size size of buffer in bytes
 */
 void spi_read(spi_device_t *device, uint32_t *dst, size_t size);
 
 /*! @brief Write from a buffer to an SPI device
 *   @param device SPI device that will be written to
 *   @param src address of buffer that will be read from
-*   @param size size of buffer in bits
+*   @param size size of buffer in bytes
 */
 void spi_write(spi_device_t *device, uint32_t *src, size_t size);
 
@@ -70,7 +70,7 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size);
 *   @param device SPI device that will be written to
 *   @param src address of buffer that will be read from
 *   @param dst address of buffer that will be written to
-*   @param size size of buffers (BOTH) in bits
+*   @param size size of buffers (BOTH) in bytes
 */
 void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t size);
 
@@ -78,7 +78,7 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 *   @param device SPI device that will be written to
 *   @param src address of buffer that will be read from
 *   @param dst address of buffer that will be written to
-*   @param size size of buffers (BOTH) in bits
+*   @param size size of buffers (BOTH) in bytes
 */
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size);
 
@@ -86,9 +86,11 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 *   @param device SPI device that will be written to
 *   @param src address of buffer that will be read from
 *   @param dst address of buffer that will be written to
-*   @param size size of buffers (BOTH) in bits
+*   @param size size of buffers (BOTH) in bytes
 */
 void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t size);
 
 
 void spi_irq_handler(spi_device_t *device);
+
+void dma_move(uint8_t *src, uint8_t *dst, size_t size);
