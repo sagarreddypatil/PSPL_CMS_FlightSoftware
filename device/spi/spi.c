@@ -131,12 +131,11 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		channel_config_set_write_increment(&device->tx_dma_config, false);
 
-
 		channel_config_set_read_increment(&device->rx_dma_config, false);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_set_read_addr(device->tx_dma, dst, true);
-		dma_channel_set_write_addr(device->rx_dma, src, true);
+		dma_channel_set_read_addr(device->tx_dma, src, true);
+		dma_channel_set_write_addr(device->rx_dma, dst, true);
 
 		gpio_put(device->cs_gpio, 0);
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
