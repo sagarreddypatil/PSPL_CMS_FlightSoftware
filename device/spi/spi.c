@@ -26,7 +26,6 @@ void spi_device_init(spi_device_t *device){
 	// Open and configure DMA channel to SPI TX FIFO
     device->tx_dma = dma_claim_unused_channel(true);
 	device->tx_dma_config = dma_channel_get_default_config(device->tx_dma);
-	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
 	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_configure(
 		device->tx_dma,
@@ -40,7 +39,6 @@ void spi_device_init(spi_device_t *device){
 	// Open and configure DMA channel to SPI RX FIFO
     device->rx_dma = dma_claim_unused_channel(true);
 	device->rx_dma_config = dma_channel_get_default_config(device->rx_dma);
-	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, false));
 	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
 	dma_channel_configure(
 		device->rx_dma,
@@ -142,6 +140,8 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 		}
 		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
 		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
+		channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
+		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 		
 		// Sets number of DMA transfers to do
 		dma_channel_set_trans_count(device->tx_dma, size, false);
@@ -150,6 +150,7 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 		dma_channel_set_read_addr(device->tx_dma, src, true);
 		dma_channel_wait_for_finish_blocking(device->tx_dma);
 		gpio_put(device->cs_gpio, 1);
+		channel_config_set_dreq(&device->tx_dma_config, 0x3f);
 	}
 }
 
