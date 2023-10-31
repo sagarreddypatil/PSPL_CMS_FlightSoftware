@@ -54,6 +54,11 @@ void spi_device_init(spi_device_t *device){
 		false 
 	);
 
+	if (device->rx_dma == -1)
+	{
+		printf("NO DMA CHAN AVAIL!!!");
+	}
+
     device->baudrate = spi_init(spi0, device->baudrate);
     // this might just need to just be the max baudrate of all the devices,
     // also need to find a way to determine spi0 or spi1, could also just move
@@ -140,10 +145,10 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 
 		// gpio_put(device->cs_gpio, 0);
 
-		dma_channel_set_read_addr(device->tx_dma, src, true);
 
 		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
+		dma_channel_set_read_addr(device->tx_dma, src, true);
 
 		printf("waiting on dma channel to complete\n");
 		dma_channel_wait_for_finish_blocking(device->tx_dma);
