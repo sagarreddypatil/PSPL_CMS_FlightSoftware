@@ -28,6 +28,8 @@ int main() {
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
+  
+
   printf("actual baud: %d\n", w5500.baudrate);
 
   ip_t gateway     = {192, 168, 2, 1};
