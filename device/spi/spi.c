@@ -122,6 +122,7 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 
 		gpio_put(device->cs_gpio, 0);
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
+		dma_channel_wait_for_finish_blocking(device->tx_dma);
 		dma_channel_wait_for_finish_blocking(device->rx_dma);
 		gpio_put(device->cs_gpio, 1);
 }
