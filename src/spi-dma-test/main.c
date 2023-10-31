@@ -23,12 +23,12 @@ int main()
     ;
     printf("\n\nstdio connected!\n");
 
-    spi_device_init(&test_device);
+    // spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
     uint8_t tx_dst[4] = {0,0,0,0};  // SPI FIFO (TX)
     uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO (RX)
-    uint8_t rx_dst[4];
+    uint8_t rx_dst[4] = {0,0,0,0};
 
     dma_channel_configure(
 		test_device.tx_dma,

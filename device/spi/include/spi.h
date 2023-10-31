@@ -13,7 +13,7 @@
 
 #define DMA_TRANSFER_SIZE DMA_SIZE_8
 
-#define PICOTOOL_ENABLED 1
+// #define PICOTOOL_ENABLED 1
 
 /*! @brief macro to make calling spi_write_read easier
  *  @param spi_device SPI device to write to, of type spi_device_t

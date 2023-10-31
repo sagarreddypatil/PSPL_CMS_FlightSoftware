@@ -8,7 +8,7 @@
 #include <hardware/spi.h>
 #include <hardware/dma.h>
 #include <hardware/irq.h>
-#include "hardware/regs/dreq.h"
+#include <hardware/regs/dreq.h>
 
 #include <spi.h>
 #include <stdio.h>
