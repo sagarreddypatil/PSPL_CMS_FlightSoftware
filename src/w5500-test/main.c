@@ -14,7 +14,7 @@ spi_device_t w5500 = {
   .mosi_gpio = 19,
   .sck_gpio = 16,
   .cs_gpio = 17,
-  .baudrate = 9600
+  .baudrate = 31250000
   };
 
 int main() {
