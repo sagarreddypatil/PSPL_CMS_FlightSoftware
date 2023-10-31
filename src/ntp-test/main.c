@@ -64,7 +64,7 @@ int main() {
       offset = new_offset;
     }
 
-    printf("%lld, %lld, %lld\n", unix_time_us(), offset, unix_time_us()-offset);
+    printf("%lld, %lld\n", unix_time_us(), offset);
 
     sleep_ms(100);
   }
