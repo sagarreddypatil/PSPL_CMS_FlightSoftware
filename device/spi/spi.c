@@ -134,6 +134,7 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 		}
 		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
 		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
+		channel_config_set_write_increment(&device->tx_dma_config, true); 
 		
 		// Sets number of DMA transfers to do
 		dma_channel_set_trans_count(device->tx_dma, size, false);
