@@ -30,22 +30,22 @@ int main()
     uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO (RX)
     uint8_t rx_dst[4] = {0,0,0,0};
 
-    dma_channel_configure(
-		test_device.tx_dma,
-		&test_device.tx_dma_config,
-		tx_dst,
-		tx_src,
-		4,
-		false 
-	);
-    dma_channel_configure(
-		test_device.rx_dma,
-		&test_device.rx_dma_config,
-		rx_dst,
-		rx_src,
-		4,
-		false 
-	);
+    // dma_channel_configure(
+	// 	test_device.tx_dma,
+	// 	&test_device.tx_dma_config,
+	// 	tx_dst,
+	// 	tx_src,
+	// 	4,
+	// 	false 
+	// );
+    // dma_channel_configure(
+	// 	test_device.rx_dma,
+	// 	&test_device.rx_dma_config,
+	// 	rx_dst,
+	// 	rx_src,
+	// 	4,
+	// 	false 
+	// );
 
     printf("DMA configured!\n");
 
