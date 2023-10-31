@@ -49,6 +49,7 @@ int main() {
   printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
+  printf("w5500 configured.\n");
 
   // print ip
   ip_t ip;
