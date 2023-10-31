@@ -102,7 +102,7 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		dma_channel_configure(
 			device->tx_dma,
 			&device->tx_dma_config,
-			spi_get_hw(device->spi_inst)->dr,
+			&spi_get_hw(device->spi_inst)->dr,
 			src, 
 			size,
 			false);
@@ -111,7 +111,7 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 			device->rx_dma,
 			&device->rx_dma_config,
 			dst, 
-			spi_get_hw(device->spi_inst)->dr,
+			&spi_get_hw(device->spi_inst)->dr,
 			size,
 			false);
 
