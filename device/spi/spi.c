@@ -93,8 +93,8 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
 
-		// channel_config_set_dreq(&device->tx_dma_config, DREQ_FORCE);
-		// channel_config_set_dreq(&device->rx_dma_config, DREQ_FORCE);
+		channel_config_set_dreq(&device->tx_dma_config, DREQ_FORCE);
+		channel_config_set_dreq(&device->rx_dma_config, DREQ_FORCE);
 
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		channel_config_set_write_increment(&device->tx_dma_config, true);
@@ -102,21 +102,6 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		channel_config_set_read_increment(&device->rx_dma_config, true);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_configure(
-			device->tx_dma,
-			&device->tx_dma_config,
-			&spi_get_hw(device->spi_inst)->dr,
-			src, 
-			size,
-			false);
-
-		dma_channel_configure(
-			device->rx_dma,
-			&device->rx_dma_config,
-			dst, 
-			&spi_get_hw(device->spi_inst)->dr,
-			size,
-			false);
 		dma_channel_set_read_addr(device->tx_dma, src, false);
 		dma_channel_set_write_addr(device->rx_dma, dst, false);
 
