@@ -152,7 +152,7 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 		dma_channel_start(device->tx_dma);
 
 		printf("waiting on dma channel to complete\n");
-		dma_channel_wait_for_finish_blocking(device->tx_dma);
+		// dma_channel_wait_for_finish_blocking(device->tx_dma);
 
 		// gpio_put(device->cs_gpio, 1);
 }
@@ -189,7 +189,7 @@ void dma_move(uint8_t *src, uint8_t *dst, size_t size)
 
 	dma_channel_start(channel);
 
-	dma_channel_wait_for_finish_blocking(channel);
+	// dma_channel_wait_for_finish_blocking(channel);
 }
 
 void spi_irq_handler(spi_device_t *device) {
