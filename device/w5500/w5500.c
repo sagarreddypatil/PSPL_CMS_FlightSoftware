@@ -50,7 +50,7 @@ void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
 
   memcpy(src + 3, data, len);
 
-  // spi_write(spi, src, 3 + len); UNCOMMENT
+  spi_write(spi, src, 3 + len); 
 }
 
 

@@ -14,7 +14,7 @@ spi_device_t w5500 = {
   .mosi_gpio = 19,
   .sck_gpio = 16,
   .cs_gpio = 17,
-  .baudrate = 10000
+  .baudrate = 9600
   };
 
 int main() {
@@ -28,21 +28,18 @@ int main() {
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-  
-
-  printf("actual baud: %d\n", w5500.baudrate);
+  printf("Actual baud: %d\n", w5500.baudrate);
 
   ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
   ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
-  printf("waiting on reset\n");
   w5500_reset(&w5500);
   printf("Reset complete.\n");
   uint64_t start = time_us_64();
 
-  printf("readying w5500\n");
+  printf("Readying w5500...");
   while (!w5500_ready(&w5500)){} // @todo timeout needed
   printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
 

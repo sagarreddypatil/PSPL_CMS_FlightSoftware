@@ -97,8 +97,7 @@ set(boards
     # tc-test-board
     # emu-rtos
     # ufc-rtos
-    spi-dma-test
-    # w5500-test
+    w5500-test
 )
 
 foreach(board ${boards})
