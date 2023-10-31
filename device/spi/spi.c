@@ -39,7 +39,7 @@ void spi_device_init(spi_device_t *device){
 
 	if (device->tx_dma == -1)
 	{
-		printf("NO DMA CHAN AVAIL!!!");
+		panic("NO DMA CHAN AVAIL!!!");
 	}
 
 	// Open and configure DMA channel to SPI RX FIFO
@@ -58,7 +58,7 @@ void spi_device_init(spi_device_t *device){
 
 	if (device->rx_dma == -1)
 	{
-		printf("NO DMA CHAN AVAIL!!!");
+		panic("NO DMA CHAN AVAIL!!!");
 	}
 
     device->baudrate = spi_init(spi0, device->baudrate);
@@ -106,9 +106,9 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
 
 		channel_config_set_read_increment(&device->tx_dma_config, true);
-		channel_config_set_write_increment(&device->tx_dma_config, true);
+		channel_config_set_write_increment(&device->tx_dma_config, false);
 
-		channel_config_set_read_increment(&device->rx_dma_config, true);
+		channel_config_set_read_increment(&device->rx_dma_config, false);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
 		dma_channel_set_read_addr(device->tx_dma, src, false);

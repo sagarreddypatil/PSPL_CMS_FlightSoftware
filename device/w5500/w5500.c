@@ -24,7 +24,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
 
   gpio_put(spi->cs_gpio, 0);
   SPI_WRITE_READ(spi, src, dst, 3 + len);
-  gpio_put(spi->cs_gpio, 1);
+  gpio_put(spi->cs_gpio, 1); //perhaps a interrupt service handler that clears chip select when DMA transfer is done
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
