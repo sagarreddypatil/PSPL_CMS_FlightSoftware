@@ -20,6 +20,10 @@ spi_device_t test_device = {
 
 int main()
 {
+    stdio_init_all();
+    while (!stdio_usb_connected())
+    ;
+    
     spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
