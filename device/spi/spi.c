@@ -148,7 +148,8 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 
 		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
-		dma_channel_set_read_addr(device->tx_dma, src, true);
+		dma_channel_set_read_addr(device->tx_dma, src, false);
+		dma_channel_start(device->tx_dma);
 
 		printf("waiting on dma channel to complete\n");
 		dma_channel_wait_for_finish_blocking(device->tx_dma);
