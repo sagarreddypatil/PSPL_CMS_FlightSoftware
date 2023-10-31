@@ -51,7 +51,7 @@ int main()
 
     printf("DMA configured!\n");
 
-    spi_write_read8(&test_device, tx_src, rx_dst, sizeof(tx_src));
+    spi_write(&test_device, tx_src, sizeof(tx_src));
 
     printf("TX DST: ");
     for (size_t i = 0; i < 4; i++)
