@@ -39,14 +39,14 @@ int main() {
   printf("Reset complete.\n");
   uint64_t start = time_us_64();
 
-  printf("Readying w5500...");
+  printf("Readying w5500...\n");
   uint count = 0;
   if(!w5500_ready(&w5500)){count++;} // @todo timeout needed
-  printf("W5500 ready, took %d us\n after %d tries", (int)(time_us_64() - start), count);
+  printf("W5500 ready, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   count = 0;
   while (!w5500_has_link(&w5500)){count++;} // @todo timeout needed
-  printf("W5500 has link, took %d us\n after %d tries", (int)(time_us_64() - start), count);
+  printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
 
