@@ -23,7 +23,7 @@ int main()
     stdio_init_all();
     while (!stdio_usb_connected())
     ;
-    
+
     spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
@@ -60,7 +60,8 @@ int main()
     {
         printf("0x%x", rx_dst[i]);
     }
-    
 
+    while(1);
+    
     return 0;
 }
