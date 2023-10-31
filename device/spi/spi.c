@@ -131,7 +131,30 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		gpio_put(device->cs_gpio, 1);
 }
 
-void spi_write(spi_device_t *device, uint32_t *src, size_t size){
+void spi_write32(spi_device_t *device, uint32_t *src, size_t size){
+
+		channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
+
+		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
+		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
+		channel_config_set_write_increment(&device->tx_dma_config, false); // default value
+
+		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
+		
+		// Sets number of DMA transfers to do
+		dma_channel_set_trans_count(device->tx_dma, size, false);
+		// Sets address to transfer from
+		dma_channel_set_read_addr(device->tx_dma, src, false);
+
+		gpio_put(device->cs_gpio, 0);
+
+		dma_start_channel_mask(1u << device->tx_dma);
+		dma_channel_wait_for_finish_blocking(device->tx_dma);
+
+		gpio_put(device->cs_gpio, 1);
+}
+
+void spi_write8(spi_device_t *device, uint8_t *src, size_t size){
 
 		channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 

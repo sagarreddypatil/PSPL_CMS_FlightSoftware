@@ -98,6 +98,7 @@ set(boards
     # emu-rtos
     # ufc-rtos
     w5500-test
+    ntp-test
 )
 
 foreach(board ${boards})
