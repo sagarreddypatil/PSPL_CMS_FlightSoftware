@@ -119,8 +119,6 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 }
 
 void spi_write(spi_device_t *device, uint8_t *src, size_t size){
-	
-	if (spi_is_writable(device->spi_inst)){
 		switch (DMA_TRANSFER_SIZE)
 		{
 			case DMA_SIZE_8:
@@ -141,11 +139,11 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 		// Sets number of DMA transfers to do
 		dma_channel_set_trans_count(device->tx_dma, size, false);
 		// Sets address to transfer from
-		gpio_put(device->cs_gpio, 0);
+		// gpio_put(device->cs_gpio, 0);
 		dma_channel_set_read_addr(device->tx_dma, src, true);
+		printf("waiting on dma channel to complete\n");
 		dma_channel_wait_for_finish_blocking(device->tx_dma);
-		gpio_put(device->cs_gpio, 1);
-	}
+		// gpio_put(device->cs_gpio, 1);
 }
 
 void dma_move(uint8_t *src, uint8_t *dst, size_t size)
