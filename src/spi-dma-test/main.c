@@ -13,7 +13,7 @@ spi_device_t test_device = {
   .mosi_gpio = 0,
   .sck_gpio = 0,
   .cs_gpio = 0,
-  .baudrate = 10000
+  .baudrate = 9600
   };
 
 int main()
@@ -26,7 +26,7 @@ int main()
     // spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
-    uint8_t tx_dst[4] = {0,0,0,0};  // SPI FIFO (TX)
+    uint8_t tx_dst[4];  // SPI FIFO (TX)
     uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO (RX)
     uint8_t rx_dst[4] = {0,0,0,0};
 
