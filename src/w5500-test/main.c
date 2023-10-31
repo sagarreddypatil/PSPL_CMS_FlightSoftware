@@ -40,11 +40,14 @@ int main() {
   uint64_t start = time_us_64();
 
   printf("Readying w5500...");
-  while (!w5500_ready(&w5500)){} // @todo timeout needed
-  printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
-  while (!w5500_ready(&w5500)){}
-  while (!w5500_ready(&w5500)){}
-  while (!w5500_ready(&w5500)){}
+  if(!w5500_ready(&w5500))
+  {
+    printf("W5500 ready, took %d us\n", (int)(time_us_64() - start));
+  } 
+  else
+  {
+    printf("NOT READIED!!!");
+  }
 
   while (!w5500_has_link(&w5500)){} // @todo timeout needed
   printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
