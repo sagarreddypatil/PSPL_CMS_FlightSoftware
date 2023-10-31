@@ -9,10 +9,10 @@
 
 spi_device_t test_device = {
   .spi_inst = spi0,
-  .miso_gpio = 18,
-  .mosi_gpio = 19,
-  .sck_gpio = 16,
-  .cs_gpio = 17,
+  .miso_gpio = 0,
+  .mosi_gpio = 0,
+  .sck_gpio = 0,
+  .cs_gpio = 0,
   .baudrate = 10000
   };
 
@@ -26,8 +26,8 @@ int main()
     spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
-    uint8_t tx_dst[4] = {0,0,0,0};             // SPI FIFO
-    uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO
+    uint8_t tx_dst[4] = {0,0,0,0};  // SPI FIFO (TX)
+    uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO (RX)
     uint8_t rx_dst[4];
 
     dma_channel_configure(

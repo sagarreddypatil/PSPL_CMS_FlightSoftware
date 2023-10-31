@@ -119,19 +119,12 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 }
 
 void spi_write(spi_device_t *device, uint8_t *src, size_t size){
-		switch (DMA_TRANSFER_SIZE)
-		{
-			case DMA_SIZE_8:
-				break;
-			case DMA_SIZE_16:
-				size = size/2 + 1;
-				break;
-			case DMA_SIZE_32:
-				size = size/4 + 1;
-				break;
-		}
+
 		channel_config_set_dreq(&device->tx_dma_config, DREQ_FORCE);
 		channel_config_set_dreq(&device->rx_dma_config, DREQ_FORCE);
+
+		channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
+
 		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
 		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
 		channel_config_set_write_increment(&device->tx_dma_config, true); 
@@ -139,10 +132,16 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 		// Sets number of DMA transfers to do
 		dma_channel_set_trans_count(device->tx_dma, size, false);
 		// Sets address to transfer from
+
 		// gpio_put(device->cs_gpio, 0);
+
 		dma_channel_set_read_addr(device->tx_dma, src, true);
+
+		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
+
 		printf("waiting on dma channel to complete\n");
 		dma_channel_wait_for_finish_blocking(device->tx_dma);
+
 		// gpio_put(device->cs_gpio, 1);
 }
 
