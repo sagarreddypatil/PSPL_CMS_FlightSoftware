@@ -31,6 +31,7 @@ int main() {
   printf("Actual baud: %d\n", w5500.baudrate);
 
   ip_t gateway       = {192, 168, 2, 1};
+  ip_t ntp_server_ip = {192, 168, 2, 1};
   ip_t subnet_mask   = {255, 255, 255, 0};
   ip_t src_ip        = {192, 168, 2, 50};
   mac_t src_mac      = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
@@ -56,11 +57,11 @@ int main() {
   w5500_read(&w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  while (true){
-    uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
-    printf("0x%x\n", phyreg);
-    sleep_ms(500);
-  }
+  // while (true){
+  //   uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
+  //   printf("0x%x\n", phyreg);
+  //   sleep_ms(500);
+  // }
 
   uint16_t avail      = 0;
   bool prev_connected = false;
