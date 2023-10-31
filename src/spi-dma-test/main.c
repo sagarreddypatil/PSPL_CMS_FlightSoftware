@@ -23,6 +23,7 @@ int main()
     stdio_init_all();
     while (!stdio_usb_connected())
     ;
+    printf("stdio connected!\n");
 
     spi_device_init(&test_device);
 
@@ -48,17 +49,19 @@ int main()
 		false 
 	);
 
+    printf("DMA configured!\n");
+
     SPI_WRITE_READ(&test_device, tx_src, rx_dst, sizeof(tx_src))
 
     printf("TX DST: ");
     for (size_t i = 0; i < 4; i++)
     {
-        printf("0x%x", tx_dst[i]);
+        printf("0x%x ", tx_dst[i]);
     }
     printf("RX DST: ");
     for (size_t i = 0; i < 4; i++)
     {
-        printf("0x%x", rx_dst[i]);
+        printf("0x%x ", rx_dst[i]);
     }
 
     while(1);
