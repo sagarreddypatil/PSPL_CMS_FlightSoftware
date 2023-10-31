@@ -21,12 +21,12 @@ int main()
     stdio_init_all();
     while (!stdio_usb_connected())
     ;
-    printf("stdio connected!\n");
+    printf("\n\nstdio connected!\n");
 
     spi_device_init(&test_device);
 
     uint8_t tx_src[4] = {1,2,3,4};
-    uint8_t tx_dst[4];              // SPI FIFO
+    uint8_t tx_dst[4] = {0,0,0,0};             // SPI FIFO
     uint8_t rx_src[4] = {5,6,7,8};  // SPI FIFO
     uint8_t rx_dst[4];
 
