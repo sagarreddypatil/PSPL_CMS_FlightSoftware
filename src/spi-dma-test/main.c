@@ -1,5 +1,3 @@
-#include <w5500.h>
-#include <w5500/tcp_server.h>
 #include <spi.h>
 #include <pico/binary_info.h>
 #include <pico/stdlib.h>
