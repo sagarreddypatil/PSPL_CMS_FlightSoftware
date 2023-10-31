@@ -54,12 +54,12 @@ int main()
     printf("TX DST: ");
     for (size_t i = 0; i < 4; i++)
     {
-        printf("0x%x ", tx_dst[i]);
+        printf("%d ", tx_dst[i]);
     }
     printf("RX DST: ");
     for (size_t i = 0; i < 4; i++)
     {
-        printf("0x%x ", rx_dst[i]);
+        printf("%d ", rx_dst[i]);
     }
 
     while(1);
