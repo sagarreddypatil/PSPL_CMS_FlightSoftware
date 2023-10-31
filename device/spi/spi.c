@@ -160,18 +160,18 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 void dma_move(uint8_t *src, uint8_t *dst, size_t size)
 {
 	// Makes sure size is always number of transfers (is initially in bytes)
-	switch (DMA_TRANSFER_SIZE)
-	{
-		case DMA_SIZE_8:
-			size /= 1;
-			break;
-		case DMA_SIZE_16:
-			size /= 2;
-			break;
-		case DMA_SIZE_32:
-			size /= 4;
-			break;
-	}
+	// switch (DMA_TRANSFER_SIZE)
+	// {
+	// 	case DMA_SIZE_8:
+	// 		size /= 1;
+	// 		break;
+	// 	case DMA_SIZE_16:
+	// 		size /= 2;
+	// 		break;
+	// 	case DMA_SIZE_32:
+	// 		size /= 4;
+	// 		break;
+	// }
 
 	uint channel = dma_claim_unused_channel(true);
 	dma_channel_config config = dma_channel_get_default_config(channel);
