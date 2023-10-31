@@ -119,7 +119,7 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 }
 
 void spi_write(spi_device_t *device, uint8_t *src, size_t size){
-
+	
 	if (spi_is_writable(device->spi_inst)){
 		switch (DMA_TRANSFER_SIZE)
 		{
@@ -132,6 +132,8 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 				size = size/4 + 1;
 				break;
 		}
+		channel_config_set_dreq(&device->tx_dma_config, DREQ_FORCE);
+		channel_config_set_dreq(&device->rx_dma_config, DREQ_FORCE);
 		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
 		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
 		channel_config_set_write_increment(&device->tx_dma_config, true); 
