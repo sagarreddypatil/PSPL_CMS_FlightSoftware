@@ -1,6 +1,5 @@
 
-#include <pico/stdlib.h>
-#include <stdio.h>
+#include <pico/stdlib.h>#include <stdio.h>
 #include <string.h>
 #include <w5500.h>
 #include <spi.h>
@@ -9,7 +8,11 @@
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
 
-#define DEBUG_SPI_TRANSFER 
+<<<<<<< HEAD
+// #define DEBUG_SPI_TRANSFER 
+=======
+// #define DEBUG_SPI_TRANSFER
+>>>>>>> c3c856de151155258e4780d9e432258a01999381
 
 
 void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
@@ -74,6 +77,8 @@ bool w5500_has_link(spi_device_t *spi) {
 
 void w5500_config(spi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
                   const ip_t subnet_mask, const ip_t gateway) {
+  while (!w5500_ready(spi))
+    ;
 
   // Physical Layer and Default Options
   uint8_t mode = 0;

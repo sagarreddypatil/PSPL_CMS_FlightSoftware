@@ -14,7 +14,7 @@ spi_device_t w5500 = {
   .mosi_gpio = 19,
   .sck_gpio = 16,
   .cs_gpio = 17,
-  .baudrate = 4000000
+  .baudrate = 10000000
   };
 
 int main() {
@@ -40,12 +40,17 @@ int main() {
   uint64_t start = time_us_64();
 
   printf("Readying w5500...\n");
+
   uint count = 0;
-  if(!w5500_ready(&w5500)){count++;} // @todo timeout needed
+  do {
+    count++;
+  } while (!w5500_ready(&w5500));
   printf("W5500 ready, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   count = 0;
-  while (!w5500_has_link(&w5500)){count++;} // @todo timeout needed
+  do {
+    count++;
+  } while (!w5500_has_link(&w5500));
   printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
