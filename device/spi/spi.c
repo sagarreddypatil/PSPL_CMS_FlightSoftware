@@ -93,10 +93,13 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
 
-		channel_config_set_read_increment(&device->tx_dma_config, true);
-		channel_config_set_write_increment(&device->tx_dma_config, false);
+		// channel_config_set_dreq(&device->tx_dma_config, DREQ_FORCE);
+		// channel_config_set_dreq(&device->rx_dma_config, DREQ_FORCE);
 
-		channel_config_set_read_increment(&device->rx_dma_config, false);
+		channel_config_set_read_increment(&device->tx_dma_config, true);
+		channel_config_set_write_increment(&device->tx_dma_config, true);
+
+		channel_config_set_read_increment(&device->rx_dma_config, true);
 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
 		dma_channel_configure(
@@ -114,10 +117,14 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 			&spi_get_hw(device->spi_inst)->dr,
 			size,
 			false);
+		dma_channel_set_read_addr(device->tx_dma, src, false);
+		dma_channel_set_write_addr(device->rx_dma, dst, false);
+
+		dma_channel_set_trans_count(device->tx_dma, size, false);
+		dma_channel_set_trans_count(device->rx_dma, size, false);
 
 		gpio_put(device->cs_gpio, 0);
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-		dma_channel_wait_for_finish_blocking(device->tx_dma);
 		gpio_put(device->cs_gpio, 1);
 }
 
@@ -137,7 +144,6 @@ void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 		}
 		// Makes DMA move it's read address by DMA_TRANSFER_SIZE after each transfer
 		channel_config_set_read_increment(&device->tx_dma_config, true); //default value
-		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
 		
 		// Sets number of DMA transfers to do
 		dma_channel_set_trans_count(device->tx_dma, size, false);
