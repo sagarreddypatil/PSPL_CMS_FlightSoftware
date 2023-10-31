@@ -52,19 +52,12 @@ typedef struct {
 */
 void spi_device_init(spi_device_t *device);
 
-/*! @brief Read from an SPI device to a buffer
-*   @param device SPI device that will be read from
-*   @param dst address of buffer that will be written to
-*   @param size size of buffer in bytes
-*/
-void spi_read(spi_device_t *device, uint32_t *dst, size_t size);
-
 /*! @brief Write from a buffer to an SPI device
 *   @param device SPI device that will be written to
 *   @param src address of buffer that will be read from
 *   @param size size of buffer in bytes
 */
-void spi_write(spi_device_t *device, uint8_t *src, size_t size);
+void spi_write(spi_device_t *device, uint32_t *src, size_t size);
 
 /*! @brief Write from a buffer to an SPI device
 *   @param device SPI device that will be written to

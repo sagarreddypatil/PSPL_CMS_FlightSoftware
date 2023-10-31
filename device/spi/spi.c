@@ -128,7 +128,7 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		// gpio_put(device->cs_gpio, 1);
 }
 
-void spi_write(spi_device_t *device, uint8_t *src, size_t size){
+void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 
 		channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
 
