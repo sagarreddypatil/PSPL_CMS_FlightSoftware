@@ -27,6 +27,7 @@ void spi_device_init(spi_device_t *device){
     device->tx_dma = dma_claim_unused_channel(true);
 	device->tx_dma_config = dma_channel_get_default_config(device->tx_dma);
 	channel_config_set_transfer_data_size(&device->tx_dma_config, DMA_TRANSFER_SIZE);
+	channel_config_set_dreq(&device->tx_dma_config, spi_get_dreq(device->spi_inst, true));
 	dma_channel_configure(
 		device->tx_dma,
 		&device->tx_dma_config,
@@ -45,6 +46,7 @@ void spi_device_init(spi_device_t *device){
     device->rx_dma = dma_claim_unused_channel(true);
 	device->rx_dma_config = dma_channel_get_default_config(device->rx_dma);
 	channel_config_set_transfer_data_size(&device->rx_dma_config, DMA_TRANSFER_SIZE);
+	channel_config_set_dreq(&device->rx_dma_config, spi_get_dreq(device->spi_inst, true));
 	dma_channel_configure(
 		device->rx_dma,
 		&device->rx_dma_config,
@@ -160,18 +162,18 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 void dma_move(uint8_t *src, uint8_t *dst, size_t size)
 {
 	// Makes sure size is always number of transfers (is initially in bytes)
-	// switch (DMA_TRANSFER_SIZE)
-	// {
-	// 	case DMA_SIZE_8:
-	// 		size /= 1;
-	// 		break;
-	// 	case DMA_SIZE_16:
-	// 		size /= 2;
-	// 		break;
-	// 	case DMA_SIZE_32:
-	// 		size /= 4;
-	// 		break;
-	// }
+	switch (DMA_TRANSFER_SIZE)
+	{
+		case DMA_SIZE_8:
+			size /= 1;
+			break;
+		case DMA_SIZE_16:
+			size /= 2;
+			break;
+		case DMA_SIZE_32:
+			size /= 4;
+			break;
+	}
 
 	uint channel = dma_claim_unused_channel(true);
 	dma_channel_config config = dma_channel_get_default_config(channel);
@@ -189,7 +191,7 @@ void dma_move(uint8_t *src, uint8_t *dst, size_t size)
 
 	dma_channel_start(channel);
 
-	// dma_channel_wait_for_finish_blocking(channel);
+	dma_channel_wait_for_finish_blocking(channel);
 }
 
 void spi_irq_handler(spi_device_t *device) {
