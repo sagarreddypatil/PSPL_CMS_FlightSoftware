@@ -87,7 +87,6 @@ void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
 		gpio_put(device->cs_gpio, 0);
-		sleep_us(1);
 		
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
 
@@ -100,10 +99,10 @@ void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t
 			tight_loop_contents();
 		}
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(100);
 }
 
 void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t size){
+
 
 		channel_config_set_read_increment(&device->tx_dma_config, true);
 		channel_config_set_write_increment(&device->tx_dma_config, false);
@@ -121,7 +120,6 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
 		gpio_put(device->cs_gpio, 0);
-		sleep_us(1);
 
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
 
@@ -134,8 +132,6 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 			tight_loop_contents();
 		}
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(100);
-
 }
 
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
@@ -156,7 +152,6 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
 		gpio_put(device->cs_gpio, 0);
-		sleep_us(1);
 
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
 
@@ -169,7 +164,6 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 			tight_loop_contents();
 		}
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(100);
 }
 
 void spi_write32(spi_device_t *device, uint32_t *src, size_t size){
