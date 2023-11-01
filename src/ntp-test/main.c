@@ -10,7 +10,7 @@ spi_device_t w5500 = {
   .mosi_gpio = 19,
   .sck_gpio = 16,
   .cs_gpio = 17,
-  .baudrate = 1000000
+  .baudrate = 30000000
   };
 
 int64_t offset = 0;
@@ -64,7 +64,7 @@ int main() {
       offset = new_offset;
     }
 
-    printf("%lld, %lld\n", unix_time_us(), offset);
+    printf("%lld, %lld", unix_time_us(), offset);
 
     sleep_ms(100);
   }

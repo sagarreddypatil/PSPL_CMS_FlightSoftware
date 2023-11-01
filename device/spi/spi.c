@@ -89,15 +89,10 @@ void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t
 		gpio_put(device->cs_gpio, 0);
 		
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-
 		dma_channel_wait_for_finish_blocking(device->rx_dma);
-		if (dma_channel_is_busy(device->tx_dma)) {
-       	 panic("RX completed before TX");
-    	}
-		while(spi_is_busy(device->spi_inst))
-		{
-			tight_loop_contents();
-		}
+
+		while(spi_is_busy(device->spi_inst));
+
 		gpio_put(device->cs_gpio, 1);
 }
 
@@ -122,15 +117,9 @@ void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t
 		gpio_put(device->cs_gpio, 0);
 
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-
 		dma_channel_wait_for_finish_blocking(device->rx_dma);
-		if (dma_channel_is_busy(device->tx_dma)) {
-       	 panic("RX completed before TX");
-    	}
-		while(spi_is_busy(device->spi_inst))
-		{
-			tight_loop_contents();
-		}
+
+		while(spi_is_busy(device->spi_inst));
 		gpio_put(device->cs_gpio, 1);
 }
 
@@ -152,17 +141,14 @@ void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t si
 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
 		gpio_put(device->cs_gpio, 0);
+		sleep_us(10);
 
 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-
 		dma_channel_wait_for_finish_blocking(device->rx_dma);
-		if (dma_channel_is_busy(device->tx_dma)) {
-       	 panic("RX completed before TX");
-    	}
-		while(spi_is_busy(device->spi_inst))
-		{
-			tight_loop_contents();
-		}
+
+		while(spi_is_busy(device->spi_inst));
+
+		sleep_us(1000);
 		gpio_put(device->cs_gpio, 1);
 }
 
@@ -182,17 +168,15 @@ void spi_write32(spi_device_t *device, uint32_t *src, size_t size){
 		dma_channel_set_read_addr(device->tx_dma, src, false);
 
 		gpio_put(device->cs_gpio, 0);
-		sleep_us(1);
+		sleep_us(10);
 
 		dma_start_channel_mask(1u << device->tx_dma);
-		dma_channel_wait_for_finish_blocking(device->tx_dma);
-		while(spi_is_busy(device->spi_inst))
-		{
-			tight_loop_contents();
-		}
+		while(spi_is_busy(device->spi_inst));
 
+		dma_channel_wait_for_finish_blocking(device->rx_dma);
+
+		sleep_us(1000);
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(1);
 }
 
 void dma_move(uint8_t *src, uint8_t *dst, size_t size)
