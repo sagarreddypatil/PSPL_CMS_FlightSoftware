@@ -80,7 +80,6 @@ include_directories(lib/crypto/include)
 psp_lib(lib freertos_config)
 psp_lib(lib psp)
 
-psp_lib(device spi)
 psp_lib(device max31856)
 psp_lib(device w5500)
 psp_lib(device ads13x)
@@ -89,6 +88,7 @@ psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
 psp_lib(lib ntp)
+psp_lib(lib spi)
 
 # ---------- Boards  ----------
 set(boards

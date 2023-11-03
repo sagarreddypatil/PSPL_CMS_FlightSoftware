@@ -9,7 +9,7 @@
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
 
-// #define DEBUG_SPI_TRANSFER 
+#define DEBUG_SPI_TRANSFER 
 
 
 void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,

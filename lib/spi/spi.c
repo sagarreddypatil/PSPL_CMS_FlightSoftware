@@ -214,30 +214,4 @@ void dma_move(uint8_t *src, uint8_t *dst, size_t size)
 	dma_channel_wait_for_finish_blocking(channel);
 }
 
-void spi_irq_handler(spi_device_t *device) {
-    // Clear the interrupt request.
-    dma_hw->ints0 = 1u << device->rx_dma;
 
-    /* The xHigherPriorityTaskWoken parameter must be initialized to pdFALSE as
-     it will get set to pdTRUE inside the interrupt safe API function if a
-     context switch is required. */
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
-    /* Send a notification directly to the task to which interrupt processing is
-     being deferred. */
-    vTaskNotifyGiveIndexedFromISR(
-        device->task,  // The handle of the task to which the
-                      // notification is being sent.
-        1,  // uxIndexToNotify: The index within the target task's array of
-            // notification values to which the notification is to be sent.
-        &xHigherPriorityTaskWoken);
-
-    /* Pass the xHigherPriorityTaskWoken value into portYIELD_FROM_ISR().
-    If xHigherPriorityTaskWoken was set to pdTRUE inside
-     vTaskNotifyGiveFromISR() then calling portYIELD_FROM_ISR() will
-     request a context switch. If xHigherPriorityTaskWoken is still
-     pdFALSE then calling portYIELD_FROM_ISR() will have no effect. */
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-
-	return;
-}
