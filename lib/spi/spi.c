@@ -69,59 +69,59 @@ void spi_device_init(spi_device_t *device){
 	// device->task = xTaskGetCurrentTaskHandle();
 }
 
-void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t size){
+// void spi_write_read32(spi_device_t *device, uint32_t *src, uint32_t *dst, size_t size){
 
-		channel_config_set_read_increment(&device->tx_dma_config, true);
-		channel_config_set_write_increment(&device->tx_dma_config, false);
+// 		channel_config_set_read_increment(&device->tx_dma_config, true);
+// 		channel_config_set_write_increment(&device->tx_dma_config, false);
 
-		channel_config_set_read_increment(&device->rx_dma_config, false);
-		channel_config_set_write_increment(&device->rx_dma_config, true);
+// 		channel_config_set_read_increment(&device->rx_dma_config, false);
+// 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_set_read_addr(device->tx_dma, src, false);
-		dma_channel_set_write_addr(device->rx_dma, dst, false);
+// 		dma_channel_set_read_addr(device->tx_dma, src, false);
+// 		dma_channel_set_write_addr(device->rx_dma, dst, false);
 
-		dma_channel_set_trans_count(device->tx_dma, size, false);
-		dma_channel_set_trans_count(device->rx_dma, size, false);
+// 		dma_channel_set_trans_count(device->tx_dma, size, false);
+// 		dma_channel_set_trans_count(device->rx_dma, size, false);
 
-		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
-		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
+// 		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
+// 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
-		gpio_put(device->cs_gpio, 0);
+// 		gpio_put(device->cs_gpio, 0);
 		
-		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-		dma_channel_wait_for_finish_blocking(device->rx_dma);
+// 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
+// 		dma_channel_wait_for_finish_blocking(device->rx_dma);
 
-		while(spi_is_busy(device->spi_inst));
+// 		while(spi_is_busy(device->spi_inst));
 
-		gpio_put(device->cs_gpio, 1);
-}
+// 		gpio_put(device->cs_gpio, 1);
+// }
 
-void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t size){
+// void spi_write_read16(spi_device_t *device, uint16_t *src, uint16_t *dst, size_t size){
 
 
-		channel_config_set_read_increment(&device->tx_dma_config, true);
-		channel_config_set_write_increment(&device->tx_dma_config, false);
+// 		channel_config_set_read_increment(&device->tx_dma_config, true);
+// 		channel_config_set_write_increment(&device->tx_dma_config, false);
 
-		channel_config_set_read_increment(&device->rx_dma_config, false);
-		channel_config_set_write_increment(&device->rx_dma_config, true);
+// 		channel_config_set_read_increment(&device->rx_dma_config, false);
+// 		channel_config_set_write_increment(&device->rx_dma_config, true);
 
-		dma_channel_set_read_addr(device->tx_dma, src, false);
-		dma_channel_set_write_addr(device->rx_dma, dst, false);
+// 		dma_channel_set_read_addr(device->tx_dma, src, false);
+// 		dma_channel_set_write_addr(device->rx_dma, dst, false);
 
-		dma_channel_set_trans_count(device->tx_dma, size, false);
-		dma_channel_set_trans_count(device->rx_dma, size, false);
+// 		dma_channel_set_trans_count(device->tx_dma, size, false);
+// 		dma_channel_set_trans_count(device->rx_dma, size, false);
 
-		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
-		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
+// 		dma_channel_set_config(device->tx_dma, &device->tx_dma_config, false);
+// 		dma_channel_set_config(device->rx_dma, &device->rx_dma_config, false);
 
-		gpio_put(device->cs_gpio, 0);
+// 		gpio_put(device->cs_gpio, 0);
 
-		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
-		dma_channel_wait_for_finish_blocking(device->rx_dma);
+// 		dma_start_channel_mask((1u << device->tx_dma) | (1u << device->rx_dma));
+// 		dma_channel_wait_for_finish_blocking(device->rx_dma);
 
-		while(spi_is_busy(device->spi_inst));
-		gpio_put(device->cs_gpio, 1);
-}
+// 		while(spi_is_busy(device->spi_inst));
+// 		gpio_put(device->cs_gpio, 1);
+// }
 
 void spi_write_read8(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
 
