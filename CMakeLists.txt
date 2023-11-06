@@ -96,9 +96,10 @@ psp_lib(lib ntp)
 set(boards
     # adc-test
     # echo
-    ntp-test
+    # ntp-test
     # emu
     # tc-test-board
+    sanity-check
 )
 
 foreach(board ${boards})

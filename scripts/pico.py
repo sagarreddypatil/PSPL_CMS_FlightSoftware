@@ -68,7 +68,7 @@ class PicoPort:
         GPIO.output(self.bootsel_pin, GPIO.HIGH)
 
 
-devices = {"A": (15, 14), "B": (12, 16)}
+devices = {"A": (15, 14), "B": (12, 16), "C": (8, 25)}
 
 if __name__ == "__main__":
     GPIO.setmode(GPIO.BCM)
