@@ -13,16 +13,6 @@ SPI_INITFUNC_IMPL(w25n01, baudrate);    // 50 MHz SPI clock
 
 void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst, size_t len) {
   SPI_TRANSFER(src, dst, len);
-
-  printf("\n");
-  for (int i = 0; i < len; i++) {
-    printf("%x ", ((uint8_t*)src)[i]);
-  }
-  printf("\n");
-  for (int i = 0; i < len; i++) {
-    printf("%x ", ((uint8_t*)dst)[i]);
-  }
-  printf("\n");
 }
 
 void w25n01_write(SPI_DEVICE_PARAM, void* src, size_t len) {
@@ -31,7 +21,7 @@ void w25n01_write(SPI_DEVICE_PARAM, void* src, size_t len) {
 
 w25n01_jedec_id_t w25n01_read_jedec_id(SPI_DEVICE_PARAM) {
   uint8_t src[5] = {w25n01_ins_jedec_id, 0};
-  uint8_t dst[5];
+  uint8_t dst[5] = {0};
 
   w25n01_transfer(spi, src, dst, 5);
 
