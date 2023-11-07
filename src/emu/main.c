@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <commandnet.h>
 #include <sensornet.h>
+#include <psp.h>
 
 int main() {
   //------------All Initialization------------
@@ -18,8 +19,9 @@ int main() {
    * https://tinyurl.com/2m9dxu53
    */
 
-  // --- Ethernet ---
-  spi_init_bus_adv(spi0, 16, 18, 19, GPIO_SLEW_RATE_FAST,
+  // --- Initialize Ethernet, it's the most important ---
+
+  spi_init_bus_adv(spi1, 26, 27, 28, GPIO_SLEW_RATE_FAST,
                    GPIO_DRIVE_STRENGTH_4MA);
 
   w5500_set(w5500);
@@ -31,21 +33,28 @@ int main() {
   mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
                    board_id.id[5], board_id.id[6], board_id.id[7]};
 
-  /// --- ADC ---
-  spi_init_bus(spi1, 11, 12, 14);
+  while (!w5500_ready(w5500))
+    tight_loop_contents();  // TODO: LEDs if we're stuck in this state
 
-  ads13x_set(emu_adc);
-  ads13x_reset(emu_adc);
+  /// --- Initialize all other devices ---
+  spi_init_bus_adv(spi0, 2, 3, 4, GPIO_SLEW_RATE_FAST, GPIO_DRIVE_STRENGTH_4MA);
+
+  max31856_set(tc_0);
+  max31856_set(tc_1);
+  ads13x_set(adc_0);
+  w25n01_set(flash);
+
+  // TODO verify all these devices function before startup
 
   //------------Poll Initialization Complete------------
-  while (!stdio_usb_connected()) tight_loop_contents();
-  while (!w5500_ready(w5500)) tight_loop_contents();
+  while (!stdio_usb_connected())
+    tight_loop_contents();  // TODO remove before flight
   while (!ads13x_ready(emu_adc)) tight_loop_contents();
-
-  for (int i = 0; i < 10; i++) printf("\n");
 
   //------------Main Program Begin------------
 
+  for (int i = 0; i < 10; i++) printf("\n");
+  printf(psp_logo);
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
   printf("\n=====Startup Information=====\n");
