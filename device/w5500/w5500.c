@@ -36,13 +36,13 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   printf("\n");
 #endif
 
-  memcpy(data, dst + 3, len);
+  memcpy(data, dst + 4, len); // this is weird
 }
 
 
 void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
                  const void* data, size_t len) {
-  uint32_t src[3 + len];
+  uint8_t src[3 + len];
 
   src[0] = (reg >> 8) & 0xFF;
   src[1] = reg & 0xFF;
@@ -135,7 +135,7 @@ size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
   }
 
   uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0); // problem line
-  printf("\ns+2: %d  start addr: %d len: %d || ", s+2, start_addr, len);
+  // printf("\ns+2: %d  start addr: %d len: %d || ", s+2, start_addr, len);
   w5500_read(spi, s + 2, start_addr, data, len);
 
   start_addr += len;

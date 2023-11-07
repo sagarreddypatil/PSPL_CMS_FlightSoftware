@@ -53,7 +53,7 @@ void spi_device_init(spi_device_t *device);
 *   @param src address of buffer that will be read from
 *   @param size size of buffer in bytes
 */
-void spi_write(spi_device_t *device, uint32_t *src, size_t size);
+void spi_write(spi_device_t *device, uint8_t *src, size_t size);
 
 /*! @brief Write from a buffer to an SPI device
 *   @param device SPI device that will be written to

@@ -5,12 +5,12 @@
 #include <w5500.h>
 
 spi_device_t w5500 = {
-  .spi_inst = spi0,
+  .spi_inst = spi1,
   .miso_gpio = 27,
-  .mosi_gpio = 28,
-  .sck_gpio = 26,
+  .mosi_gpio = 26,
+  .sck_gpio = 28,
   .cs_gpio = 25,
-  .baudrate = 30000000
+  .baudrate = 10000000
   };
 
 int64_t offset = 0;
