@@ -95,7 +95,7 @@ psp_lib(lib ntp)
 
 # ---------- Boards  ----------
 set(boards
-    flash-test
+    # flash-test
     # adc-test
     # echo
     # ntp-test

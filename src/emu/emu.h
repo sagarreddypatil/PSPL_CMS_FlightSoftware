@@ -51,6 +51,3 @@ void cmdnet_task_run();
 
 void sensornet_task_init();
 void sensornet_task_run();
-
-void solenoid_task_init();
-void solenoid_task_run();
