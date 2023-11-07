@@ -98,8 +98,8 @@ set(boards
     # tc-test-board
     # emu-rtos
     # ufc-rtos
-    # w5500-test
-    # ntp-test
+    w5500-test
+    ntp-test
     dma-test
 )
 

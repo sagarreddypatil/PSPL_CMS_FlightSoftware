@@ -22,7 +22,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   src[2] = MS(s, 0b11111, 3) | MS(0, 0b1, 2) | MS(00, 0b11, 0);
   memset(src + 3, 0, len);
 
-  SPI_WRITE_READ(spi, src, dst, 3 + len);
+  spi_write_read(spi, src, dst, 3 + len);
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
@@ -50,7 +50,7 @@ void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
 
   memcpy(src + 3, data, len);
 
-  spi_write32(spi, src, 3 + len); 
+  spi_write(spi, src, 3 + len); 
 }
 
 
