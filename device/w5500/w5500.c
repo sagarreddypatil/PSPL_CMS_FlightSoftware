@@ -22,7 +22,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   src[2] = MS(s, 0b11111, 3) | MS(0, 0b1, 2) | MS(00, 0b11, 0);
   memset(src + 3, 0, len);
 
-  SPI_WRITE_READ(spi, src, dst, 3 + len);
+  spi_write_read(spi, src, dst, 3 + len);
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
@@ -134,8 +134,7 @@ size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
     return 0;
   }
 
-  uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0); // problem line
-  printf("\ns+2: %d  start addr: %d len: %d || ", s+2, start_addr, len);
+  uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0);
   w5500_read(spi, s + 2, start_addr, data, len);
 
   start_addr += len;
