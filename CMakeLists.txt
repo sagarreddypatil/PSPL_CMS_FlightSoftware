@@ -85,6 +85,7 @@ psp_lib(device spi)
 psp_lib(device max31856)
 psp_lib(device w5500)
 psp_lib(device ads13x)
+psp_lib(device w25n01)
 
 psp_lib(lib util)
 psp_lib(lib crypto)
@@ -94,6 +95,7 @@ psp_lib(lib ntp)
 
 # ---------- Boards  ----------
 set(boards
+    flash-test
     # adc-test
     # echo
     ntp-test
