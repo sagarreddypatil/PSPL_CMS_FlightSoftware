@@ -6,6 +6,8 @@
 #include <sensornet.h>
 #include <psp.h>
 
+uint64_t time_offset;
+
 int main() {
   //------------All Initialization------------
   stdio_init_all();
@@ -86,6 +88,6 @@ int main() {
     sensornet_task_run();
     // solenoid_task_run();
 
-    gpio_put(PYRO, pyro_state);
+    // gpio_put(PYRO, pyro_state);
   }
 }

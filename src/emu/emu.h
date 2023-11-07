@@ -16,20 +16,7 @@ SPI_DEVICE(flash, spi0, 20);
 SPI_DEVICE(w5500, spi1, 25);
 
 //------------Global Vars------------
-extern int64_t lox_period;
-extern int64_t lox_duty_cycle;
-
-extern int64_t eth_period;
-extern int64_t eth_duty_cycle;
-
-extern int64_t lox_run;
-extern int64_t eth_run;
-
-extern int64_t lox_state;
-extern int64_t eth_state;
-
 extern uint64_t time_offset;
-extern int64_t pyro_state;
 
 // CommandNet Arrays
 
