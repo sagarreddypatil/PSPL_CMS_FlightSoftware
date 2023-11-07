@@ -10,7 +10,7 @@ spi_device_t w5500 = {
   .mosi_gpio = 26,
   .sck_gpio = 28,
   .cs_gpio = 25,
-  .baudrate = 10000000
+  .baudrate = 30000000
   };
 
 int64_t offset = 0;
@@ -35,8 +35,6 @@ int main() {
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-  // spi_init_bus(spi0, 19, 18, 16);
-
   printf("actual baud: %d\n", w5500.baudrate);
 
   ip_t gateway       = {192, 168, 2, 1};
@@ -53,15 +51,20 @@ int main() {
          (int)(time_us_64() - start));
 
   while (!w5500_has_link(&w5500))
-    ;
+  {
+    sleep_ms(2000);
+  }
   printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
-
+  printf("Config set.");
   while (true) {
     int64_t new_offset = get_server_time(&w5500, ntp_server_ip, W5500_S3);
     if (new_offset > 0) {
       offset = new_offset;
+    }
+    else{
+      printf("%lld\n ", new_offset);
     }
 
     printf("%lld, %lld", unix_time_us(), offset);

@@ -98,6 +98,7 @@ set(boards
     # tc-test-board
     # emu-rtos
     # ufc-rtos
+    # sanity-check
     w5500-test
     ntp-test
     dma-test

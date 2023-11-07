@@ -9,7 +9,7 @@
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
 
-#define DEBUG_SPI_TRANSFER 
+// #define DEBUG_SPI_TRANSFER 
 
 
 void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
@@ -26,7 +26,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
-  for (int i = 0; i < 3 + len; i++) {
+  for (int i = 0; i < 3+len; i++) {
     printf("%02x ", src[i]);
   }
   printf("\nread: ");
@@ -36,7 +36,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   printf("\n");
 #endif
 
-  memcpy(data, dst + 4, len); // this is weird
+  memcpy(data, dst + 3, len);
 }
 
 
@@ -68,7 +68,7 @@ bool w5500_ready(spi_device_t *spi) {
 
 
 bool w5500_has_link(spi_device_t *spi) {
-  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;  // LNK bit
+  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x1;  // LNK bit
 }
 
 

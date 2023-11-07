@@ -14,7 +14,7 @@ spi_device_t w5500 = { //posi pico sclk
   .mosi_gpio = 26,
   .sck_gpio = 28,
   .cs_gpio = 25,
-  .baudrate = 10000000
+  .baudrate = 30000000
   };
 
 int main() {
@@ -50,6 +50,7 @@ int main() {
   count = 0;
   do {
     count++;
+    sleep_ms(2000);
   } while (!w5500_has_link(&w5500));
   printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
