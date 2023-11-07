@@ -81,8 +81,8 @@ void dmatransfer(void *src, volatile void *dr, void *dst, size_t size, uint dreq
 	channel_config_set_write_increment(&config_2, true);
 
     // Set pacing using given DREQ (data request)
-    channel_config_set_dreq(&config_1, dreqTX);
-    channel_config_set_dreq(&config_2, dreqRX);
+    channel_config_set_dreq(&config_1, DREQ_SPI0_TX);
+    channel_config_set_dreq(&config_2, DREQ_SPI0_RX);
 
     dma_channel_configure(
         channel_1,

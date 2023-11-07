@@ -35,21 +35,25 @@ void spi_device_init(spi_device_t *device){
 void spi_write_read(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
 
 		gpio_put(device->cs_gpio, 0);
+		sleep_us(10);
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, dst, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
 		while(spi_is_busy(device->spi_inst));
 
+		sleep_us(10);
 		gpio_put(device->cs_gpio, 1);
 }
 
 void spi_write(spi_device_t *device, uint32_t *src, size_t size){
 
 		gpio_put(device->cs_gpio, 0);
+		sleep_us(10);
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, NULL, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
 		while(spi_is_busy(device->spi_inst));
-
+		
+		sleep_us(10);
 		gpio_put(device->cs_gpio, 1);
 }

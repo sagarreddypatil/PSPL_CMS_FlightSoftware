@@ -6,10 +6,10 @@
 
 spi_device_t w5500 = {
   .spi_inst = spi0,
-  .miso_gpio = 18,
-  .mosi_gpio = 19,
-  .sck_gpio = 16,
-  .cs_gpio = 17,
+  .miso_gpio = 27,
+  .mosi_gpio = 28,
+  .sck_gpio = 26,
+  .cs_gpio = 25,
   .baudrate = 30000000
   };
 
