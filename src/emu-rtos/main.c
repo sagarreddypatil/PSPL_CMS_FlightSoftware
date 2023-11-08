@@ -23,10 +23,10 @@ StaticTask_t echoTaskBuffer;
 
 int main(){
     
-    TaskHandle_t task_handle = NULL;
     // xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
 
     vTaskStartScheduler();
+    multicore_launch_core1(other core function);
 
     // should not reach here
     while(1);

@@ -89,16 +89,18 @@ psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
 psp_lib(lib ntp)
+psp_lib(lib uart)
 
 # ---------- Boards  ----------
 set(boards
     # adc-test
     # emu
     # tc-test-board
-    # emu-rtos
+    emu-rtos
     # ufc-rtos
-    w5500-test
-    ntp-test
+    # w5500-test
+    # ntp-test
+    spi-dma-test
 )
 
 foreach(board ${boards})
