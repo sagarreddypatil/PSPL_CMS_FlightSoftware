@@ -8,13 +8,13 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 
-spi_device_t w5500 = {
-  .spi_inst = spi0,
-  .miso_gpio = 18,
-  .mosi_gpio = 19,
-  .sck_gpio = 16,
-  .cs_gpio = 17,
-  .baudrate = 4000000
+spi_device_t w5500 = { //posi pico sclk
+  .spi_inst = spi1,
+  .miso_gpio = 27,
+  .mosi_gpio = 26,
+  .sck_gpio = 28,
+  .cs_gpio = 25,
+  .baudrate = 30000000
   };
 
 int main() {
@@ -30,9 +30,9 @@ int main() {
 
   printf("Actual baud: %d\n", w5500.baudrate);
 
-  ip_t gateway     = {192, 168, 1, 1};
+  ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
-  ip_t src_ip      = {192, 168, 1, 50};
+  ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
   w5500_reset(&w5500);
@@ -40,12 +40,18 @@ int main() {
   uint64_t start = time_us_64();
 
   printf("Readying w5500...\n");
+
   uint count = 0;
-  if(!w5500_ready(&w5500)){count++;} // @todo timeout needed
+  do {
+    count++;
+  } while (!w5500_ready(&w5500));
   printf("W5500 ready, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   count = 0;
-  while (!w5500_has_link(&w5500)){count++;} // @todo timeout needed
+  do {
+    count++;
+    sleep_ms(2000);
+  } while (!w5500_has_link(&w5500));
   printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);

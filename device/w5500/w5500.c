@@ -9,7 +9,7 @@
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
 
-//#define DEBUG_SPI_TRANSFER
+// #define DEBUG_SPI_TRANSFER 
 
 
 void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
@@ -22,11 +22,11 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   src[2] = MS(s, 0b11111, 3) | MS(0, 0b1, 2) | MS(00, 0b11, 0);
   memset(src + 3, 0, len);
 
-  SPI_WRITE_READ(spi, src, dst, 3 + len);
+  spi_write_read(spi, src, dst, 3 + len);
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
-  for (int i = 0; i < 3 + len; i++) {
+  for (int i = 0; i < 3+len; i++) {
     printf("%02x ", src[i]);
   }
   printf("\nread: ");
@@ -42,7 +42,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
 
 void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
                  const void* data, size_t len) {
-  uint32_t src[3 + len];
+  uint8_t src[3 + len];
 
   src[0] = (reg >> 8) & 0xFF;
   src[1] = reg & 0xFF;
@@ -50,7 +50,7 @@ void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
 
   memcpy(src + 3, data, len);
 
-  spi_write32(spi, src, 3 + len); 
+  spi_write(spi, src, 3 + len); 
 }
 
 
@@ -68,14 +68,12 @@ bool w5500_ready(spi_device_t *spi) {
 
 
 bool w5500_has_link(spi_device_t *spi) {
-  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 1;  // LNK bit
+  return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x1;  // LNK bit
 }
 
 
 void w5500_config(spi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
                   const ip_t subnet_mask, const ip_t gateway) {
-  while (!w5500_ready(spi))
-    ;
 
   // Physical Layer and Default Options
   uint8_t mode = 0;
@@ -136,7 +134,8 @@ size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
     return 0;
   }
 
-  uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0);
+  uint16_t start_addr = w5500_read16(spi, s, W5500_Sn_RX_RD0); // problem line
+  // printf("\ns+2: %d  start addr: %d len: %d || ", s+2, start_addr, len);
   w5500_read(spi, s + 2, start_addr, data, len);
 
   start_addr += len;

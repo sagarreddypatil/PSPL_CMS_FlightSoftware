@@ -8,14 +8,16 @@
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
 
-#include "spi.h"
+#include <spi.h>
 #include <w5500.h>
-
-void setupHardware(){
-
-}
+#include <dma.h>
 
 #define STACK_SIZE 4096
+
+void setupHardware()
+{
+    
+}
 
 StackType_t echoTaskStack[STACK_SIZE];
 StaticTask_t echoTaskBuffer;
@@ -23,7 +25,7 @@ StaticTask_t echoTaskBuffer;
 
 int main(){
     
-    // xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
+    xTaskCreateStatic(echo_main, "taskECHO", 512, NULL, 1, echoTaskStack, &echoTaskBuffer);
 
     vTaskStartScheduler();
     multicore_launch_core1(other core function);
