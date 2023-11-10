@@ -48,10 +48,18 @@ int main() {
 
   // TODO verify all these devices function before startup
 
+  // --- Ethernet ---
+  w5500_set(w5500);
+  w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
+  ip_t ip;
+  w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
+  printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", src_mac[0], src_mac[1],
+         src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
+  printf("IP: %d.%d.%d.%d\n", src_ip[0], src_ip[1], src_ip[2], src_ip[3]);
+
   //------------Poll Initialization Complete------------
   while (!stdio_usb_connected())
     tight_loop_contents();  // TODO remove before flight
-  while (!ads13x_ready(emu_adc)) tight_loop_contents();
 
   //------------Main Program Begin------------
 
@@ -62,32 +70,30 @@ int main() {
   printf("\n=====Startup Information=====\n");
   printf("Took %llu µs\n", time_us_64());
 
-  //------------Setup and Configuration------------
+  ads13x_set(adc_0);
+  ads13x_reset(adc_0);
+  while (!ads13x_ready(adc_0)) tight_loop_contents();
+  ads13x_init(adc_0);
 
-  // --- Ethernet ---
-  w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
-  ip_t ip;
-  w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
-  printf("MAC: %02x:%02x:%02x:%02x:%02x:%02x\n", src_mac[0], src_mac[1],
-         src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
-  printf("IP: %d.%d.%d.%d\n", src_ip[0], src_ip[1], src_ip[2], src_ip[3]);
+  stdio_flush();
 
-  // --- ADC ---
-  ads13x_init(emu_adc);
+  const uint64_t ADC_SAMPLE_PERIOD = 10;  // 100 hz
+  uint64_t adcLastSampleTime       = 0;
 
-  cmdnet_task_init();
-  sensornet_task_init();
-  // solenoid_task_init();
-
-  gpio_init(PYRO);
-  gpio_put(PYRO, false);
-  gpio_set_dir(PYRO, true);
+  while (true)
+    ;
 
   while (true) {
-    cmdnet_task_run();
-    sensornet_task_run();
-    // solenoid_task_run();
+    const uint64_t now = time_us_64();
+    if (now - adcLastSampleTime > ADC_SAMPLE_PERIOD) {
+      uint16_t status;
+      int32_t data[6];
+      ads13x_read_data(adc_0, &status, data, 6);
 
-    // gpio_put(PYRO, pyro_state);
+      printf("time:\t%lld\tstatus:%x\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld\t\n", now,
+             status, data[0], data[1], data[2], data[3], data[4], data[5]);
+
+      adcLastSampleTime = now;
+    }
   }
 }

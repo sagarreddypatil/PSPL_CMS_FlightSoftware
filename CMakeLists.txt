@@ -98,7 +98,7 @@ set(boards
     # flash-test
     # adc-test
     # echo
-    # ntp-test
+    ntp-test
     emu
     # tc-test-board
     # sanity-check

@@ -5,6 +5,15 @@
 #include <string.h>
 #include <spi_device_impl.h>
 
+#define NUM_CHANNELS 6
+#define WORD_SIZE 4
+#define WORD_SIZE_INIT 3
+
+#define TRANSFER_WORDS (NUM_CHANNELS + 2)  // status word + crc word
+
+#define TRANSFER_SIZE (TRANSFER_WORDS * WORD_SIZE)
+#define TRANSFER_SIZE_INIT (TRANSFER_WORDS * WORD_SIZE_INIT)
+
 SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
 
 static const uint baudrate = 20000000;
@@ -53,31 +62,33 @@ SPI_INITFUNC_IMPL(ads13x, baudrate)
   ((val >> 24) & 0xFF), ((val >> 16) & 0xFF), ((val >> 8) & 0xFF), (val & 0xFF)
 
 // Peripheral byte-order to Host, 16, 24, 32 bit
-#define PTOH16(ptr) ((ptr)[0] << 8 | (ptr)[1]) // short, swapping bytes
-#define PTOH24(ptr) (((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8) >> 8) // sign extended 32-bit
-#define PTOH32(ptr) ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | (ptr)[3]) // just byte order swapping
+#define PTOH16(ptr) ((ptr)[0] << 8 | (ptr)[1])  // short, swapping bytes
+#define PTOH24(ptr)                                     \
+  (((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8) >> \
+   8)  // sign extended 32-bit
+#define PTOH32(ptr)                                  \
+  ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | \
+   (ptr)[3])  // just byte order swapping
 
 void ads13x_reset(SPI_DEVICE_PARAM) {
   // try both 24-bit and 32-bit word size
 
-  // uint8_t src24[4 * 4] = {HTOP16(RESET)};
-  // uint8_t dst24[4 * 4];
+  // uint8_t src24[TRANSFER_SIZE] = {HTOP16(RESET)};
+  // uint8_t dst24[TRANSFER_SIZE];
 
-  // SPI_TRANSFER(src24, dst24, 4 * 4);
+  // SPI_TRANSFER(src24, dst24, TRANSFER_SIZE);
 
-  uint8_t src32[4 * 4] = {HTOP32(RESET)};
-  uint8_t dst32[4 * 4];
+  uint8_t src32[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
+  uint8_t dst32[TRANSFER_SIZE_INIT];
 
-  SPI_TRANSFER(src32, dst32, 4 * 4);
+  SPI_TRANSFER(src32, dst32, TRANSFER_SIZE);
 }
 
 bool ads13x_ready(SPI_DEVICE_PARAM) {
   // ready waits for chip to start after a reset
+  uint8_t dst[TRANSFER_SIZE_INIT];
 
-  uint8_t src[4 * 3] = {0}; // default 3-byte word size
-  uint8_t dst[4 * 3];
-
-  SPI_TRANSFER(src, dst, 4 * 3);
+  SPI_READ(dst, TRANSFER_SIZE_INIT);
 
   uint16_t status = PTOH16(dst);
 
@@ -85,36 +96,15 @@ bool ads13x_ready(SPI_DEVICE_PARAM) {
 }
 
 void ads13x_init(SPI_DEVICE_PARAM) {
-  // set the chip to 32-bit word size
-  uint16_t cmd = REG_OP_SINGLE(WREG, ads13x_mode);
-
-  // also inadvertently disables SPI timeout, oh well, we don't need it
-  uint16_t val = MS(0b11, 0b11, 8);  // set WLENGTH to 0b11
-  val |= MS(0, 1, 10);               // clear RESET bit
-  // ob11 is 32-bit word size with sign extension
-
-  uint8_t src[4 * 4] = {HTOP16(cmd), 0, HTOP16(val), 0};
-  uint8_t dst[4 * 4];
-
-  SPI_TRANSFER(src, dst, 4 * 4);
-
-  memset(dst, 0, 4 * 4);
-
-  SPI_READ(dst, 4 * 4);
-
-  uint16_t resp     = (dst[0] << 8) | dst[1];
-  uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
-
-  // TOOD: error checking
 }
 
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
-  uint8_t src[4 * 4] = {
+  uint8_t src[TRANSFER_SIZE] = {
       HTOP16(REG_OP_SINGLE(WREG, reg)), 0, 0, HTOP16(data), 0, 0};
-  uint8_t dst[4 * 4];
+  uint8_t dst[TRANSFER_SIZE];
 
-  SPI_WRITE(src, 4 * 4);
-  SPI_READ(dst, 4 * 4);
+  SPI_WRITE(src, TRANSFER_SIZE);
+  SPI_READ(dst, TRANSFER_SIZE);
 
   uint16_t resp     = (dst[0] << 8) | dst[1];
   uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
@@ -123,13 +113,22 @@ void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
 }
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
-  uint8_t src[4 * 4] = {HTOP16(REG_OP_SINGLE(RREG, reg))};
-  uint8_t dst[4 * 4] = {0};
+  uint8_t src[TRANSFER_SIZE * 2] = {HTOP16(REG_OP_SINGLE(RREG, reg))};
+  uint8_t dst[TRANSFER_SIZE * 2] = {0};
 
-  SPI_WRITE(src, 4 * 4);
-  SPI_READ(dst, 4 * 4);
+  SPI_WRITE(src, TRANSFER_SIZE * 2);
+  SPI_READ(dst, TRANSFER_SIZE * 2);
 
-  uint16_t resp = (dst[0] << 8) | dst[1];
+  for (int i = 0; i < TRANSFER_SIZE * 2; i++) {
+    printf("%02x ", src[i]);
+  }
+  printf("\n");
+  for (int i = 0; i < TRANSFER_SIZE * 2; i++) {
+    printf("%02x ", dst[i]);
+  }
+  printf("\n");
+
+  uint16_t resp = (dst[TRANSFER_SIZE] << 8) | dst[TRANSFER_SIZE + 1];
   return resp;
 }
 
@@ -144,9 +143,9 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len) {
   if (len > 2) len = 2;
 
-  uint8_t dst[4 * 4];
-  SPI_READ(dst, 4 * 4);
-  // for (int i = 0; i < 4 * 4; i++) {
+  uint8_t dst[TRANSFER_SIZE];
+  SPI_READ(dst, TRANSFER_SIZE);
+  // for (int i = 0; i < TRANSFER_SIZE; i++) {
   //   printf("%02X ", dst[i]);
   // }
 
