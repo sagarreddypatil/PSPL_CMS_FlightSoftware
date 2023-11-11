@@ -29,7 +29,7 @@ SPI_INITFUNC_IMPL(ads13x, baudrate)
 #define WREG 0b0110000000000000
 
 // Command Responses
-#define RESET_RESP 0b1111111100100010
+#define RESET_RESP 0xff26
 #define STANDBY_RESP 0b0000000000100010
 #define WAKEUP_RESP 0b0000000000110011
 #define LOCK_RESP 0b0000010101010101
@@ -96,6 +96,55 @@ bool ads13x_ready(SPI_DEVICE_PARAM) {
 }
 
 void ads13x_init(SPI_DEVICE_PARAM) {
+  // reset the chip
+  {
+// stupid C can't use const as fixed array size
+#define reset_size (WORD_SIZE_INIT * 8)
+    uint8_t src[reset_size] = {HTOP16(RESET), 0};
+    SPI_WRITE(src, reset_size);
+#undef reset_size
+  }
+
+  {
+    // verify reset
+    uint8_t dst[TRANSFER_SIZE_INIT];
+    SPI_READ(dst, TRANSFER_SIZE_INIT);
+
+    uint16_t status = PTOH16(dst);
+    assert(status == RESET_RESP);
+  }
+
+  const uint16_t mode_reg_value = 0x0510 | (0b11 << 8);  // set WLENGTH to 0b11
+  {
+    // set the mode register
+    const uint16_t opcode = REG_OP_SINGLE(WREG, ads13x_mode);
+
+    uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(opcode), 0,
+                                       HTOP16(mode_reg_value), 0};
+    SPI_WRITE(src, TRANSFER_SIZE_INIT);
+
+    uint8_t dst[TRANSFER_SIZE_INIT] = {0};
+    SPI_READ(dst, TRANSFER_SIZE_INIT);
+
+    uint16_t resp     = PTOH16(dst);
+    uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
+
+    assert(resp == expected);
+  }
+
+  {
+    // read the mode register
+    const uint16_t opcode = REG_OP_SINGLE(RREG, ads13x_mode);
+
+    uint8_t src[TRANSFER_SIZE] = {HTOP16(opcode), 0};
+    uint8_t dst[TRANSFER_SIZE] = {0};
+
+    SPI_WRITE(src, TRANSFER_SIZE);
+    SPI_READ(dst, TRANSFER_SIZE);
+
+    uint16_t resp = PTOH16(dst);
+    assert(resp == mode_reg_value);
+  }
 }
 
 void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
