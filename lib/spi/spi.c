@@ -46,9 +46,7 @@ void spi_write_read(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t siz
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, dst, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
-		sleep_us(10);
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(10);
 }
 
 void spi_write(spi_device_t *device, uint8_t *src, size_t size){
@@ -57,7 +55,5 @@ void spi_write(spi_device_t *device, uint8_t *src, size_t size){
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, NULL, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
-		sleep_us(10);
 		gpio_put(device->cs_gpio, 1);
-		sleep_us(10);
 }

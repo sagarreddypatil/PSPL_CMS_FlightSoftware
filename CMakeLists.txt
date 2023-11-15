@@ -19,7 +19,7 @@ include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_i
 project(CMS_Avionics_Code)
 pico_sdk_init()
 
-set(stdlibs pico_stdlib hardware_gpio hardware_adc hardware_spi hardware_dma pico_bootsel_via_double_reset FreeRTOS-Kernel)
+set(stdlibs pico_stdlib hardware_gpio hardware_adc hardware_spi hardware_dma hardware_uart pico_bootsel_via_double_reset FreeRTOS-Kernel)
 
 # To make sure build folder doesn't get cluttered
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -83,6 +83,7 @@ psp_lib(lib psp)
 psp_lib(device max31856)
 psp_lib(device w5500)
 psp_lib(device ads13x)
+psp_lib(device spi2)
 
 psp_lib(lib crypto)
 psp_lib(lib sensornet)
@@ -95,14 +96,17 @@ psp_lib(lib uart)
 # ---------- Boards  ----------
 set(boards
     # adc-test
-    emu
+    # emu
     # tc-test-board
-    emu-rtos
+    # emu-rtos
     # ufc-rtos
     # sanity-check
     # w5500-test
-    # ntp-test
-)
+    # ntp-tests
+    dma-test
+    # spi-dma-test
+
+)   
 
 foreach(board ${boards})
     file(GLOB_RECURSE srcs src/${board}/*.c)
