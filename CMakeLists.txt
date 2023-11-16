@@ -102,9 +102,9 @@ set(boards
     # ufc-rtos
     # sanity-check
     # w5500-test
-    # ntp-tests
+    ntp-test
     dma-test
-    # spi-dma-test
+    spi-dma-test
 
 )   
 

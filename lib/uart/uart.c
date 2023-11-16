@@ -4,4 +4,5 @@
 int something()
 {
     uart0_hw->dr;
+    return 1;
 }
