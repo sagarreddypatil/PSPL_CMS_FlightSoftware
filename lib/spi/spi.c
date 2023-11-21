@@ -1,13 +1,6 @@
-// Kernal Includes
-#include <FreeRTOS.h>
-#include <task.h>
-#include <semphr.h>
-
 // RP2040 Includes
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
-#include <hardware/dma.h>
-#include <hardware/irq.h>
 #include <hardware/regs/dreq.h>
 
 #include <spi.h>
@@ -38,10 +31,10 @@ void spi_device_init(spi_device_t *device){
     // this might just need to just be the max baudrate of all the devices,
     // also need to find a way to determine spi0 or spi1, could also just move
 	// it out of this function
+	
 }
 
 void spi_write_read(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t size){
-
 		gpio_put(device->cs_gpio, 0);
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, dst, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
@@ -50,9 +43,8 @@ void spi_write_read(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t siz
 }
 
 void spi_write(spi_device_t *device, uint8_t *src, size_t size){
-
 		gpio_put(device->cs_gpio, 0);
-
+		
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, NULL, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
 		gpio_put(device->cs_gpio, 1);

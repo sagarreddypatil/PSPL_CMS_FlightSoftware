@@ -6,39 +6,40 @@
 
 /*! \brief uses direct memory access to copy memory from one address to another
  *  1 byte at a time
- *  \param src pointer to memory address that will be copied
  *  \param dst pointer to memory address that will be written to
+ *  \param src pointer to memory address that will be copied
  *  \param size size of memory transfer in bytes
  */
-void dmacpy(volatile void *src, volatile void *dst, size_t size);
+void dmacpy(volatile void *dst, volatile void *src, size_t size);
 
 /*! \brief uses direct memory access to copy memory from one address to another
  *   4 bytes at a time
- *  \param src pointer to memory address that will be copied
  *  \param dst pointer to memory address that will be written to
+ *  \param src pointer to memory address that will be copied
  *  \param size size of memory transfer in bytes
  */
-void dmacpy4(volatile void *src, volatile void *dst, size_t size);
+void dmacpy4(volatile void *dst, volatile void *src, size_t size);
 
 /*! \brief performs 2 DMA transfers syncronously
- *  \param src1
- *  \param src2
- *  \param dst1
- *  \param dst2
- *  \param size
+ *  \param src1 pointer to first data that will be copied
+ *  \param src2 pointer to second data that will be copied
+ *  \param dst1 memory address that will be written to
+ *  \param dst2 second memory address that will be written to
+ *  \param size size of memory transfer in bytes
  */
-void dmacpy2(volatile void *src1, volatile void *src2, volatile void *dst1,
+void dmacpysync(volatile void *src1, volatile void *src2, volatile void *dst1,
              volatile void *dst2, size_t size);
+
 /*! \brief performs a DMA transfer to and from a data register with a DREQ as
  * pacing
- * \param src
- * \param dr
- * \param dst
- * \param size
- * \param dreq1
- * \param dreq2
+ * \param src memory address of what will be written to the data register (dr)
+ * \param dr address of the data register to be read from/written to
+ * \param dst memory address that received data will be written to
+ * \param size size of transfer in bytes (max between src and dst)
+ * \param tx_dreq data request 
+ * \param rx_dreq
  */
-void dmatransfer(uint8_t *src, volatile uint32_t *dr, uint8_t *dst, size_t size,
-                 uint dreqTX, uint dreqRX);
+void dmatransfer(volatile void *src, io_rw_32 *dr, volatile void *dst, size_t size,
+                 uint tx_dreq, uint rx_dreq);
 
-void dma_write(uint32_t *src, volatile uint32_t *dr, size_t size);
+void dma_write(volatile void *src, io_rw_32 *dr, size_t size, uint dreq);

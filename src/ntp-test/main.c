@@ -4,7 +4,7 @@
 #include <pico/stdlib.h>
 #include <w5500.h>
 
-spi_device_t w5500 = {
+spi_device_t w5500 = { //posi pico sclk
   .spi_inst = spi1,
   .miso_gpio = 27,
   .mosi_gpio = 26,
@@ -62,9 +62,6 @@ int main() {
     int64_t new_offset = get_server_time(&w5500, ntp_server_ip, W5500_S3);
     if (new_offset > 0) {
       offset = new_offset;
-    }
-    else{
-      printf("%lld\n ", new_offset);
     }
 
     printf("%lld, %lld", unix_time_us(), offset);

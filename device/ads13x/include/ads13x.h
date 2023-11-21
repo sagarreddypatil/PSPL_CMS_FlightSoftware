@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spi_device.h>
+#include <spi.h>
 
 // Register Addresses
 
@@ -45,25 +45,23 @@ typedef enum {
   SR_250 = 7  // OSR = 16384
 } ads13x_sample_rate;
 
-SPI_INITFUNC(ads13x);
+void ads13x_reset(spi_device_t *device);
+bool ads13x_ready(spi_device_t *device);
+void ads13x_init(spi_device_t *device);
 
-void ads13x_reset(SPI_DEVICE_PARAM);
-bool ads13x_ready(SPI_DEVICE_PARAM);
-void ads13x_init(SPI_DEVICE_PARAM);
+uint16_t ads13x_rreg_single(spi_device_t *device, ads13x_reg_t reg);
+void ads13x_wreg_single(spi_device_t *device, ads13x_reg_t reg, uint16_t data);
 
-uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg);
-void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
-
-void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate);
+void ads13x_set_sample_rate(spi_device_t *device, ads13x_sample_rate sample_rate);
 
 // Read Data
 // check that len is <= adc channels
-bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
+bool ads13x_read_data(spi_device_t *device, uint16_t *status, int32_t *data,
                       uint32_t len);
 
 // Convenience Functions
-void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting);
+void ads13x_set_gain(spi_device_t *device, ads13x_gain_setting gain_setting);
 
-void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool ch3,
+void ads13x_set_mode(spi_device_t *device, bool ch0, bool ch1, bool ch2, bool ch3,
                      ads13x_sample_rate sample_rate,
                      ads13x_pwr_setting pwr_setting);

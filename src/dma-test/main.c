@@ -5,8 +5,8 @@
 #include <string.h>
 #include <math.h>
 
-#define MAX_SIZE   8192*2
-#define MIN_SIZE   8192
+#define MAX_SIZE   4096
+#define MIN_SIZE   8
 #define NUM_EPOCHS 1
 
 // Arrays must be of size log2(MAX_SIZE/MIN_SIZE)+1
@@ -22,7 +22,7 @@ void transfer_epoch(uint64_t *cpytimes, uint64_t *dma1times,
       source[j] = rand() % 256;
     }
     uint64_t start_time = time_us_64();
-    dmacpy(source, destination, i);
+    dmacpy(destination, source, i);
     uint64_t end_time = time_us_64();
 
     uint64_t start_time2 = time_us_64();
@@ -30,7 +30,7 @@ void transfer_epoch(uint64_t *cpytimes, uint64_t *dma1times,
     uint64_t end_time2 = time_us_64();
 
     uint64_t start_time3 = time_us_64();
-    dmacpy4(source, destination, i);
+    dmacpy4(destination, source, i);
     uint64_t end_time3 = time_us_64();
 
     cpytimes[i] += end_time2 - start_time2;

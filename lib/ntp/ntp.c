@@ -47,12 +47,13 @@ int64_t get_server_time(spi_device_t *spi, ip_t server_addr,
 
   w5500_write_data(spi, socket, &packet, sizeof(ntp_packet_t));
 
-  int read    = 0;
+  volatile int read = 0;
   uint64_t t3 = 0;
 
   uint64_t timeout_start = time_us_64();
-  while ((read = w5500_read_data(spi, socket, (uint8_t*)&packet,
-                                 sizeof(ntp_packet_t))) == 0) {
+  while (read == 0) {
+    read = w5500_read_data(spi, socket, (uint8_t*)&packet,
+                                 sizeof(ntp_packet_t));
     tight_loop_contents();
     t3 = time_us_64();
     if (time_us_64() - timeout_start > RESP_TIMEOUT) {
@@ -61,6 +62,7 @@ int64_t get_server_time(spi_device_t *spi, ip_t server_addr,
   }
 
   if (read != sizeof(ntp_packet_t)) {
+    printf("\n\n%d\n\n", read);
     return INT64_MIN;  // error value
   }
 

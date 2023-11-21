@@ -1,22 +1,36 @@
 #include <pico/stdlib.h>
 #include <stdio.h>
 #include <ads13x.h>
+#include <spi.h>
 
-#define ADC_SCLK 14
-#define ADC_PICO 11
-#define ADC_POCI 12
-#define ADC_CS 15
-#define ADC_RST 3
+#define ADC_SCLK 4
+#define ADC_MISO 5
+#define ADC_MOSI 6
+#define ADC_CS 8
+#define ADC_RST 7
 
-SPI_DEVICE(ads13x, spi1, ADC_CS)
+spi_device_t ads13x = { 
+  .spi_inst = spi1,
+  .miso_gpio = 3,
+  .mosi_gpio = 4,
+  .sck_gpio = 2,
+  .cs_gpio = 6,
+  .baudrate = 20000000
+  };
+
+
+static const int32_t ADC_MAX = 0x7FFFFF;
+static const int32_t ADC_MIN = -0x800000;
 
 int main() {
   gpio_init(ADC_RST);
   gpio_set_dir(ADC_RST, GPIO_OUT);
   gpio_put(ADC_RST, 1);
+
+  spi_device_init(&ads13x);
+
   stdio_init_all();
   while (!stdio_usb_connected()) tight_loop_contents();
-
 
   // for (int i = 0; i < 15; i++) {
   //   printf("iter %d, time %llu\n", i, time_us_64());
@@ -33,17 +47,12 @@ int main() {
   printf("\n=====Startup Information=====\n");
   printf("Took %llu µs\n", time_us_64());
 
-  gpio_set_function(ADC_SCLK, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_PICO, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_POCI, GPIO_FUNC_SPI);
-  spi_init(spi1, 2 * 1000 * 1000);
 
   printf("Initializing ADS13x...\n");
-  uint baud = ads13x_set(ads13x);
-  ads13x_reset(ads13x);
-  while (!ads13x_ready(ads13x)) tight_loop_contents();
-  ads13x_init(ads13x);
-  printf("ADC Baud: %u\n", baud);
+  ads13x_reset(&ads13x);
+  while (!ads13x_ready(&ads13x)) tight_loop_contents();
+  ads13x_init(&ads13x);
+  printf("ADC Baud: %u\n", ads13x.baudrate);
 
   printf("chan1,chan2\n");
   while (true) {
@@ -67,8 +76,12 @@ int main() {
     uint16_t statA;
     // uint16_t statB;
     int32_t data[2];
-    ads13x_read_data(ads13x, &statA, data, 2);
-    //printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
-    printf("%ld, %ld\n", data[0], data[1]);
+    ads13x_read_data(&ads13x, &statA, data, 2);
+
+    float fdata[2] = {1.2 * data[0] / (float)ADC_MAX,
+                      1.2 * data[1] / (float)ADC_MAX};
+    // printf("Stat: %04x, A: %ld, B: %ld\n", statA, data[0], data[1]);
+    // printf("%ld, %ld\n", data[0], data[1]);
+    printf("%f,%f\n", fdata[0], fdata[1]);
   }
 }

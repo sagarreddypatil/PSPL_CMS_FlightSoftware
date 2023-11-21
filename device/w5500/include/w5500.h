@@ -184,7 +184,7 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
  * @param len Length of the data buffer
  */
 void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 const void* data, size_t len);
+                 void* data, size_t len);
 
 /**
  * @brief Read a 1-byte register and return it
@@ -282,8 +282,8 @@ bool w5500_has_link(spi_device_t *spi);
  * @param subnet_mask Device subnet mask
  * @param gateway Network gateway address
  */
-void w5500_config(spi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
-                  const ip_t subnet_mask, const ip_t gateway);
+void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
+                  ip_t subnet_mask, ip_t gateway);
 
 /**
  * @brief Set WOL mode
@@ -366,4 +366,3 @@ w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void* data,
 void w5500_command(spi_device_t *spi, w5500_socket_t s,
                    w5500_socket_command_t command);
 
-void echo_main();

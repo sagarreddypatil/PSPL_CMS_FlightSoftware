@@ -57,16 +57,20 @@ int main() {
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
   printf("w5500 configured.\n");
 
+  uint16_t space = w5500_read16(&w5500, W5500_COMMON, W5500_Sn_TX_FSR0);
+
+  printf("Free Space: %d bytes", space);
+
   // print ip
   ip_t ip;
   w5500_read(&w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  while (true){
-    uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
-    printf("0x%x\n", phyreg);
-    sleep_ms(500);
-  }
+  // while (true){
+  //   uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
+  //   printf("0x%x\n", phyreg);
+  //   sleep_ms(500);
+  // }
 
   uint16_t avail      = 0;
   bool prev_connected = false;

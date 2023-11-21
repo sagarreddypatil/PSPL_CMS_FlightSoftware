@@ -4,12 +4,13 @@
 #include <string.h>
 #include <w5500.h>
 #include <spi.h>
+#include <dma.h>
 
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)
 
 
-#define DEBUG_SPI_TRANSFER 
+// #define DEBUG_SPI_TRANSFER 
 
 
 void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
@@ -36,19 +37,19 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   printf("\n");
 #endif
 
-  memcpy(data, dst + 3, len);
+  dmacpy(data, dst + 3, len);
 }
 
 
 void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 const void* data, size_t len) {
+                 void* data, size_t len) {
   uint8_t src[3 + len];
 
   src[0] = (reg >> 8) & 0xFF;
   src[1] = reg & 0xFF;
   src[2] = MS(s, 0b11111, 3) | MS(1, 0b1, 2) | MS(00, 0b11, 0);
 
-  memcpy(src + 3, data, len);
+  dmacpy(src + 3, data, len);
 
   spi_write(spi, src, 3 + len);
 }
@@ -72,8 +73,8 @@ bool w5500_has_link(spi_device_t *spi) {
 }
 
 
-void w5500_config(spi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
-                  const ip_t subnet_mask, const ip_t gateway) {
+void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
+                  ip_t subnet_mask, ip_t gateway) {
 
   // Physical Layer and Default Options
   uint8_t mode = 0;
