@@ -12,3 +12,8 @@ void uart_device_init(uart_device_t *device)
     device->baudrate = uart_init(device->uart_inst, device->baudrate);
 }
 
+void uart_transfer(uart_device_t *device, volatile void *src, io_rw_32 *dr, volatile void *dst, size_t size,
+                 uint tx_dreq, uint rx_dreq)
+{
+    
+}

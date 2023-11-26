@@ -95,17 +95,17 @@ psp_lib(lib uart)
 
 # ---------- Boards  ----------
 set(boards
-    adc-test
+    # adc-test
     # emu
     # tc-test-board
-    emu-rtos
+    # emu-rtos
     # ufc-rtos
     # sanity-check
     w5500-test
     ntp-test
     dma-test
     # spi-dma-test
-
+    rtos-test
 )   
 
 foreach(board ${boards})
