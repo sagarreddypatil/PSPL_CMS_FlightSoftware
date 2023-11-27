@@ -52,10 +52,9 @@ int main()
 
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 
-    // This will be done for each task that needs to be pinned to a certain core (1 << core#)
+    // This will be done for each task that needs to be pinned to a certain core (bit mask)
     xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "A", 128, NULL, 1, buffer_a, &task_buffer1, 1 << 0);
     xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "B", 128, NULL, 1, buffer_b, &task_buffer2, 1 << 1);
-    xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "C", 128, NULL, 1, buffer_c, &task_buffer3, 1 << 0 | 1 << 1);
 
     // This can be done for tasks that can run on either core
     xTaskCreateStatic(vTaskSMP_print_core, "C", 128, NULL, 1, buffer_c, &task_buffer3);

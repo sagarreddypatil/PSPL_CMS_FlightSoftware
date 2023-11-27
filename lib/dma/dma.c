@@ -2,7 +2,7 @@
 #include <dma.h>
 #include <hardware/regs/dreq.h>
 
-#define DEBUG_TRANSFER 1
+#define DEBUG_TRANSFER 0
 
 void dmacpy(volatile void *dst, volatile void *src, size_t size)
 {

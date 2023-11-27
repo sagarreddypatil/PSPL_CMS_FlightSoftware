@@ -106,6 +106,7 @@ set(boards
     dma-test
     # spi-dma-test
     rtos-test
+    spi-loopback-test
 )   
 
 foreach(board ${boards})
