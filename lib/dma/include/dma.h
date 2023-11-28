@@ -43,3 +43,4 @@ void dmatransfer(volatile void *src, io_rw_32 *dr, volatile void *dst, size_t si
                  uint tx_dreq, uint rx_dreq);
 
 void dma_write(volatile void *src, io_rw_32 *dr, size_t size, uint dreq);
+void dma_finished_isr();

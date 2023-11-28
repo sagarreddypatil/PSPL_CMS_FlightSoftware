@@ -1,3 +1,6 @@
+// FreeRTOS Includes
+#include <FreeRTOS.h>
+
 // RP2040 Includes
 #include <hardware/gpio.h>
 #include <hardware/spi.h>
@@ -39,6 +42,7 @@ void spi_write_read(spi_device_t *device, uint8_t *src, uint8_t *dst, size_t siz
 
 		dmatransfer(src, &spi_get_hw(device->spi_inst)->dr, dst, size, spi_get_dreq(device->spi_inst, true), spi_get_dreq(device->spi_inst, false));
 
+		
 		gpio_put(device->cs_gpio, 1);
 }
 

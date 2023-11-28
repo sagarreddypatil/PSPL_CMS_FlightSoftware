@@ -80,10 +80,8 @@ include_directories(lib/crypto/include)
 psp_lib(lib freertos_config)
 psp_lib(lib psp)
 
-psp_lib(device max31856)
 psp_lib(device w5500)
 psp_lib(device ads13x)
-psp_lib(device spi2)
 
 psp_lib(lib crypto)
 psp_lib(lib sensornet)
@@ -101,12 +99,13 @@ set(boards
     # emu-rtos
     # ufc-rtos
     # sanity-check
+    lotsofpackets
     w5500-test
-    ntp-test
-    dma-test
+    # ntp-test
+    # dma-test
     # spi-dma-test
-    rtos-test
-    spi-loopback-test
+    # rtos-test
+    # spi-loopback-test
 )   
 
 foreach(board ${boards})

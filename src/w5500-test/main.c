@@ -7,6 +7,11 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
+#include <dma.h>
+#include <semphr.h>
+
+void sampleSharedResouceFunction(char* out);
+void vTaskSMP_print_core();
 
 spi_device_t w5500 = { //posi pico sclk
   .spi_inst = spi1,
@@ -17,13 +22,7 @@ spi_device_t w5500 = { //posi pico sclk
   .baudrate = 30000000
   };
 
-int main() {
-
-  spi_device_init(&w5500);
-
-  stdio_init_all();
-  while (!stdio_usb_connected())
-    ; // @todo timeout needed
+void not_main() {
 
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
@@ -35,11 +34,9 @@ int main() {
   ip_t src_ip      = {192, 168, 2, 50};
   mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
+  printf("bug12312");
   w5500_reset(&w5500);
-  printf("Reset complete.\n");
   uint64_t start = time_us_64();
-
-  printf("Readying w5500...\n");
 
   uint count = 0;
   do {
@@ -50,15 +47,13 @@ int main() {
   count = 0;
   do {
     count++;
-    sleep_ms(2000);
+    sleep_ms(1750);
   } while (!w5500_has_link(&w5500));
   printf("W5500 has link, took %d us after %d tries\n", (int)(time_us_64() - start), count);
 
   w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
-  printf("w5500 configured.\n");
 
-  uint16_t space = w5500_read16(&w5500, W5500_COMMON, W5500_Sn_TX_FSR0);
-
+  uint16_t space = w5500_read16(&w5500, W5500_S3, W5500_Sn_TX_FSR0);
   printf("Free Space: %d bytes", space);
 
   // print ip
@@ -66,44 +61,64 @@ int main() {
   w5500_read(&w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
   printf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
-  // while (true){
-  //   uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
-  //   printf("0x%x\n", phyreg);
-  //   sleep_ms(500);
-  // }
 
-  uint16_t avail      = 0;
-  bool prev_connected = false;
-  bool connected      = false;
-  tcp_client_data_t client;
-  tcp_server_t server;
-  tcp_server_init(&server, &w5500, W5500_S0, 8080);
-
-  while (true) {
-    tcp_server_poll(&server);
-
-    connected = tcp_server_connected(&server);
-    if (!prev_connected && connected) {
-      client = tcp_server_get_client(&server);
-      printf("Client connected: %d.%d.%d.%d:%d\n", client.ip[0], client.ip[1],
-             client.ip[2], client.ip[3], client.port);
-    }
-
-    if (prev_connected && !connected) {
-      printf("Client disconnected\n");
-    }
-
-    prev_connected = connected;
-
-    if (connected && (avail = tcp_server_available(&server)) > 0) {
-      uint8_t data[avail + 1];
-      tcp_server_read(&server, data, avail);
-      data[avail] = 0;
-
-      printf("Received: %s\n", data);
-
-      tcp_server_send(&server, data, avail);
-    }
+  while (true){
+    uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
+    printf("0x%x\n", phyreg);
+    sleep_ms(500);
   }
+}
+
+StaticTask_t task;
+StackType_t buffer[50000];
+
+int main()
+{
+  stdio_init_all();
+  while (!stdio_usb_connected())
+    ; // @todo timeout needed
+  
+  spi_device_init(&w5500);
+
+  xTaskCreateStatic(not_main, "w5500_main", 50000, NULL, 4, buffer, &task);
+  irq_set_exclusive_handler(DMA_IRQ_0, dma_finished_isr);
+
+  vTaskStartScheduler();
+
+  while(1);
+
   return 0;
+}
+
+StaticSemaphore_t print_mutex_buffer;
+SemaphoreHandle_t print_mutex = NULL;
+
+void sprint(char* out)
+{   
+    xSemaphoreTake(print_mutex, portMAX_DELAY);
+
+    puts(out); 
+    
+    xSemaphoreGive(print_mutex);
+
+}
+
+void vTaskSMP_print_core()
+{
+    TaskHandle_t handle = xTaskGetCurrentTaskHandle();
+
+    UBaseType_t mask = vTaskCoreAffinityGet(handle);
+
+    char *name = pcTaskGetName(handle);
+
+    char out[32];
+
+    for (;;) {
+
+        sprintf(out,"%s  %d  %ld\n ", name, get_core_num(), xTaskGetTickCount());
+
+        sprint(out);
+
+        vTaskDelay(100);
+    }
 }
