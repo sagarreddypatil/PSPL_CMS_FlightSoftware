@@ -1,5 +1,4 @@
 #include <max31856.h>
-#include <spi_device_impl.h>
 #include <string.h>
 
 /*
@@ -25,13 +24,8 @@
  * anything. You just write a byte or multiple bytes, and then drive CS high.
  */
 
-SPI_MODE3;  // Mode 1 or 3 allowed, we're using 3
-
-static const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
-SPI_INITFUNC_IMPL(max31856, baudrate)
-
 // MSB is 0 for read, 1 for write
-#define READ(x) (x & 0x7F)
+#define READ(x)  (x & 0x7F)
 #define WRITE(x) (x | 0x80)
 
 void max31856_init(SPI_DEVICE_PARAM) {
