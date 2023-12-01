@@ -20,6 +20,7 @@
 typedef struct {
 
   spi_inst_t *bus;
+  uint8_t index;
 
   // must be statically created with a StaticSemaphore_t buffer
   SemaphoreHandle_t mutex; 

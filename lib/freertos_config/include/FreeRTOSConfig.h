@@ -102,11 +102,11 @@
 */
 
 /* SMP port only */
-#define configNUMBER_OF_CORES                   2
+#define configNUMBER_OF_CORES                   1
 #define configTICK_CORE                         1
 #define configRUN_MULTIPLE_PRIORITIES           1
-#define configUSE_CORE_AFFINITY                 1
-#define portSUPPORT_SMP                         1
+#define configUSE_CORE_AFFINITY                 0
+#define portSUPPORT_SMP                         0
 
 
 /* RP2040 specific */
@@ -119,22 +119,22 @@
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
-#define INCLUDE_vTaskPrioritySet                0
-#define INCLUDE_uxTaskPriorityGet               0
-#define INCLUDE_vTaskDelete                     0
-#define INCLUDE_vTaskSuspend                    0
-#define INCLUDE_vTaskDelayUntil                 0
-#define INCLUDE_vTaskDelay                      0
-#define INCLUDE_xTaskGetSchedulerState          0
+#define INCLUDE_vTaskPrioritySet                1
+#define INCLUDE_uxTaskPriorityGet               1
+#define INCLUDE_vTaskDelete                     1
+#define INCLUDE_vTaskSuspend                    1
+#define INCLUDE_vTaskDelayUntil                 1
+#define INCLUDE_vTaskDelay                      1
+#define INCLUDE_xTaskGetSchedulerState          1
 #define INCLUDE_xTaskGetCurrentTaskHandle       1
 #define INCLUDE_uxTaskGetStackHighWaterMark     1
-#define INCLUDE_xTaskGetIdleTaskHandle          0
-#define INCLUDE_eTaskGetState                   0
+#define INCLUDE_xTaskGetIdleTaskHandle          1
+#define INCLUDE_eTaskGetState                   1
 #define INCLUDE_xTimerPendFunctionCall          1
-#define INCLUDE_xTaskAbortDelay                 0
-#define INCLUDE_xTaskGetHandle                  0
+#define INCLUDE_xTaskAbortDelay                 1
+#define INCLUDE_xTaskGetHandle                  1
 #define INCLUDE_xTaskResumeFromISR              1
-#define INCLUDE_xQueueGetMutexHolder            0
+#define INCLUDE_xQueueGetMutexHolder            1
 
 /* A header file that defines trace macro can be included here. */
 
