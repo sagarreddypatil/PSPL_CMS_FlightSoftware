@@ -1,15 +1,10 @@
-#include <spi_device_impl.h>
+#include <myspi.h>
 #include <string.h>
 #include <w25n01.h>
 #include <stdio.h>
 
 #define SHORT_MSB(x) (x >> 8)
 #define SHORT_LSB(x) (x & 0xFF)
-
-SPI_MODE0;
-
-const uint baudrate = 5 * 1000 * 1000;  // 5 MHz, max for MAX31856
-SPI_INITFUNC_IMPL(w25n01, baudrate);    // 50 MHz SPI clock
 
 void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst, size_t len) {
   SPI_TRANSFER(src, dst, len);
