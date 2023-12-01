@@ -26,8 +26,8 @@ void spi_device_init(spi_device_t *spi, uint8_t miso_gpio, uint8_t mosi_gpio, ui
     gpio_set_function(sck_gpio, GPIO_FUNC_SPI);
 
     gpio_init(spi->cs_gpio);
+    gpio_put(spi->cs_gpio, 1);
 	gpio_set_dir(spi->cs_gpio, GPIO_OUT);
-	gpio_put(spi->cs_gpio, 1);
 
     gpio_set_slew_rate(miso_gpio, GPIO_SLEW_RATE_FAST);
 	gpio_set_slew_rate(mosi_gpio, GPIO_SLEW_RATE_FAST);
@@ -47,9 +47,7 @@ void spi_write(spi_device_t *spi, uint8_t *src, size_t size)
 {   
 
     gpio_put(spi->cs_gpio, 0);
-            
     spi_dma_transfer(spi, src, NULL, size);
-            
     gpio_put(spi->cs_gpio, 1);
 }
 
@@ -57,9 +55,7 @@ void spi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst, size_t size)
 {
 
     gpio_put(spi->cs_gpio, 0);
-            
     spi_dma_transfer(spi, src, dst, size);
-            
     gpio_put(spi->cs_gpio, 1);
 
 }
@@ -83,7 +79,7 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
     dma_channel_configure(
         channel_1,
         &config_1,
-        (void*)spi_get_hw(spi->spi_bus->bus)->dr,
+        &spi_get_hw(spi->spi_bus->bus)->dr,
         src,
         size,
         false
@@ -100,7 +96,7 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
         channel_2,
         &config_2,
         dst,
-        (void*)spi_get_hw(spi->spi_bus->bus)->dr,
+        &spi_get_hw(spi->spi_bus->bus)->dr,
         size,
         false
     );
