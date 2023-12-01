@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <commandnet.h>
 #include <sensornet.h>
+#include <psp.h>
+
+uint64_t time_offset;
 
 int main() {
   //------------All Initialization------------
@@ -18,8 +21,9 @@ int main() {
    * https://tinyurl.com/2m9dxu53
    */
 
-  // --- Ethernet ---
-  spi_init_bus_adv(spi0, 16, 18, 19, GPIO_SLEW_RATE_FAST,
+  // --- Initialize Ethernet, it's the most important ---
+
+  spi_init_bus_adv(spi1, 26, 27, 28, GPIO_SLEW_RATE_FAST,
                    GPIO_DRIVE_STRENGTH_4MA);
 
   w5500_set(w5500);
@@ -31,29 +35,21 @@ int main() {
   mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
                    board_id.id[5], board_id.id[6], board_id.id[7]};
 
-  /// --- ADC ---
-  spi_init_bus(spi1, 11, 12, 14);
+  while (!w5500_ready(w5500))
+    tight_loop_contents();  // TODO: LEDs if we're stuck in this state
 
-  ads13x_set(emu_adc);
-  ads13x_reset(emu_adc);
+  /// --- Initialize all other devices ---
+  spi_init_bus_adv(spi0, 2, 3, 4, GPIO_SLEW_RATE_FAST, GPIO_DRIVE_STRENGTH_4MA);
 
-  //------------Poll Initialization Complete------------
-  while (!stdio_usb_connected()) tight_loop_contents();
-  while (!w5500_ready(w5500)) tight_loop_contents();
-  while (!ads13x_ready(emu_adc)) tight_loop_contents();
+  max31856_set(tc_0);
+  max31856_set(tc_1);
+  ads13x_set(adc_0);
+  w25n01_set(flash);
 
-  for (int i = 0; i < 10; i++) printf("\n");
-
-  //------------Main Program Begin------------
-
-  printf("Program: %s\n", PICO_PROGRAM_NAME);
-  printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
-  printf("\n=====Startup Information=====\n");
-  printf("Took %llu µs\n", time_us_64());
-
-  //------------Setup and Configuration------------
+  // TODO verify all these devices function before startup
 
   // --- Ethernet ---
+  w5500_set(w5500);
   w5500_config(w5500, src_mac, src_ip, subnet_mask, gateway);
   ip_t ip;
   w5500_read(w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
@@ -61,23 +57,44 @@ int main() {
          src_mac[2], src_mac[3], src_mac[4], src_mac[5]);
   printf("IP: %d.%d.%d.%d\n", src_ip[0], src_ip[1], src_ip[2], src_ip[3]);
 
-  // --- ADC ---
-  ads13x_init(emu_adc);
+  //------------Poll Initialization Complete------------
+  while (!stdio_usb_connected())
+    tight_loop_contents();  // TODO remove before flight
 
-  cmdnet_task_init();
-  sensornet_task_init();
-  // solenoid_task_init();
+  //------------Main Program Begin------------
 
-  gpio_init(PYRO);
-  gpio_put(PYRO, false);
-  gpio_set_dir(PYRO, true);
+  for (int i = 0; i < 10; i++) printf("\n");
+  printf(psp_logo);
+  printf("Program: %s\n", PICO_PROGRAM_NAME);
+  printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
+  printf("\n=====Startup Information=====\n");
+  printf("Took %llu µs\n", time_us_64());
+
+  ads13x_set(adc_0);
+  ads13x_reset(adc_0);
+  while (!ads13x_ready(adc_0)) tight_loop_contents();
+  ads13x_init(adc_0);
+
+  stdio_flush();
+
+  const uint64_t ADC_SAMPLE_PERIOD = 10;  // 100 hz
+  uint64_t adcLastSampleTime       = 0;
+
+  while (true)
+    ;
 
   while (true) {
-    cmdnet_task_run();
-    sensornet_task_run();
-    // solenoid_task_run();
+    const uint64_t now = time_us_64();
+    if (now - adcLastSampleTime > ADC_SAMPLE_PERIOD) {
+      uint16_t status;
+      int32_t data[6];
+      ads13x_read_data(adc_0, &status, data, 6);
 
-    gpio_put(PYRO, pyro_state);
+      printf("time:\t%lld\tstatus:%x\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld\t\n", now,
+             status, data[0], data[1], data[2], data[3], data[4], data[5]);
+
+      adcLastSampleTime = now;
+    }
   }
 }
 

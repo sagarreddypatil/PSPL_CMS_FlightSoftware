@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_C_STANDARD 11)
 
 # ---------- Version ----------
-set(VERSION_MAJOR 0)
-set(VERSION_MINOR 2)
-set(VERSION_PATCH 0)
+# set(VERSION_MAJOR 0)
+# set(VERSION_MINOR 2)
+# set(VERSION_PATCH 0)
 
 # ---------- Pico SDK Project Setup  ----------
 # Importing the pico-sdk importer
@@ -55,6 +55,14 @@ file(GLOB_RECURSE mpack_hdrs external/mpack/src/mpack/*.h)
 add_library(mpack ${mpack_srcs} ${mpack_hdrs})
 target_include_directories(mpack PUBLIC external/mpack/src/mpack)
 
+# --------- Git Describe ---------
+execute_process(
+    COMMAND git describe --tags --dirty
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_DESCRIBE_STRING
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 # ---------- Libraries  ----------
 
 set(libs
@@ -82,10 +90,12 @@ psp_lib(lib psp)
 
 psp_lib(device w5500)
 psp_lib(device ads13x)
+psp_lib(device w25n01)
 psp_lib(device mydma)
 psp_lib(device myspi)
 # psp_lib(device myuart)
 
+psp_lib(lib util)
 psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
@@ -94,20 +104,8 @@ psp_lib(lib ntp)
 
 # ---------- Boards  ----------
 set(boards
-    # adc-test
-    # emu
-    # tc-test-board
-    # emu-rtos
-    # ufc-rtos
-    # sanity-check
-    # lotsofpackets
     w5500-test
-    # ntp-test
-    # dma-test
-    # spi-dma-test
-    # rtos-test
-    # spi-loopback-test
-)   
+)
 
 foreach(board ${boards})
     file(GLOB_RECURSE srcs src/${board}/*.c)
@@ -115,7 +113,7 @@ foreach(board ${boards})
 
     add_executable(${board} ${srcs} ${hdrs})
     pico_set_program_name(${board} "${board}")
-    pico_set_program_version(${board} "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH} (build ${CMAKE_BUILD_TYPE})")
+    pico_set_program_version(${board} "${GIT_DESCRIBE_STRING} (build ${CMAKE_BUILD_TYPE})")
 
     set_target_properties(${board}
         PROPERTIES

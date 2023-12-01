@@ -3,7 +3,7 @@
 #include <pico/time.h>
 
 #include <w5500.h>
-SPI_DEVICE(w5500, spi1, 15);
+SPI_DEVICE(w5500, spi1, 25);
 
 int main() {
   stdio_init_all();
@@ -15,7 +15,7 @@ int main() {
     printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
   }
 
-  spi_init_bus(spi1, 11, 12, 14);
+  spi_init_bus(spi1, 26, 27, 28);
 
   uint actual_baud = w5500_set(w5500);
   printf("actual baud: %d\n", actual_baud);

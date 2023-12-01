@@ -1,28 +1,22 @@
 #include <pico/stdlib.h>
+
 #include <w5500.h>
 #include <ads13x.h>
+#include <w25n01.h>
+#include <max31856.h>
+
 #include <commandnet.h>
 #include <ntp.h>
 
 //------------Devices------------
-SPI_DEVICE(w5500, spi0, 17)
-SPI_DEVICE(emu_adc, spi1, 15)
+SPI_DEVICE(tc_0, spi0, 1);
+SPI_DEVICE(tc_1, spi0, 0);
+SPI_DEVICE(adc_0, spi0, 6);
+SPI_DEVICE(flash, spi0, 20);
+SPI_DEVICE(w5500, spi1, 25);
 
 //------------Global Vars------------
-extern int64_t lox_period;
-extern int64_t lox_duty_cycle;
-
-extern int64_t eth_period;
-extern int64_t eth_duty_cycle;
-
-extern int64_t lox_run;
-extern int64_t eth_run;
-
-extern int64_t lox_state;
-extern int64_t eth_state;
-
 extern uint64_t time_offset;
-extern int64_t pyro_state;
 
 // CommandNet Arrays
 
@@ -57,6 +51,3 @@ void cmdnet_task_run();
 
 void sensornet_task_init();
 void sensornet_task_run();
-
-void solenoid_task_init();
-void solenoid_task_run();

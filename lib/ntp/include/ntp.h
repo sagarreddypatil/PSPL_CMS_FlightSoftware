@@ -7,7 +7,7 @@
 /*
  * Returns offset between server and local time
  */
-int64_t get_server_time(spi_device_t *spi, ip_t server_addr,
+int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
                         w5500_socket_t socket);
 
 // https://github.com/ntp-project/ntp/blob/master-no-authorname/include/ntp.h#L535
