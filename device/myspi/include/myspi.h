@@ -35,8 +35,8 @@ typedef struct {
 
   spi_bus_t *spi_bus;
 
-  uint8_t dma_channel_1;
-  uint8_t dma_channel_2;
+  uint dma_channel_1;
+  uint dma_channel_2;
 
 } spi_device_t;
 
@@ -74,4 +74,5 @@ void spi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst, size_t size);
 void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst, size_t size);
 
 
-void dma_finished_isr();
+void dma_finished_isr0();
+void dma_finished_isr1();

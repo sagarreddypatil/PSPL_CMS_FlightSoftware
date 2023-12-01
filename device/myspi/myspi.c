@@ -16,7 +16,11 @@
 
 #define DEBUG_TRANSFER 1
 
-static TaskHandle_t xTaskToNotify = NULL;
+uint channel_1;
+uint channel_2;
+
+static TaskHandle_t xTaskToNotify0 = NULL;
+static TaskHandle_t xTaskToNotify1 = NULL;
 
 void spi_device_init(spi_device_t *spi, uint8_t miso_gpio, uint8_t mosi_gpio, uint8_t sck_gpio)
 {
@@ -41,6 +45,15 @@ void spi_device_init(spi_device_t *spi, uint8_t miso_gpio, uint8_t mosi_gpio, ui
     spi->dma_channel_2 = dma_claim_unused_channel(true);
     spi->baudrate = spi_init(spi1, spi->baudrate);
 
+    channel_1 = spi->dma_channel_1;
+    channel_2 = spi->dma_channel_2;
+
+    // dma_irqn_set_channel_enabled(spi_get_index(spi->spi_bus->bus), spi->dma_channel_1, true);
+    // dma_irqn_set_channel_enabled(!spi_get_index(spi->spi_bus->bus), spi->dma_channel_1, false);
+
+    // dma_irqn_set_channel_enabled(spi_get_index(spi->spi_bus->bus), spi->dma_channel_2, true);
+    // dma_irqn_set_channel_enabled(!spi_get_index(spi->spi_bus->bus), spi->dma_channel_2, false);
+
 }
 
 void spi_write(spi_device_t *spi, uint8_t *src, size_t size)
@@ -49,6 +62,7 @@ void spi_write(spi_device_t *spi, uint8_t *src, size_t size)
     gpio_put(spi->cs_gpio, 0);
     spi_dma_transfer(spi, src, NULL, size);
     gpio_put(spi->cs_gpio, 1);
+
 }
 
 void spi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst, size_t size)
@@ -62,10 +76,8 @@ void spi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst, size_t size)
 
 void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst, size_t size)
 {
-    uint channel_1 = dma_claim_unused_channel(true);
-    uint channel_2 = dma_claim_unused_channel(true);
-    dma_channel_config config_1 = dma_channel_get_default_config(channel_1);
-    dma_channel_config config_2 = dma_channel_get_default_config(channel_2);
+    dma_channel_config config_1 = dma_channel_get_default_config(spi->dma_channel_1);
+    dma_channel_config config_2 = dma_channel_get_default_config(spi->dma_channel_2);
 
     // Sets number of bits to move per transfer
     channel_config_set_transfer_data_size(&config_1, DMA_TRANSFER_SIZE);
@@ -77,7 +89,7 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
     // Set pacing using given DREQ (data request)
     channel_config_set_dreq(&config_1, spi_get_dreq(spi->spi_bus->bus, true));
     dma_channel_configure(
-        channel_1,
+        spi->dma_channel_1,
         &config_1,
         &spi_get_hw(spi->spi_bus->bus)->dr,
         src,
@@ -93,7 +105,7 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
 
     channel_config_set_dreq(&config_2, spi_get_dreq(spi->spi_bus->bus, false));
     dma_channel_configure(
-        channel_2,
+        spi->dma_channel_2,
         &config_2,
         dst,
         &spi_get_hw(spi->spi_bus->bus)->dr,
@@ -101,27 +113,30 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
         false
     );
 
-    dma_start_channel_mask((1u << channel_1) | (1u << channel_2));
+    dma_start_channel_mask((1u << spi->dma_channel_1) | (1u << spi->dma_channel_2));
 
-    xTaskToNotify = xTaskGetCurrentTaskHandle();
+    if (spi_get_index(spi->spi_bus->bus) == 0)
+    {
+        xTaskToNotify0 = xTaskGetCurrentTaskHandle();
+    }
+    else if (spi_get_index(spi->spi_bus->bus) == 1)
+    {
+        xTaskToNotify1 = xTaskGetCurrentTaskHandle();
+    }
+
 	uint32_t ulNotificationValue;
-	const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 200 );
+	const TickType_t xMaxBlockTime = pdMS_TO_TICKS( portMAX_DELAY );
 
 	ulNotificationValue = ulTaskNotifyTake(pdTRUE, xMaxBlockTime);
 
 	if( ulNotificationValue == 1 )
 	{
-		dma_unclaim_mask((1u << channel_1) | (1u << channel_2));
+		// dma_unclaim_mask((1u << spi->dma_channel_1) | (1u << spi->dma_channel_2));
 	}
 	else
 	{
-        dma_unclaim_mask((1u << channel_1) | (1u << channel_2));
+        // dma_unclaim_mask((1u << spi->dma_channel_1) | (1u << spi->dma_channel_2));
 	}
-
-
-    // dma_channel_wait_for_finish_blocking(channel_1);
-    // dma_channel_wait_for_finish_blocking(channel_2);
-    // dma_unclaim_mask((1u << channel_1) | (1u << channel_2));
 
 #if DEBUG_TRANSFER
     printf("\nwrite: ");
@@ -136,20 +151,37 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
 #endif
 }
 
-void dma_finished_isr()
+void dma_finished_isr0()
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-	vTaskNotifyGiveFromISR(xTaskToNotify, &xHigherPriorityTaskWoken );
-	xTaskToNotify = NULL;
+	vTaskNotifyGiveFromISR(xTaskToNotify0, &xHigherPriorityTaskWoken );
+	xTaskToNotify0 = NULL;
 
     for (uint8_t i = 0; i < 12; i++)
     {
         if (dma_channel_get_irq0_status(i))
         {
             dma_channel_acknowledge_irq0(i);
-            break;
         }
     }
+	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void dma_finished_isr1()
+{
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	vTaskNotifyGiveFromISR(xTaskToNotify1, &xHigherPriorityTaskWoken );
+	xTaskToNotify1 = NULL;
+
+    for (uint8_t i = 0; i < 12; i++)
+    {
+        if (dma_channel_get_irq0_status(i))
+        {
+            dma_channel_acknowledge_irq0(i);
+        }
+    }
+
 	portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

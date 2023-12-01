@@ -26,9 +26,10 @@ spi_device_t w5500 = { //posi pico sclk
   };
 
 void not_main() {
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 12; i++)
   {
     printf("\n");
+    // dma_channel_unclaim(i);
   }
 
   printf(psp_logo);
@@ -77,7 +78,7 @@ void not_main() {
   while (true){
     uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phyreg);
-    sleep_ms(500);
+    // sleep_ms(500);
   }
 }
 
@@ -95,7 +96,10 @@ int main()
   spi_device_init(&w5500, 27, 26, 28);
 
   xTaskCreateStatic(not_main, "w5500_main", PROC_STACK_SIZE, NULL, 4, buffer, &task);
-  irq_set_exclusive_handler(DMA_IRQ_0, dma_finished_isr);
+  irq_add_shared_handler(DMA_IRQ_0, dma_finished_isr0, 1);
+  irq_add_shared_handler(DMA_IRQ_1, dma_finished_isr1, 1);
+  // irq_set_enabled(DMA_IRQ_0, true);
+  // irq_set_enabled(DMA_IRQ_1, true);
 
   vTaskStartScheduler();
 
