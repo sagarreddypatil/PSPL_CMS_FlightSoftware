@@ -153,6 +153,21 @@ void spi_dma_transfer(spi_device_t *spi, volatile void *src, volatile void *dst,
 #endif
 }
 
+uint myspi_configure(spi_device_t* spi)
+{
+    xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
+
+    gpio_init(spi->cs_gpio);
+    gpio_put(spi->cs_gpio, 1);
+    gpio_set_dir(spi->cs_gpio, GPIO_OUT);
+
+    uint actual_baud = spi_set_baudrate(spi->spi_bus->bus, spi->baudrate);   
+    spi_set_format(spi->spi_bus->bus, 8, spi->cpol, spi->cpha, SPI_MSB_FIRST); 
+
+    xSemaphoreGive(spi->spi_bus->mutex);
+    return actual_baud;                                     
+}
+
 void dma_finished_isr0()
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;

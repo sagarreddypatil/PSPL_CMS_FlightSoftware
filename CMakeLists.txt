@@ -89,6 +89,7 @@ psp_lib(lib freertos_config)
 psp_lib(lib psp)
 
 psp_lib(device w5500)
+psp_lib(device max31856)
 # psp_lib(device ads13x)
 # psp_lib(device w25n01)
 psp_lib(device mydma)

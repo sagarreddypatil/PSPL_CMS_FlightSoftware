@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spi_device.h>
+#include <myspi.h>
 
 // Register Addresses, from Table 6
 static const uint8_t max31856_cr0  = 0x00;  // Configuration 0 Register
@@ -76,8 +76,6 @@ static const uint8_t max31856_fr_tchigh   = 1 << 3;
 static const uint8_t max31856_fr_tclow    = 1 << 2;
 static const uint8_t max31856_fr_ovuv     = 1 << 1;
 static const uint8_t max31856_fr_open     = 1 << 0;
-
-SPI_INITFUNC(max31856)
 
 // initialize the chip
 void max31856_init(SPI_DEVICE_PARAM);
