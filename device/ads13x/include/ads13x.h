@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spi.h>
+#include <myspi.h>
 
 // Register Addresses
 

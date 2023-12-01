@@ -1,33 +1,45 @@
 #include <w5500.h>
 #include <w5500/tcp_server.h>
-#include <spi.h>
+#include <myspi.h>
 #include <pico/binary_info.h>
 #include <pico/stdlib.h>
 #include <pico/time.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "pico/multicore.h"
-#include <dma.h>
+#include <mydma.h>
 #include <semphr.h>
+
+#include "psp.h"
 
 void sampleSharedResouceFunction(char* out);
 void vTaskSMP_print_core();
 
+spi_bus_t bus_1 = {
+  .bus = spi1,
+};
+
 spi_device_t w5500 = { //posi pico sclk
-  .spi_inst = spi1,
-  .miso_gpio = 27,
-  .mosi_gpio = 26,
-  .sck_gpio = 28,
+  .spi_bus = &bus_1,
   .cs_gpio = 25,
   .baudrate = 30000000
   };
 
 void not_main() {
+  for(int i = 0; i < 10; i++)
+  {
+    printf("\n");
+  }
 
+  printf(psp_logo);
   printf("Program: %s\n", PICO_PROGRAM_NAME);
   printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-  printf("Actual baud: %d\n", w5500.baudrate);
+  printf("started spinning\n");
+
+  for(int i = 0; i < 1000000; i++);
+
+  printf("finished spinning\n");
 
   ip_t gateway     = {192, 168, 2, 1};
   ip_t subnet_mask = {255, 255, 255, 0};
@@ -69,8 +81,10 @@ void not_main() {
   }
 }
 
+#define PROC_STACK_SIZE 1024
+
 StaticTask_t task;
-StackType_t buffer[50000];
+StackType_t buffer[PROC_STACK_SIZE];
 
 int main()
 {
@@ -78,9 +92,9 @@ int main()
   while (!stdio_usb_connected())
     ; // @todo timeout needed
   
-  spi_device_init(&w5500);
+  spi_device_init(&w5500, 27, 26, 28);
 
-  xTaskCreateStatic(not_main, "w5500_main", 50000, NULL, 4, buffer, &task);
+  xTaskCreateStatic(not_main, "w5500_main", PROC_STACK_SIZE, NULL, 4, buffer, &task);
   irq_set_exclusive_handler(DMA_IRQ_0, dma_finished_isr);
 
   vTaskStartScheduler();

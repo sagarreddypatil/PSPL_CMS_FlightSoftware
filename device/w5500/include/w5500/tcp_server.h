@@ -1,5 +1,5 @@
 #pragma once
-#include <spi.h>
+#include <myspi.h>
 #include <w5500.h>
 
 typedef struct {

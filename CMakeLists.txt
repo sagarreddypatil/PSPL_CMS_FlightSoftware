@@ -82,14 +82,15 @@ psp_lib(lib psp)
 
 psp_lib(device w5500)
 psp_lib(device ads13x)
+psp_lib(device mydma)
+psp_lib(device myspi)
+# psp_lib(device myuart)
 
 psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
 psp_lib(lib ntp)
-psp_lib(lib dma)
-psp_lib(lib spi)
-psp_lib(lib uart)
+
 
 # ---------- Boards  ----------
 set(boards
@@ -99,7 +100,7 @@ set(boards
     # emu-rtos
     # ufc-rtos
     # sanity-check
-    lotsofpackets
+    # lotsofpackets
     w5500-test
     # ntp-test
     # dma-test

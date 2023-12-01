@@ -3,8 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <w5500.h>
-#include <spi.h>
-#include <dma.h>
 
 #define MS(x, mask, shift) ((x & mask) << shift)
 #define CONCAT16(x1, x2) (x1 << 8 | x2)

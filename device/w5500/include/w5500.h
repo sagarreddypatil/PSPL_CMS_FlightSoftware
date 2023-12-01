@@ -6,7 +6,7 @@
  */
 
 #pragma once
-#include <spi.h>
+#include <myspi.h>
 
 /**
  * @defgroup w5500 W5500 Driver

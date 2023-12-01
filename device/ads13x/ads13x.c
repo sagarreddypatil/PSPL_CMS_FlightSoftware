@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <spi.h>
+#include <myspi.h>
 
 // Commands
 #define RESET 0b11001

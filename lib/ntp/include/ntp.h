@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <w5500.h>
-#include <spi.h>
+#include <myspi.h>
 
 /*
  * Returns offset between server and local time
