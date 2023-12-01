@@ -74,21 +74,59 @@ void not_main() {
   {
     uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
     printf("0x%x\n", phyreg);
-    sleep_ms(500);
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
+
+void not_not_not_main()
+{
+  w5500_reset(&w5500);
+  uint64_t start = time_us_64();
+  while (!w5500_ready(&w5500))
+    ;
+  printf("W5500 ready, awaiting link, took %d us\n",
+         (int)(time_us_64() - start));
+
+  while (!w5500_has_link(&w5500))
+    ;
+  printf("W5500 has link, took %d us\n", (int)(time_us_64() - start));
+
+  ip_t gateway     = {192, 168, 2, 1};
+  ip_t subnet_mask = {255, 255, 255, 0};
+  ip_t src_ip      = {192, 168, 2, 50};
+  mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
+
+  w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
+  ip_t victim          = {192, 168, 2, 1};
+  uint16_t victim_port = 5000;
+  w5500_create_udp_socket(&w5500, W5500_S0, 5000, false, false, false);
+
+  char msg[1024];
+  for (int i = 0; i < 1024; i++) {
+    msg[i] = 'A';
+  }
+
+  w5500_write(&w5500, W5500_S0, W5500_Sn_DIPR0, victim, 4);
+  w5500_write16(&w5500, W5500_S0, W5500_Sn_DPORT0, victim_port);
+
+  while (true) {
+    // blast UDP packets to victim
+    w5500_write_data(&w5500, W5500_S0, msg, sizeof(msg));
+  }
+}
+
 
 void not_not_main()
 {
   while(true)
   {
-    uint16_t space = w5500_read16(&w5500, W5500_S3, W5500_Sn_TX_FSR0);
+    uint16_t space = w5500_read16(&w5500, W5500_S0, W5500_Sn_TX_FSR0);
     printf("Free Space: %d bytes\n", space);
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    vTaskDelay(pdMS_TO_TICKS(1000));
   }
 }
 
-#define PROC_STACK_SIZE 512
+#define PROC_STACK_SIZE 2048
 
 int main()
 {
@@ -100,11 +138,14 @@ int main()
 
   StaticTask_t task;
   StaticTask_t task2;
+  StaticTask_t task3;
   StackType_t buffer[PROC_STACK_SIZE];
   StackType_t buffer2[PROC_STACK_SIZE];
+  StackType_t buffer3[PROC_STACK_SIZE];
 
   xTaskCreateStatic(not_main, "w5500_main", PROC_STACK_SIZE, NULL, 1, buffer, &task);
   xTaskCreateStatic(not_not_main, "random", PROC_STACK_SIZE, NULL, 1, buffer2, &task2);
+  xTaskCreateStatic(not_not_not_main, "lotsofpackets", PROC_STACK_SIZE, NULL, 1, buffer3, &task3);
 
   StaticSemaphore_t mutex_buf;
   SemaphoreHandle_t mutex;
