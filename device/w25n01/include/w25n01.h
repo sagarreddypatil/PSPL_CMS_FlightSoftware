@@ -1,6 +1,6 @@
 #pragma once
 
-#include <spi_device.h>
+#include <myspi.h>
 
 /*
  * Instruction Definitions
@@ -50,7 +50,6 @@ typedef struct {
 /*
  * Function Signatures
  */
-SPI_INITFUNC(w25n01);
 
 void w25n01_transfer(SPI_DEVICE_PARAM, void* src, void* dst,
                      size_t len);  // basic transfer function for all of library

@@ -90,8 +90,8 @@ psp_lib(lib psp)
 
 psp_lib(device w5500)
 psp_lib(device max31856)
-# psp_lib(device ads13x)
-# psp_lib(device w25n01)
+psp_lib(device ads13x)
+psp_lib(device w25n01)
 psp_lib(device mydma)
 psp_lib(device myspi)
 # psp_lib(device myuart)
@@ -100,7 +100,7 @@ psp_lib(lib util)
 psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
-# psp_lib(lib ntp)
+psp_lib(lib ntp)
 
 
 # ---------- Boards  ----------

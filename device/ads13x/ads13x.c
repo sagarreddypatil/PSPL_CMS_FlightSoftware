@@ -3,49 +3,44 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <spi_device_impl.h>
+#include <myspi.h>
 
-#define NUM_CHANNELS 6
-#define WORD_SIZE 4
+#define NUM_CHANNELS   6
+#define WORD_SIZE      4
 #define WORD_SIZE_INIT 3
 
 #define TRANSFER_WORDS (NUM_CHANNELS + 2)  // status word + crc word
 
-#define TRANSFER_SIZE (TRANSFER_WORDS * WORD_SIZE)
+#define TRANSFER_SIZE      (TRANSFER_WORDS * WORD_SIZE)
 #define TRANSFER_SIZE_INIT (TRANSFER_WORDS * WORD_SIZE_INIT)
 
-SPI_MODE1;  // Mode 1 or 3 allowed, we're using 1
-
-static const uint baudrate = 20000000;
-SPI_INITFUNC_IMPL(ads13x, baudrate)
-
 // Commands
-#define RESET 0b11001
+#define RESET   0b11001
 #define STANDBY 0b100010
-#define WAKEUP 0b0000000000110011
-#define LOCK 0b0000010101010101
-#define UNLOCK 0b0000011001010101
-#define RREG 0b1010000000000000
-#define WREG 0b0110000000000000
+#define WAKEUP  0b0000000000110011
+#define LOCK    0b0000010101010101
+#define UNLOCK  0b0000011001010101
+#define RREG    0b1010000000000000
+#define WREG    0b0110000000000000
 
 // Command Responses
-#define RESET_RESP 0xff26
+#define RESET_RESP   0xff26
 #define STANDBY_RESP 0b0000000000100010
-#define WAKEUP_RESP 0b0000000000110011
-#define LOCK_RESP 0b0000010101010101
-#define UNLOCK_RESP 0b0000011001010101
-#define RREG_RESP 0b1110000000000000
-#define WREG_RESP 0b0100000000000000
+#define WAKEUP_RESP  0b0000000000110011
+#define LOCK_RESP    0b0000010101010101
+#define UNLOCK_RESP  0b0000011001010101
+#define RREG_RESP    0b1110000000000000
+#define WREG_RESP    0b0100000000000000
 
-#define REG_ADDR_MASK (1 << 6) - 1
+#define REG_ADDR_MASK  (1 << 6) - 1
 #define REG_ADDR_SHIFT 7
 
-#define REG_NUM_MASK (1 << 7) - 1
+#define REG_NUM_MASK  (1 << 7) - 1
 #define REG_NUM_SHIFT 0
 
 // Mask and shift macro
 #define MS(val, mask, shift) (((val) & (mask)) << (shift))  // for multiple bits
-#define S(val, shift) ((val & 1) << (shift))                // for single bit
+#define S(val, shift)        ((val & 1) << (shift))         // for single bit
 
 // num - 1 because 0 is 1 reg, don't pass 0, chip designers are dumb
 #define REG_OP(op, reg, num)                     \
@@ -70,7 +65,7 @@ SPI_INITFUNC_IMPL(ads13x, baudrate)
   ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | \
    (ptr)[3])  // just byte order swapping
 
-void ads13x_reset(spi_device_t *device) {
+void ads13x_reset(SPI_DEVICE_PARAM) {
   // try both 24-bit and 32-bit word size
 
   // uint8_t src24[TRANSFER_SIZE] = {HTOP16(RESET)};
@@ -84,7 +79,7 @@ void ads13x_reset(spi_device_t *device) {
   SPI_TRANSFER(src32, dst32, TRANSFER_SIZE);
 }
 
-bool ads13x_ready(spi_device_t *device) {
+bool ads13x_ready(SPI_DEVICE_PARAM) {
   // ready waits for chip to start after a reset
   uint8_t dst[TRANSFER_SIZE_INIT];
 
@@ -181,14 +176,14 @@ uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
   return resp;
 }
 
-void ads13x_set_sample_rate(spi_device_t *device, ads13x_sample_rate sample_rate) {
-  uint16_t clock_reg = ads13x_rreg_single(device, ads13x_clock);
+void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate) {
+  uint16_t clock_reg = ads13x_rreg_single(spi, ads13x_clock);
   clock_reg |= MS(sample_rate, 0b111, 2);
 
-  ads13x_wreg_single(device, ads13x_clock, clock_reg);
+  ads13x_wreg_single(spi, ads13x_clock, clock_reg);
 }
 
-bool ads13x_read_data(spi_device_t *device, uint16_t *status, int32_t *data,
+bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len) {
   if (len > 2) len = 2;
 

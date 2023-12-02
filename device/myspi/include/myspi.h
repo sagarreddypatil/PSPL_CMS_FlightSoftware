@@ -84,10 +84,11 @@ void dma_finished_isr1();
 #define SPI_DEVICE_PARAM spi_device_t *spi
 
 #define SPI_TRANSFER(src, dst, len) spi_write_read(spi, src, dst, len)
+
 #define SPI_WRITE(src, len) \
-  uint8_t dst[len];         \
-  spi_write_read(spi, src, dst, len)
+  uint8_t __dst[len];       \
+  spi_write_read(spi, src, __dst, len)
 
 #define SPI_READ(dst, len) \
-  uint8_t src[len];        \
-  spi_write_read(spi, src, dst, len)
+  uint8_t __src[len];      \
+  spi_write_read(spi, __src, dst, len)
