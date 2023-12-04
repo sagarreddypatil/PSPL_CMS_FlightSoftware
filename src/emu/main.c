@@ -6,7 +6,7 @@
 #include <sensornet.h>
 #include <psp.h>
 
-uint64_t time_offset;
+uint64_t time_offset = 0;
 
 int main() {
   //------------All Initialization------------
@@ -42,7 +42,11 @@ int main() {
   spi_init_bus_adv(spi0, 2, 3, 4, GPIO_SLEW_RATE_FAST, GPIO_DRIVE_STRENGTH_4MA);
 
   max31856_set(tc_0);
+  max31856_init(tc_0);
+
   max31856_set(tc_1);
+  max31856_init(tc_1);
+
   ads13x_set(adc_0);
   w25n01_set(flash);
 
@@ -70,30 +74,11 @@ int main() {
   printf("\n=====Startup Information=====\n");
   printf("Took %llu µs\n", time_us_64());
 
-  ads13x_set(adc_0);
-  ads13x_reset(adc_0);
-  while (!ads13x_ready(adc_0)) tight_loop_contents();
-  ads13x_init(adc_0);
-
   stdio_flush();
 
-  const uint64_t ADC_SAMPLE_PERIOD = 10;  // 100 hz
-  uint64_t adcLastSampleTime       = 0;
-
-  while (true)
-    ;
+  sensornet_task_init();
 
   while (true) {
-    const uint64_t now = time_us_64();
-    if (now - adcLastSampleTime > ADC_SAMPLE_PERIOD) {
-      uint16_t status;
-      int32_t data[6];
-      ads13x_read_data(adc_0, &status, data, 6);
-
-      printf("time:\t%lld\tstatus:%x\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld\t\n", now,
-             status, data[0], data[1], data[2], data[3], data[4], data[5]);
-
-      adcLastSampleTime = now;
-    }
+    sensornet_task_run();
   }
 }
