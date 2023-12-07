@@ -76,14 +76,14 @@ void ads13x_reset(SPI_DEVICE_PARAM) {
   uint8_t src32[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
   uint8_t dst32[TRANSFER_SIZE_INIT];
 
-  SPI_TRANSFER(src32, dst32, TRANSFER_SIZE);
+  SPI_TRANSFER(spi, src32, dst32, TRANSFER_SIZE);
 }
 
 bool ads13x_ready(SPI_DEVICE_PARAM) {
   // ready waits for chip to start after a reset
   uint8_t dst[TRANSFER_SIZE_INIT];
 
-  SPI_READ(dst, TRANSFER_SIZE_INIT);
+  SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
   uint16_t status = PTOH16(dst);
 
@@ -96,14 +96,14 @@ void ads13x_init(SPI_DEVICE_PARAM) {
 // stupid C can't use const as fixed array size
 #define reset_size (WORD_SIZE_INIT * 8)
     uint8_t src[reset_size] = {HTOP16(RESET), 0};
-    SPI_WRITE(src, reset_size);
+    SPI_WRITE(spi, src, reset_size);
 #undef reset_size
   }
 
   {
     // verify reset
     uint8_t dst[TRANSFER_SIZE_INIT];
-    SPI_READ(dst, TRANSFER_SIZE_INIT);
+    SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
     uint16_t status = PTOH16(dst);
     assert(status == RESET_RESP);
@@ -116,10 +116,10 @@ void ads13x_init(SPI_DEVICE_PARAM) {
 
     uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(opcode), 0,
                                        HTOP16(mode_reg_value), 0};
-    SPI_WRITE(src, TRANSFER_SIZE_INIT);
+    SPI_WRITE(spi, src, TRANSFER_SIZE_INIT);
 
     uint8_t dst[TRANSFER_SIZE_INIT] = {0};
-    SPI_READ(dst, TRANSFER_SIZE_INIT);
+    SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
     uint16_t resp     = PTOH16(dst);
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
@@ -134,8 +134,8 @@ void ads13x_init(SPI_DEVICE_PARAM) {
     uint8_t src[TRANSFER_SIZE] = {HTOP16(opcode), 0};
     uint8_t dst[TRANSFER_SIZE] = {0};
 
-    SPI_WRITE(src, TRANSFER_SIZE);
-    SPI_READ(dst, TRANSFER_SIZE);
+    SPI_WRITE(spi, src, TRANSFER_SIZE);
+    SPI_READ(spi, dst, TRANSFER_SIZE);
 
     uint16_t resp = PTOH16(dst);
     assert(resp == mode_reg_value);
@@ -147,8 +147,8 @@ void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
       HTOP16(REG_OP_SINGLE(WREG, reg)), 0, 0, HTOP16(data), 0, 0};
   uint8_t dst[TRANSFER_SIZE];
 
-  SPI_WRITE(src, TRANSFER_SIZE);
-  SPI_READ(dst, TRANSFER_SIZE);
+  SPI_WRITE(spi, src, TRANSFER_SIZE);
+  SPI_READ(spi, dst, TRANSFER_SIZE);
 
   uint16_t resp     = (dst[0] << 8) | dst[1];
   uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
@@ -160,8 +160,8 @@ uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
   uint8_t src[TRANSFER_SIZE * 2] = {HTOP16(REG_OP_SINGLE(RREG, reg))};
   uint8_t dst[TRANSFER_SIZE * 2] = {0};
 
-  SPI_WRITE(src, TRANSFER_SIZE * 2);
-  SPI_READ(dst, TRANSFER_SIZE * 2);
+  SPI_WRITE(spi, src, TRANSFER_SIZE * 2);
+  SPI_READ(spi, dst, TRANSFER_SIZE * 2);
 
   for (int i = 0; i < TRANSFER_SIZE * 2; i++) {
     printf("%02x ", src[i]);
@@ -188,7 +188,7 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
   if (len > 2) len = 2;
 
   uint8_t dst[TRANSFER_SIZE];
-  SPI_READ(dst, TRANSFER_SIZE);
+  SPI_READ(spi, dst, TRANSFER_SIZE);
   // for (int i = 0; i < TRANSFER_SIZE; i++) {
   //   printf("%02X ", dst[i]);
   // }

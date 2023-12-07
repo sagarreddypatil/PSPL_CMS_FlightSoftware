@@ -5,13 +5,11 @@
 #include <w5500.h>
 
 #define MS(x, mask, shift) ((x & mask) << shift)
-#define CONCAT16(x1, x2) (x1 << 8 | x2)
+#define CONCAT16(x1, x2)   (x1 << 8 | x2)
 
+// #define DEBUG_SPI_TRANSFER
 
-// #define DEBUG_SPI_TRANSFER 
-
-
-void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
+void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void *data,
                 size_t len) {
   uint8_t src[3 + len];
   uint8_t dst[3 + len];
@@ -21,11 +19,11 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   src[2] = MS(s, 0b11111, 3) | MS(0, 0b1, 2) | MS(00, 0b11, 0);
   memset(src + 3, 0, len);
 
-  spi_write_read(spi, src, dst, 3 + len);
+  myspi_write_read(spi, src, dst, 3 + len);
 
 #ifdef DEBUG_SPI_TRANSFER
   printf("write: ");
-  for (int i = 0; i < 3+len; i++) {
+  for (int i = 0; i < 3 + len; i++) {
     printf("%02x ", src[i]);
   }
   printf("\nread: ");
@@ -38,9 +36,8 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
   dmacpy(data, dst + 3, len);
 }
 
-
-void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 void* data, size_t len) {
+void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void *data,
+                 size_t len) {
   uint8_t src[3 + len];
 
   src[0] = (reg >> 8) & 0xFF;
@@ -49,9 +46,8 @@ void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
 
   dmacpy(src + 3, data, len);
 
-  spi_write(spi, src, 3 + len);
+  SPI_WRITE(spi, src, 3 + len);
 }
-
 
 void w5500_reset(spi_device_t *spi) {
   w5500_write8(spi, W5500_COMMON, W5500_MR, 0x80);      // reset
@@ -60,20 +56,16 @@ void w5500_reset(spi_device_t *spi) {
                0xf8);  // PHY set to auto-negotiation
 }
 
-
 bool w5500_ready(spi_device_t *spi) {
   return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x80;  // RST bit
 }
-
 
 bool w5500_has_link(spi_device_t *spi) {
   return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x1;  // LNK bit
 }
 
-
 void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
                   ip_t subnet_mask, ip_t gateway) {
-
   // Physical Layer and Default Options
   uint8_t mode = 0;
   w5500_write8(spi, W5500_COMMON, W5500_MR, mode);
@@ -84,7 +76,6 @@ void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
   w5500_write(spi, W5500_COMMON, W5500_SUBR0, subnet_mask, 4);
   w5500_write(spi, W5500_COMMON, W5500_GAR0, gateway, 4);
 }
-
 
 w5500_error_t w5500_create_udp_socket(spi_device_t *spi, w5500_socket_t s,
                                       uint16_t src_port, bool multicast,
@@ -104,7 +95,6 @@ w5500_error_t w5500_create_udp_socket(spi_device_t *spi, w5500_socket_t s,
   return SUCCESS;
 }
 
-
 w5500_error_t w5500_create_tcp_socket(spi_device_t *spi, w5500_socket_t s,
                                       uint16_t src_port) {
   w5500_command(spi, s, W5500_CMD_CLOSE);
@@ -122,8 +112,7 @@ w5500_error_t w5500_create_tcp_socket(spi_device_t *spi, w5500_socket_t s,
   return SUCCESS;
 }
 
-
-size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
+size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t *data,
                        size_t len) {
   uint16_t avail = w5500_read16(spi, s, W5500_Sn_RX_RSR0);
   if (avail < len) {
@@ -144,8 +133,7 @@ size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
   return len;
 }
 
-
-w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void* data,
+w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void *data,
                                size_t len) {
   // get current free size
   uint16_t free_size = w5500_read16(spi, s, W5500_Sn_TX_FSR0);
@@ -169,7 +157,6 @@ w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void* data,
 
   return SUCCESS;
 }
-
 
 void w5500_command(spi_device_t *spi, w5500_socket_t s,
                    w5500_socket_command_t command) {

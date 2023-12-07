@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 
-make
-
 PROG_NAME=$1
-./scripts/pico.py C bootsel
-echo bootsel ^
-sleep 3
-cp ./build/bin/$PROG_NAME.uf2 /run/media/$USER/RPI-RP2
-echo file uploaded ^
 
-echo starting monitor...
+make
+./scripts/pico.py C bootsel
+
+echo
+echo
+echo RP2040 in bootsel mode...
+echo -ne "\rsleeping.. 3"
+sleep 1
+echo -ne "\rsleeping.. 2"
+sleep 1
+echo -ne "\rsleeping.. 1"
+sleep 1
+echo -ne "\rsleeping..  "
+cp ./build/bin/$PROG_NAME.uf2 /run/media/$USER/RPI-RP2
+echo -ne "\rFile uploaded!"
+echo -ne "\rStarting monitor..."
+echo -e "\n\n"
 ./scripts/monitor.py /dev/ttyACM0
