@@ -16,10 +16,7 @@
 
 // #define DEBUG_TRANSFER 1
 
-static TaskHandle_t xTaskToNotify0 = NULL;
-static TaskHandle_t xTaskToNotify1 = NULL;
-static uint8_t rx_channel_0;
-static uint8_t rx_channel_1;
+volatile spi_bus_t myspi_buses[2];
 
 void myspi_device_init(spi_device_t *spi, spi_bus_t *spi_bus, uint8_t cs_gpio,
                        uint8_t miso_gpio, uint8_t mosi_gpio, uint8_t sck_gpio,
@@ -63,7 +60,7 @@ void myspi_bus_init(spi_bus_t *bus, spi_inst_t *spi_inst,
   dma_channel_configure(bus->dma_rx, &bus->rx_config, NULL,
                         &spi_get_hw(spi_inst)->dr, 1, false);
 
-  //
+  /****************************************************************************/
 
   bus->tx_config = dma_channel_get_default_config(bus->dma_tx);
   channel_config_set_transfer_data_size(&bus->tx_config,
@@ -79,16 +76,11 @@ void myspi_bus_init(spi_bus_t *bus, spi_inst_t *spi_inst,
   dma_irqn_set_channel_enabled(!bus->index, bus->dma_rx, false);
   dma_irqn_set_channel_enabled(!bus->index, bus->dma_tx, false);
 
-  // Set interrupt handler depending on which SPI bus, set channels for
-  // interrupts
+  // Set interrupt handler depending on which SPI bus
   if (bus->index) {
-    rx_channel_1 = bus->dma_rx;
-
     irq_set_enabled(DMA_IRQ_1, true);
     irq_set_exclusive_handler(DMA_IRQ_1, dma_finished_isr1);
   } else {
-    rx_channel_0 = bus->dma_rx;
-
     irq_set_enabled(DMA_IRQ_0, true);
     irq_set_exclusive_handler(DMA_IRQ_0, dma_finished_isr0);
   }
@@ -126,15 +118,14 @@ void myspi_dma_transfer(spi_device_t *spi, volatile void *src,
   dma_start_channel_mask((1u << spi->spi_bus->dma_tx) |
                          (1u << spi->spi_bus->dma_rx));
 
-  // if (spi->spi_bus->index) == 0)
-  // {
-  //     xTaskToNotify0 = xTaskGetCurrentTaskHandle();
-  // }
-  // else if (spi->spi_bus->index) == 1)
-  // {
-  //     xTaskToNotify1 = xTaskGetCurrentTaskHandle();
-  // }
-  xTaskToNotify1 = xTaskGetCurrentTaskHandle();
+  if (spi->spi_bus->index == 0)
+  {
+      myspi_buses[0].current_task = xTaskGetCurrentTaskHandle();
+  }
+  else if (spi->spi_bus->index == 1)
+  {
+      myspi_buses[1].current_task = xTaskGetCurrentTaskHandle();
+  }
 
   uint32_t ulNotificationValue;
   const TickType_t xMaxBlockTime = pdMS_TO_TICKS(100);
@@ -181,10 +172,10 @@ uint myspi_configure(spi_device_t *spi) {
 void dma_finished_isr0() {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  vTaskNotifyGiveFromISR(xTaskToNotify0, &xHigherPriorityTaskWoken);
-  xTaskToNotify0 = NULL;
+  vTaskNotifyGiveFromISR(myspi_buses[0].current_task, &xHigherPriorityTaskWoken);
+  myspi_buses[0].current_task = NULL;
 
-  dma_channel_acknowledge_irq0(rx_channel_0);
+  dma_channel_acknowledge_irq0(myspi_buses[0].dma_rx);
 
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
@@ -192,10 +183,10 @@ void dma_finished_isr0() {
 void dma_finished_isr1() {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  vTaskNotifyGiveFromISR(xTaskToNotify1, &xHigherPriorityTaskWoken);
-  xTaskToNotify1 = NULL;
+  vTaskNotifyGiveFromISR(myspi_buses[1].current_task, &xHigherPriorityTaskWoken);
+  myspi_buses[1].current_task = NULL;
 
-  dma_channel_acknowledge_irq0(rx_channel_1);
+  dma_channel_acknowledge_irq1(myspi_buses[1].dma_rx);
 
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

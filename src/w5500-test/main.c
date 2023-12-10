@@ -15,14 +15,9 @@
 
 void sprint(const char* format, ...);
 
-spi_bus_t bus_1 = {
-    .spi_inst = spi1,
-    .index    = 1,
-};
-
 spi_device_t w5500 = {
     // posi pico sclk
-    .spi_bus  = &bus_1,
+    .spi_bus  = myspi0,
     .cs_gpio  = 25,
     .baudrate = 30000000,
 };
@@ -138,8 +133,8 @@ int main() {
     ;  // @todo timeout needed
 
   StaticSemaphore_t mutex_buf;
-  myspi_bus_init(&bus_1, spi1, &mutex_buf);
-  myspi_device_init(&w5500, &bus_1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
+  myspi_bus_init(myspi1, spi1, &mutex_buf);
+  myspi_device_init(&w5500, myspi1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
 
   StaticTask_t task;
   StaticTask_t task2;

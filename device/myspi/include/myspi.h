@@ -13,6 +13,8 @@
 #include <mydma.h>
 
 #define DMA_DEFAULT_TRANSFER_SIZE DMA_SIZE_8
+#define myspi0 (spi_bus_t*)&myspi_buses[0]
+#define myspi1 (spi_bus_t*)&myspi_buses[1]
 
 // Type representing SPI bus, only needs spi_inst set
 typedef struct {
@@ -20,7 +22,7 @@ typedef struct {
   // 0 or 1 representing SPI instance (spi_get_index())
   uint8_t index;
 
-  //
+  volatile TaskHandle_t current_task;
   SemaphoreHandle_t mutex;
 
   uint8_t dma_rx;
@@ -29,6 +31,8 @@ typedef struct {
   dma_channel_config rx_config;
   dma_channel_config tx_config;
 } spi_bus_t;
+
+extern volatile spi_bus_t myspi_buses[2];
 
 // Type representing SPI device
 typedef struct {
