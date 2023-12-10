@@ -106,7 +106,7 @@ psp_lib(lib ntp)
 # ---------- Boards  ----------
 set(boards
     w5500-test
-    queue-test
+    # queue-test
 )
 
 foreach(board ${boards})

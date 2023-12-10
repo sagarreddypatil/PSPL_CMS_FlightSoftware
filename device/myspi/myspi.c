@@ -16,9 +16,10 @@
 
 // #define DEBUG_TRANSFER 1
 
-volatile spi_bus_t myspi_buses[2];
+volatile myspi_t myspi_bus_0;
+volatile myspi_t myspi_bus_1;
 
-void myspi_device_init(spi_device_t *spi, spi_bus_t *spi_bus, uint8_t cs_gpio,
+void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
                        uint8_t miso_gpio, uint8_t mosi_gpio, uint8_t sck_gpio,
                        spi_cpol_t cpol, spi_cpha_t cpha, uint baudrate) {
   // Initialize SPI pins
@@ -39,9 +40,9 @@ void myspi_device_init(spi_device_t *spi, spi_bus_t *spi_bus, uint8_t cs_gpio,
   spi->baudrate = baudrate;
 }
 
-void myspi_bus_init(spi_bus_t *bus, spi_inst_t *spi_inst,
-                    StaticSemaphore_t *mutex_buffer) {
-  bus->spi_inst = spi_inst;
+void myspi_bus_init(myspi_t *bus, StaticSemaphore_t *mutex_buffer) {
+  myspi_bus_0.spi_inst = spi0;
+  myspi_bus_1.spi_inst = spi1;
 
   // Assign index of SPI instance (0 or 1)
   bus->index = spi_get_index(bus->spi_inst);
@@ -56,18 +57,18 @@ void myspi_bus_init(spi_bus_t *bus, spi_inst_t *spi_inst,
   channel_config_set_write_increment(&bus->rx_config, true);
   channel_config_set_transfer_data_size(&bus->rx_config,
                                         DMA_DEFAULT_TRANSFER_SIZE);
-  channel_config_set_dreq(&bus->rx_config, spi_get_dreq(spi_inst, false));
+  channel_config_set_dreq(&bus->rx_config, spi_get_dreq(bus->spi_inst, false));
   dma_channel_configure(bus->dma_rx, &bus->rx_config, NULL,
-                        &spi_get_hw(spi_inst)->dr, 1, false);
+                        &spi_get_hw(bus->spi_inst)->dr, 1, false);
 
   /****************************************************************************/
 
   bus->tx_config = dma_channel_get_default_config(bus->dma_tx);
   channel_config_set_transfer_data_size(&bus->tx_config,
                                         DMA_DEFAULT_TRANSFER_SIZE);
-  channel_config_set_dreq(&bus->tx_config, spi_get_dreq(spi_inst, true));
-  dma_channel_configure(bus->dma_tx, &bus->tx_config, &spi_get_hw(spi_inst)->dr,
-                        NULL, 1, false);
+  channel_config_set_dreq(&bus->tx_config, spi_get_dreq(bus->spi_inst, true));
+  dma_channel_configure(bus->dma_tx, &bus->tx_config,
+                        &spi_get_hw(bus->spi_inst)->dr, NULL, 1, false);
 
   // Disable interrupts on one of the DMA channels (really doesn't matter which)
   // so we don't have overlapping interrupts
@@ -89,9 +90,12 @@ void myspi_bus_init(spi_bus_t *bus, spi_inst_t *spi_inst,
   bus->mutex = xSemaphoreCreateMutexStatic(mutex_buffer);
 }
 
-void myspi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst,
+void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
                       size_t size) {
-  xSemaphoreTake(spi->spi_bus->mutex, 100);
+  BaseType_t success = xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
+
+  assert(success);
+
   spi->baudrate = spi_init(spi->spi_bus->spi_inst, spi->baudrate);
 
   asm volatile("nop \n nop \n nop");
@@ -103,11 +107,13 @@ void myspi_write_read(spi_device_t *spi, uint8_t *src, uint8_t *dst,
   asm volatile("nop \n nop \n nop");
   gpio_put(spi->cs_gpio, 1);
   asm volatile("nop \n nop \n nop");
+  // dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
+  // dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
 
   xSemaphoreGive(spi->spi_bus->mutex);
 }
 
-void myspi_dma_transfer(spi_device_t *spi, volatile void *src,
+void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
                         volatile void *dst, size_t size) {
   dma_channel_set_write_addr(spi->spi_bus->dma_rx, dst, false);
   dma_channel_set_read_addr(spi->spi_bus->dma_tx, src, false);
@@ -118,28 +124,19 @@ void myspi_dma_transfer(spi_device_t *spi, volatile void *src,
   dma_start_channel_mask((1u << spi->spi_bus->dma_tx) |
                          (1u << spi->spi_bus->dma_rx));
 
-  if (spi->spi_bus->index == 0)
-  {
-      myspi_buses[0].current_task = xTaskGetCurrentTaskHandle();
-  }
-  else if (spi->spi_bus->index == 1)
-  {
-      myspi_buses[1].current_task = xTaskGetCurrentTaskHandle();
+  if (spi->spi_bus->index == 0) {
+    myspi_bus_0.current_task = xTaskGetCurrentTaskHandle();
+  } else if (spi->spi_bus->index == 1) {
+    myspi_bus_1.current_task = xTaskGetCurrentTaskHandle();
   }
 
   uint32_t ulNotificationValue;
-  const TickType_t xMaxBlockTime = pdMS_TO_TICKS(100);
 
-  ulNotificationValue = ulTaskNotifyTake(pdTRUE, xMaxBlockTime);
+  ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(portMAX_DELAY));
 
-  if (ulNotificationValue == 1) {
-    // puts("\nepic\n");
-    // dma_unclaim_mask((1u << spi->dma_channel_1) | (1u <<
-    // spi->dma_channel_2));
-    ulNotificationValue = 0;
-  } else {
-    assert(false);
-  }
+  assert(ulNotificationValue);
+
+  ulNotificationValue = 0;
 
 #if DEBUG_TRANSFER
   printf("\nwrite: ");
@@ -154,7 +151,7 @@ void myspi_dma_transfer(spi_device_t *spi, volatile void *src,
 #endif
 }
 
-uint myspi_configure(spi_device_t *spi) {
+uint myspi_configure(myspi_device_t *spi) {
   xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
 
   gpio_init(spi->cs_gpio);
@@ -170,23 +167,25 @@ uint myspi_configure(spi_device_t *spi) {
 }
 
 void dma_finished_isr0() {
+  portDISABLE_INTERRUPTS();
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  vTaskNotifyGiveFromISR(myspi_buses[0].current_task, &xHigherPriorityTaskWoken);
-  myspi_buses[0].current_task = NULL;
+  vTaskNotifyGiveFromISR(myspi_bus_0.current_task, &xHigherPriorityTaskWoken);
 
-  dma_channel_acknowledge_irq0(myspi_buses[0].dma_rx);
+  hw_set_bits(&dma_hw->ints0, 1u << myspi_bus_0.dma_rx);
 
+  portENABLE_INTERRUPTS();
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void dma_finished_isr1() {
+  portDISABLE_INTERRUPTS();
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  vTaskNotifyGiveFromISR(myspi_buses[1].current_task, &xHigherPriorityTaskWoken);
-  myspi_buses[1].current_task = NULL;
+  vTaskNotifyGiveFromISR(myspi_bus_1.current_task, &xHigherPriorityTaskWoken);
 
-  dma_channel_acknowledge_irq1(myspi_buses[1].dma_rx);
+  hw_set_bits(&dma_hw->ints1, 1u << myspi_bus_1.dma_rx);
 
+  portENABLE_INTERRUPTS();
   portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

@@ -15,7 +15,7 @@
 
 void sprint(const char* format, ...);
 
-spi_device_t w5500 = {
+myspi_device_t w5500 = {
     // posi pico sclk
     .spi_bus  = myspi0,
     .cs_gpio  = 25,
@@ -116,7 +116,7 @@ void not_not_not_main() {
 void not_not_main() {
   TickType_t starting_tick = xTaskGetTickCount();
   while (true) {
-    uint16_t space = w5500_read16(&w5500, W5500_S0, W5500_Sn_TX_FSR0);
+    uint16_t space = w5500_read16(&w5500, W5500_S3, W5500_Sn_TX_FSR0);
     sprint("Free Space: %d bytes    Tick: %ld    Space: %ld\n", space,
            xTaskGetTickCount(),
            uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle()));
@@ -124,16 +124,19 @@ void not_not_main() {
   }
 }
 
-#define PROC_STACK_SIZE 2048
+#define PROC_STACK_SIZE 4096
 SemaphoreHandle_t print_mutex = NULL;
+StaticSemaphore_t print_mutex_buffer;
+StaticSemaphore_t mutex_buf;
 
 int main() {
   stdio_init_all();
   while (!stdio_usb_connected())
     ;  // @todo timeout needed
+  
+  stdio_flush();
 
-  StaticSemaphore_t mutex_buf;
-  myspi_bus_init(myspi1, spi1, &mutex_buf);
+  myspi_bus_init(myspi1, &mutex_buf);
   myspi_device_init(&w5500, myspi1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
 
   StaticTask_t task;
@@ -150,8 +153,6 @@ int main() {
   xTaskCreateStatic(not_not_not_main, "lotsofpackets", PROC_STACK_SIZE, NULL, 1,
                     buffer3, &task3);
 
-  StaticSemaphore_t print_mutex_buffer;
-
   print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 
   vTaskStartScheduler();
@@ -163,7 +164,7 @@ int main() {
 }
 
 void sprint(const char* format, ...) {
-  xSemaphoreTake(print_mutex, 100);
+  xSemaphoreTake(print_mutex, portMAX_DELAY);
 
   va_list args;
   va_start(args, format);

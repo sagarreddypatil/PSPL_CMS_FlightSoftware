@@ -163,7 +163,6 @@ typedef uint8_t ip_t[4];
  */
 typedef uint8_t mac_t[6];
 
-
 /**
  * @brief Read memory on the W5500
  * @param spi Pointer to the SPI device
@@ -172,7 +171,7 @@ typedef uint8_t mac_t[6];
  * @param data Pointer to the data buffer to read into
  * @param len Length of the data buffer
  */
-void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
+void w5500_read(myspi_device_t *spi, w5500_socket_t s, uint16_t reg, void *data,
                 size_t len);
 
 /**
@@ -183,8 +182,8 @@ void w5500_read(spi_device_t *spi, w5500_socket_t s, uint16_t reg, void* data,
  * @param data Pointer to the data buffer
  * @param len Length of the data buffer
  */
-void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 void* data, size_t len);
+void w5500_write(myspi_device_t *spi, w5500_socket_t s, uint16_t reg,
+                 void *data, size_t len);
 
 /**
  * @brief Read a 1-byte register and return it
@@ -193,7 +192,7 @@ void w5500_write(spi_device_t *spi, w5500_socket_t s, uint16_t reg,
  * @param reg Register address
  * @return The value stored in the register
  */
-static inline uint8_t w5500_read8(spi_device_t *spi, w5500_socket_t s,
+static inline uint8_t w5500_read8(myspi_device_t *spi, w5500_socket_t s,
                                   uint16_t reg) {
   uint8_t data;
   w5500_read(spi, s, reg, &data, 1);
@@ -207,7 +206,7 @@ static inline uint8_t w5500_read8(spi_device_t *spi, w5500_socket_t s,
  * @param reg Register address
  * @param data The value to write
  */
-static inline void w5500_write8(spi_device_t *spi, w5500_socket_t s,
+static inline void w5500_write8(myspi_device_t *spi, w5500_socket_t s,
                                 uint16_t reg, uint8_t data) {
   w5500_write(spi, s, reg, &data, 1);
 }
@@ -219,7 +218,7 @@ static inline void w5500_write8(spi_device_t *spi, w5500_socket_t s,
  * @param reg Register address
  * @return The value stored in the register
  */
-static inline uint16_t w5500_read16(spi_device_t *spi, w5500_socket_t s,
+static inline uint16_t w5500_read16(myspi_device_t *spi, w5500_socket_t s,
                                     uint16_t reg) {
   uint8_t buf[2];
   w5500_read(spi, s, reg, buf, 2);
@@ -233,7 +232,7 @@ static inline uint16_t w5500_read16(spi_device_t *spi, w5500_socket_t s,
  * @param reg Register address
  * @param data The value to write
  */
-static inline void w5500_write16(spi_device_t *spi, w5500_socket_t s,
+static inline void w5500_write16(myspi_device_t *spi, w5500_socket_t s,
                                  uint16_t reg, uint16_t data) {
   uint8_t buf[2] = {data >> 8, data & 0xFF};
   w5500_write(spi, s, reg, buf, 2);
@@ -247,7 +246,7 @@ static inline void w5500_write16(spi_device_t *spi, w5500_socket_t s,
  * @param bit Bit index to set
  * @param value Value to set the bit to
  */
-static inline void w5500_set_flag(spi_device_t *spi, w5500_socket_t s,
+static inline void w5500_set_flag(myspi_device_t *spi, w5500_socket_t s,
                                   uint16_t reg, uint8_t bit, bool value) {
   w5500_write8(spi, s, reg, w5500_read8(spi, s, reg) | ((value & 1) << bit));
 }
@@ -257,7 +256,7 @@ static inline void w5500_set_flag(spi_device_t *spi, w5500_socket_t s,
  * @brief Reset the W5500
  * @param spi Pointer to the SPI device
  */
-void w5500_reset(spi_device_t *spi);
+void w5500_reset(myspi_device_t *spi);
 
 /**
  * @brief Check if the W5500 is powered on and ready, poll this function until
@@ -265,14 +264,14 @@ void w5500_reset(spi_device_t *spi);
  * @param spi Pointer to the SPI device
  * @return true if ready, false if not
  */
-bool w5500_ready(spi_device_t *spi);
+bool w5500_ready(myspi_device_t *spi);
 
 /**
  * @brief Check if the W5500 has established link
  * @param spi Pointer to the SPI device
  * @return true if link established, false if not
  */
-bool w5500_has_link(spi_device_t *spi);
+bool w5500_has_link(myspi_device_t *spi);
 
 /**
  * @brief Configure the common settings of the W5500
@@ -282,7 +281,7 @@ bool w5500_has_link(spi_device_t *spi);
  * @param subnet_mask Device subnet mask
  * @param gateway Network gateway address
  */
-void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
+void w5500_config(myspi_device_t *spi, mac_t src_mac, ip_t src_ip,
                   ip_t subnet_mask, ip_t gateway);
 
 /**
@@ -290,21 +289,21 @@ void w5500_config(spi_device_t *spi, mac_t src_mac, ip_t src_ip,
  * @param spi Pointer to the SPI device
  * @param wol True to enable WOL, false to disable
  */
-void w5500_set_wol(spi_device_t *spi, bool wol);
+void w5500_set_wol(myspi_device_t *spi, bool wol);
 
 /**
  * @brief Set the ping block mode
  * @param spi Pointer to the SPI device
  * @param block_ping True to block ping, false to allow ping
  */
-void w5500_set_ping_block(spi_device_t *spi, bool block_ping);
+void w5500_set_ping_block(myspi_device_t *spi, bool block_ping);
 
 /**
  * @brief Set the force ARP mode, forces ARP for all transmissions
  * @param spi Pointer to the SPI device
  * @param force_arp True to force ARP, false to not force ARP
  */
-void w5500_set_force_arp(spi_device_t *spi, bool force_arp);
+void w5500_set_force_arp(myspi_device_t *spi, bool force_arp);
 
 /*Socket Constructors*/
 /**
@@ -317,7 +316,7 @@ void w5500_set_force_arp(spi_device_t *spi, bool force_arp);
  * @param block_unicast True to block unicast, false to allow unicast
  * @return Error code if one is encountered, SUCCESS otherwise
  */
-w5500_error_t w5500_create_udp_socket(spi_device_t *spi, w5500_socket_t s,
+w5500_error_t w5500_create_udp_socket(myspi_device_t *spi, w5500_socket_t s,
                                       uint16_t src_port, bool multicast,
                                       bool block_broadcast, bool block_unicast);
 
@@ -328,7 +327,7 @@ w5500_error_t w5500_create_udp_socket(spi_device_t *spi, w5500_socket_t s,
  * @param src_port Source port
  * @return Error code if one is encountered, SUCCESS otherwise
  */
-w5500_error_t w5500_create_tcp_socket(spi_device_t *spi, w5500_socket_t s,
+w5500_error_t w5500_create_tcp_socket(myspi_device_t *spi, w5500_socket_t s,
                                       uint16_t src_port);
 
 /*Writing and Reading for Data Transfer*/
@@ -342,7 +341,7 @@ w5500_error_t w5500_create_tcp_socket(spi_device_t *spi, w5500_socket_t s,
  * @param len Length of the data to read
  * @return The number of bytes read
  */
-size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
+size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, uint8_t *data,
                        size_t len);
 
 /**
@@ -353,7 +352,8 @@ size_t w5500_read_data(spi_device_t *spi, w5500_socket_t s, uint8_t* data,
  * @param len Length of the data to write
  * @return ERR_INSUFFICIENT_MEM if the socket buffer is full, SUCCESS otherwise
  */
-w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void* data,
+w5500_error_t w5500_write_data(myspi_device_t *spi, w5500_socket_t s,
+                               void *data,
                                size_t len);  // keep alive is for TCP only
 
 /* Sends commands to w5500*/
@@ -363,6 +363,5 @@ w5500_error_t w5500_write_data(spi_device_t *spi, w5500_socket_t s, void* data,
  * @param s Socket number
  * @param command Command to send
  */
-void w5500_command(spi_device_t *spi, w5500_socket_t s,
+void w5500_command(myspi_device_t *spi, w5500_socket_t s,
                    w5500_socket_command_t command);
-
