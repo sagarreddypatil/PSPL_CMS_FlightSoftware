@@ -20,7 +20,7 @@ static const uint baudrate = 20000000;
 SPI_INITFUNC_IMPL(ads13x, baudrate)
 
 // Commands
-#define RESET 0b11001
+#define RESET 0b10001
 #define STANDBY 0b100010
 #define WAKEUP 0b0000000000110011
 #define LOCK 0b0000010101010101
@@ -98,20 +98,16 @@ bool ads13x_ready(SPI_DEVICE_PARAM) {
 void ads13x_init(SPI_DEVICE_PARAM) {
   // reset the chip
   {
-// stupid C can't use const as fixed array size
-#define reset_size (WORD_SIZE_INIT * 8)
-    uint8_t src[reset_size] = {HTOP16(RESET), 0};
-    SPI_WRITE(src, reset_size);
-#undef reset_size
-  }
+    uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
+    SPI_WRITE(src, TRANSFER_SIZE_INIT);
 
-  {
+
     // verify reset
     uint8_t dst[TRANSFER_SIZE_INIT];
     SPI_READ(dst, TRANSFER_SIZE_INIT);
 
     uint16_t status = PTOH16(dst);
-    assert(status == RESET_RESP);
+    assert(status == RESET_RESP); // TODO: better error handling
   }
 
   const uint16_t mode_reg_value = 0x0510 | (0b11 << 8);  // set WLENGTH to 0b11

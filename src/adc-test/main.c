@@ -1,14 +1,15 @@
 #include <pico/stdlib.h>
 #include <stdio.h>
 #include <ads13x.h>
+#include <max31856.h>
+#include <w25n01.h>
 
-#define ADC_SCLK 14
-#define ADC_PICO 11
-#define ADC_POCI 12
-#define ADC_CS 15
-#define ADC_RST 3
+#define ADC_RST 7
 
-SPI_DEVICE(ads13x, spi1, ADC_CS)
+SPI_DEVICE(tc_0, spi0, 1);
+SPI_DEVICE(tc_1, spi0, 0);
+SPI_DEVICE(ads13x, spi0, 6);
+SPI_DEVICE(flash, spi0, 20);
 
 static const int32_t ADC_MAX = 0x7FFFFF;
 static const int32_t ADC_MIN = -0x800000;
@@ -35,16 +36,21 @@ int main() {
   printf("\n=====Startup Information=====\n");
   printf("Took %llu µs\n", time_us_64());
 
-  gpio_set_function(ADC_SCLK, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_PICO, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_POCI, GPIO_FUNC_SPI);
-  spi_init(spi1, 2 * 1000 * 1000);
+  
+  spi_init_bus(spi0, 2, 3, 4);
+
+  max31856_set(tc_0);
+  max31856_set(tc_1);
+  w25n01_set(flash);
+  ads13x_set(ads13x);
 
   printf("Initializing ADS13x...\n");
   uint baud = ads13x_set(ads13x);
   ads13x_reset(ads13x);
   while (!ads13x_ready(ads13x)) tight_loop_contents();
+  printf("ADS13x ready!\n");
   ads13x_init(ads13x);
+  printf("ADS13x initialized!\n");
   printf("ADC Baud: %u\n", baud);
 
   printf("chan1,chan2\n");

@@ -97,7 +97,7 @@ psp_lib(lib ntp)
 set(boards
     flash-test
     flash-speed-test
-    # adc-test
+    adc-test
     # echo
     # ntp-test
     emu
