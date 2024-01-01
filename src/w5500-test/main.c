@@ -17,7 +17,7 @@ void sprint(const char* format, ...);
 
 myspi_device_t w5500 = {
     // posi pico sclk
-    .spi_bus  = myspi0,
+    .spi_bus  = myspi1,
     .cs_gpio  = 25,
     .baudrate = 30000000,
 };

@@ -4,7 +4,7 @@ tcp_server_t server;
 cmdnet_t cmdnet;
 
 void cmdnet_task_init() {
-  tcp_server_init(&server, w5500, W5500_S0, 8080);
+  tcp_server_init(&server, &w5500, W5500_S0, 8080);
   cmdnet_init(&cmdnet, &server, cmds, cmds_len, vars, vars_len);
 }
 void cmdnet_task_run() {

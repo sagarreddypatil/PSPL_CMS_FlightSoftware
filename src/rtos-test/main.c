@@ -44,63 +44,60 @@ StaticTask_t task_buffer3;
 StaticSemaphore_t print_mutex_buffer;
 SemaphoreHandle_t print_mutex = NULL;
 
-int main()
-{
-    stdio_init_all();
-    while (!stdio_usb_connected())
+int main() {
+  stdio_init_all();
+  while (!stdio_usb_connected())
     ;
 
-    print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
+  print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 
-    // This will be done for each task that needs to be pinned to a certain core (bit mask)
-    xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "A", 128, NULL, 1, buffer_a, &task_buffer1, 1 << 0);
-    xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "B", 128, NULL, 1, buffer_b, &task_buffer2, 1 << 1);
+  // This will be done for each task that needs to be pinned to a certain core
+  // (bit mask)
+  xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "A", 128, NULL, 1, buffer_a,
+                               &task_buffer1, 1 << 0);
+  xTaskCreateStaticAffinitySet(vTaskSMP_print_core, "B", 128, NULL, 1, buffer_b,
+                               &task_buffer2, 1 << 1);
 
-    // This can be done for tasks that can run on either core
-    xTaskCreateStatic(vTaskSMP_print_core, "C", 128, NULL, 1, buffer_c, &task_buffer3);
+  // This can be done for tasks that can run on either core
+  xTaskCreateStatic(vTaskSMP_print_core, "C", 128, NULL, 1, buffer_c,
+                    &task_buffer3);
 
+  // Don't touch anything below here
+  vTaskStartScheduler();
 
+  while (true)
+    ;
 
-    // Don't touch anything below here
-    vTaskStartScheduler();
+  // This point should not be reached unless vTaskEndScheduler() is called
 
-    while(true);
-
-    // This point should not be reached unless vTaskEndScheduler() is called
-
-    return EXIT_FAILURE;
+  return EXIT_FAILURE;
 }
-
 
 // Semaphore has to be used anytime a shared resource is used, i.e. memory
 
 // Safe print
-void sprint(char* out)
-{   
-    xSemaphoreTake(print_mutex, portMAX_DELAY);
+void sprint(char* out) {
+  xSemaphoreTake(print_mutex, portMAX_DELAY);
 
-    puts(out); 
-    
-    xSemaphoreGive(print_mutex);
+  puts(out);
 
+  xSemaphoreGive(print_mutex);
 }
 
-void vTaskSMP_print_core()
-{
-    TaskHandle_t handle = xTaskGetCurrentTaskHandle();
+void vTaskSMP_print_core() {
+  TaskHandle_t handle = xTaskGetCurrentTaskHandle();
 
-    UBaseType_t mask = vTaskCoreAffinityGet(handle);
+  UBaseType_t mask = vTaskCoreAffinityGet(handle);
 
-    char *name = pcTaskGetName(handle);
+  char* name = pcTaskGetName(handle);
 
-    char out[32];
+  char out[32];
 
-    for (;;) {
+  for (;;) {
+    sprintf(out, "%s  %d  %ld\n ", name, get_core_num(), xTaskGetTickCount());
 
-        sprintf(out,"%s  %d  %ld\n ", name, get_core_num(), xTaskGetTickCount());
+    sprint(out);
 
-        sprint(out);
-
-        vTaskDelay(100);
-    }
+    vTaskDelay(100);
+  }
 }

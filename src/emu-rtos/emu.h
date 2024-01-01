@@ -5,8 +5,11 @@
 #include <ntp.h>
 
 //------------Devices------------
-SPI_DEVICE(w5500, spi0, 17)
-SPI_DEVICE(emu_adc, spi1, 15)
+extern myspi_device_t w5500;
+extern myspi_device_t ads13x;
+
+//------------Task Handles------------
+extern TaskHandle_t w5500_drdy_task;
 
 //------------Global Vars------------
 extern int64_t lox_period;
@@ -60,3 +63,5 @@ void sensornet_task_run();
 
 void solenoid_task_init();
 void solenoid_task_run();
+
+void w5500_drdy_handler();

@@ -6,14 +6,14 @@ ip_t recv_ip       = {192, 168, 2, 20};
 uint16_t recv_port = 5001;
 
 void sensornet_task_init() {
-  w5500_create_udp_socket(w5500, W5500_S1, 5001, false, false, false);
+  w5500_create_udp_socket(&w5500, W5500_S1, 5001, false, false, false);
 
   adc_init();
   adc_gpio_init(PYRO_CONT_0);
   adc_gpio_init(PYRO_CONT_1);
 
-  w5500_write(w5500, W5500_S1, W5500_Sn_DIPR0, recv_ip, 4);
-  w5500_write16(w5500, W5500_S1, W5500_Sn_DPORT0, recv_port);
+  w5500_write(&w5500, W5500_S1, W5500_Sn_DIPR0, recv_ip, 4);
+  w5500_write16(&w5500, W5500_S1, W5500_Sn_DPORT0, recv_port);
 }
 
 const uint64_t epoch =
@@ -35,7 +35,7 @@ void sensornet_task_run() {
     static uint64_t counter0 = 0;
     static uint64_t counter1 = 0;
 
-    ads13x_read_data(emu_adc, &status, data, 2);
+    ads13x_read_data(&ads13x, &status, data, 2);
 
     sensornet_packet_t packet_adc_0 = {.type    = "SEN",
                                        .id      = 3,
@@ -52,9 +52,9 @@ void sensornet_task_run() {
     printf("time:\t%lld\tstatus:%x\tadc_0:\t%ld\tadc_1:\t%ld\n", now, status,
            data[0], data[1]);
 
-    w5500_write_data(w5500, W5500_S1, &packet_adc_0,
+    w5500_write_data(&w5500, W5500_S1, &packet_adc_0,
                      sizeof(sensornet_packet_t));
-    w5500_write_data(w5500, W5500_S1, &packet_adc_1,
+    w5500_write_data(&w5500, W5500_S1, &packet_adc_1,
                      sizeof(sensornet_packet_t));
 
     adcLastSampleTime = now;
@@ -87,10 +87,10 @@ void sensornet_task_run() {
     // printf("time:\t%lld\tpyro_cont_0:\t%d\tpyro_cont_1:\t%d\n", now,
     //        pyro_cont_0, pyro_cont_1);
 
-    w5500_write_data(w5500, W5500_S1, &packet_cont_0,
+    w5500_write_data(&w5500, W5500_S1, &packet_cont_0,
                      sizeof(sensornet_packet_t));
 
-    w5500_write_data(w5500, W5500_S1, &packet_cont_1,
+    w5500_write_data(&w5500, W5500_S1, &packet_cont_1,
                      sizeof(sensornet_packet_t));
   }
 }

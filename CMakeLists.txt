@@ -71,7 +71,6 @@ set(libs
 
 macro(psp_lib loc libname)
     file(GLOB_RECURSE srcs ${loc}/${libname}/*.c)
-    file(GLOB_RECURSE hdrs ${loc}/${libname}/*.h)
 
     add_library(${libname} INTERFACE)
     target_sources(${libname} INTERFACE ${srcs})
@@ -101,12 +100,12 @@ psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
 psp_lib(lib ntp)
+psp_lib(lib threads)
 
 
 # ---------- Boards  ----------
 set(boards
-    w5500-test
-    # queue-test
+    emu-rtos
 )
 
 foreach(board ${boards})
@@ -114,6 +113,7 @@ foreach(board ${boards})
     file(GLOB_RECURSE hdrs src/${board}/*.h)
 
     add_executable(${board} ${srcs} ${hdrs})
+    target_include_directories(${board} PUBLIC src/${board}/)
     pico_set_program_name(${board} "${board}")
     pico_set_program_version(${board} "${GIT_DESCRIBE_STRING} (build ${CMAKE_BUILD_TYPE})")
 

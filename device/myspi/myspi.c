@@ -107,8 +107,8 @@ void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
   asm volatile("nop \n nop \n nop");
   gpio_put(spi->cs_gpio, 1);
   asm volatile("nop \n nop \n nop");
-  // dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
-  // dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
+  dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
+  dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
 
   xSemaphoreGive(spi->spi_bus->mutex);
 }
@@ -121,14 +121,15 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
   dma_channel_set_trans_count(spi->spi_bus->dma_rx, size, false);
   dma_channel_set_trans_count(spi->spi_bus->dma_tx, size, false);
 
-  dma_start_channel_mask((1u << spi->spi_bus->dma_tx) |
-                         (1u << spi->spi_bus->dma_rx));
-
   if (spi->spi_bus->index == 0) {
     myspi_bus_0.current_task = xTaskGetCurrentTaskHandle();
   } else if (spi->spi_bus->index == 1) {
     myspi_bus_1.current_task = xTaskGetCurrentTaskHandle();
   }
+  
+  dma_start_channel_mask((1u << spi->spi_bus->dma_tx) |
+                         (1u << spi->spi_bus->dma_rx));
+
 
   uint32_t ulNotificationValue;
 
