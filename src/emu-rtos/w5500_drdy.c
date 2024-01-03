@@ -1,30 +1,33 @@
+// glibc Includes
+#include <stdio.h>
+
 // FreeRTOS Includes
 #include <FreeRTOS.h>
 #include <task.h>
 
-// RP2040 Includes
-#include <hardware/gpio.h>
-#include <hardware/irq.h>
+// Pico Includes
+// ------------- //
+
+// Library Includes
+// ---------------- //
+
+// Device Includes
+#include <w5500.h>
+
+// EMU Includes
 #include <emu.h>
 
-#include <stdio.h>
-#include <pico/mutex.h>
-
-
 // Needs to move w5500 data to queue?
-void w5500_drdy()
-{
-
+void w5500_drdy() {
+    
 }
 
-void w5500_drdy_handler()
-{
-    portDISABLE_INTERRUPTS();
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+void w5500_drdy_handler() {
+  portDISABLE_INTERRUPTS();
+  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    // vTaskNotifyGiveFromISR(TASK, &xHigherPriorityTaskWoken);
+  vTaskNotifyGiveFromISR(w5500_drdy_task, &xHigherPriorityTaskWoken);
 
-
-    portENABLE_INTERRUPTS();
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  portENABLE_INTERRUPTS();
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

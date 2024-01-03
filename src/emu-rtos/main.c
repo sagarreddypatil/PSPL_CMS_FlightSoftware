@@ -17,8 +17,6 @@
 #include <sensornet.h>
 #include <pico/unique_id.h>
 
-#define STACK_SIZE 4096
-
 void setupHardware() {
   stdio_usb_init();
 
@@ -64,12 +62,17 @@ void setupHardware() {
 
 StackType_t w5500_task_stack[128];
 StaticTask_t w5500_drdy_task_buffer;
+uint8_t QueueStorage[100];
+StaticQueue_t static_queue;
+
 
 int main() {
   setupHardware();
+  
+  QueueHandle_t w5500_queue = xQueueCreateStatic(100, 1, QueueStorage, &static_queue);
 
   //
-  TaskHandle_t w5500_drdy_task = xTaskCreateStaticAffinitySet(
+  w5500_drdy_task = xTaskCreateStaticAffinitySet(
       w5500_drdy_handler, "W5500_DRDY", 128, NULL, 1, w5500_task_stack,
       &w5500_drdy_task_buffer, 1 << (0));
 
