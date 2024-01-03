@@ -16,14 +16,14 @@ void sensornet_task_init() {
   w5500_write16(w5500, W5500_S1, W5500_Sn_DPORT0, recv_port);
 }
 
-const uint64_t epoch =
-    1693108800000000;  // Aug 27, 2023 00:00:00 UTC, beacuse NTP not here yet
-
-uint64_t pyroLastSampleTime       = epoch;
+uint64_t pyroLastSampleTime       = 0;
 const uint64_t PYRO_SAMPLE_PERIOD = 10000;  // 100 hz
 
-uint64_t adcLastSampleTime       = epoch;
+uint64_t adcLastSampleTime       = 0;
 const uint64_t ADC_SAMPLE_PERIOD = 10000;  // 100 hz
+
+uint64_t tcLastSampleTime       = 0;
+const uint64_t TC_SAMPLE_PERIOD = 10000;  // 100 hz
 
 void sensornet_task_run() {
   const uint64_t now = time_us_64() + time_offset;
@@ -42,8 +42,8 @@ void sensornet_task_run() {
     //     "ld\tadc_4:%ld\tadc_5:%ld\t\n",
     //     now, status, data[0], data[1], data[2], data[3], data[4], data[5]);
 
-    printf("time:\t%lld\tstatus:%x\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld\t", now,
-           status, data[0], data[1], data[2], data[3], data[4], data[5]);
+    // printf("time:\t%lld\tstatus:%x\t%ld\t%ld\t%ld\t%ld\t%ld\t%ld\t", now,
+    //  status, data[0], data[1], data[2], data[3], data[4], data[5]);
 
     sensornet_packet_t packet_adc_0 = {.type    = "SEN",
                                        .id      = 3,
@@ -63,6 +63,15 @@ void sensornet_task_run() {
     //                  sizeof(sensornet_packet_t));
 
     adcLastSampleTime = now;
+  }
+
+  if (now - tcLastSampleTime > TC_SAMPLE_PERIOD) {
+    tcLastSampleTime = now;
+
+    max31856_set(tc_0);
+    int16_t cjTemp = max31856_get_cj_temp(tc_0);
+
+    printf("CJ Temp: %d\n", cjTemp);
   }
 
   // if (now - pyroLastSampleTime > PYRO_SAMPLE_PERIOD) {

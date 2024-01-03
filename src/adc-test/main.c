@@ -1,14 +1,20 @@
 #include <pico/stdlib.h>
 #include <stdio.h>
 #include <ads13x.h>
+#include <max31856.h>
+#include <w25n01.h>
 
-#define ADC_SCLK 14
-#define ADC_PICO 11
-#define ADC_POCI 12
-#define ADC_CS 15
-#define ADC_RST 3
+#define ADC_RST 7
 
-SPI_DEVICE(ads13x, spi1, ADC_CS)
+myspi_device_t tc_0;
+myspi_device_t tc_1;
+myspi_device_t ads13x;
+myspi_device_t flash;
+
+// SPI_DEVICE(tc_0, spi0, 1);
+// SPI_DEVICE(tc_1, spi0, 0);
+// SPI_DEVICE(ads13x, spi0, 6);
+// SPI_DEVICE(flash, spi0, 20);
 
 static const int32_t ADC_MAX = 0x7FFFFF;
 static const int32_t ADC_MIN = -0x800000;
@@ -35,16 +41,20 @@ int main() {
   printf("\n=====Startup Information=====\n");
   printf("Took %llu µs\n", time_us_64());
 
-  gpio_set_function(ADC_SCLK, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_PICO, GPIO_FUNC_SPI);
-  gpio_set_function(ADC_POCI, GPIO_FUNC_SPI);
-  spi_init(spi1, 2 * 1000 * 1000);
+  myspi_device_init(&tc_0, myspi0, 1, 2, 3, 4, SPI_CPOL_0, SPI_CPHA_1, 5000000);
+  myspi_device_init(&tc_1, myspi0, 0, 2, 3, 4, SPI_CPOL_0, SPI_CPHA_1, 5000000);
+  myspi_device_init(&ads13x, myspi0, 6, 2, 3, 4, SPI_CPOL_0, SPI_CPHA_1,
+                    15000000);
+  myspi_device_init(&ads13x, myspi0, 29, 2, 3, 4, SPI_CPOL_0, SPI_CPHA_1,
+                    15000000);
 
   printf("Initializing ADS13x...\n");
-  uint baud = ads13x_set(ads13x);
-  ads13x_reset(ads13x);
-  while (!ads13x_ready(ads13x)) tight_loop_contents();
-  ads13x_init(ads13x);
+  uint baud = myspi_configure(&ads13x);
+  ads13x_reset(&ads13x);
+  while (!ads13x_ready(&ads13x)) tight_loop_contents();
+  printf("ADS13x ready!\n");
+  ads13x_init(&ads13x);
+  printf("ADS13x initialized!\n");
   printf("ADC Baud: %u\n", baud);
 
   printf("chan1,chan2\n");
@@ -69,7 +79,7 @@ int main() {
     uint16_t statA;
     // uint16_t statB;
     int32_t data[2];
-    ads13x_read_data(ads13x, &statA, data, 2);
+    ads13x_read_data(&ads13x, &statA, data, 2);
 
     float fdata[2] = {1.2 * data[0] / (float)ADC_MAX,
                       1.2 * data[1] / (float)ADC_MAX};

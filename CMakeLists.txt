@@ -105,7 +105,8 @@ psp_lib(lib threads)
 
 # ---------- Boards  ----------
 set(boards
-    emu-rtos
+    # emu-rtos
+    adc-test
 )
 
 foreach(board ${boards})
