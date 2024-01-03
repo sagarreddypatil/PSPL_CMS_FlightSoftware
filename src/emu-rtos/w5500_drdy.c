@@ -19,7 +19,13 @@
 
 // Needs to move w5500 data to queue?
 void w5500_drdy() {
-    
+  uint32_t ulNotificationValue;
+  ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(portMAX_DELAY));
+
+  assert(ulNotificationValue);
+  ulNotificationValue = 0;
+
+
 }
 
 void w5500_drdy_handler() {
