@@ -2,6 +2,7 @@
 #include <w5500.h>
 #include <ads13x.h>
 #include <commandnet.h>
+#include <sensornet.h>
 #include <ntp.h>
 
 //------------Devices------------

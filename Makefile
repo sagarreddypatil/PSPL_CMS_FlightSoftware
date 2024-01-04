@@ -49,7 +49,7 @@ external/mpack:
 	git clone --depth 1 --branch v1.1.1 https://github.com/ludocode/mpack.git external/mpack
 
 external/freertos:
-	git clone --depth 1 https://github.com/FreeRTOS/FreeRTOS-Kernel.git external/freertos
+	git clone --depth 1 --branch V11.0.1 https://github.com/FreeRTOS/FreeRTOS-Kernel.git external/freertos
 
 docs:
 	doxygen Doxyfile
