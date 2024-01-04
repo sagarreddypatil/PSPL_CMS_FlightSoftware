@@ -1,8 +1,5 @@
 #pragma once
 
-#include "FreeRTOS.h" /* Must come first. */
-#include "semphr.h"   /* Semaphore related API prototypes. */
-
 #include <stdint.h>
 #include <pico/time.h>
 
@@ -34,9 +31,6 @@ typedef enum {
 } sm_state_t;
 
 typedef struct {
-    StaticSemaphore_t mutex_buf;
-    SemaphoreHandle_t mutex;
-
     sm_state_t state;
     uint64_t t0;  // T-0 time of the countdown, all times relative to this
 
@@ -96,8 +90,3 @@ void sm_poll_answer(sm_t *sm, sm_poll_status_t status);
  * Also run it in a 1ms tick
  */
 void sm_run_polls_events(sm_t *sm);
-
-/*
- * FreeRTOS task that runs periodically
- */
-void sm_task_fn();

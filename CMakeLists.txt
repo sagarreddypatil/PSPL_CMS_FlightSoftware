@@ -100,7 +100,7 @@ psp_lib(lib crypto)
 psp_lib(lib sensornet)
 psp_lib(lib commandnet)
 psp_lib(lib ntp)
-psp_lib(lib threads)
+psp_lib(lib state-machine)
 
 
 # ---------- Boards  ----------

@@ -1,14 +1,9 @@
-#include "emu.h"
 #include "state-machine.h"
-#include "config.h"
-
+#include "sensornet.h"
 #include <assert.h>
 
 void sm_init(sm_t *sm, const sm_event_t *events, uint32_t num_events,
              const sm_poll_t *polls, uint32_t num_polls) {
-    // this function will only be called once, so no need to lock for it
-    sm->mutex = xSemaphoreCreateMutexStatic(&sm->mutex_buf);
-
     sm->state = SM_STATE_HOLD;
     sm->t0    = 0;
 
@@ -164,33 +159,5 @@ void sm_run_polls_events(sm_t *sm) {
             sm->state = SM_STATE_FLIGHT;
             return;
         }
-    }
-}
-
-void sm_task_fn() {
-    uint64_t time_packet_counter = 0;
-    TickType_t prev_wake         = xTaskGetTickCount();
-
-    while (1) {
-        sm_run_polls_events(&state_machine);
-
-        // send a packet to w5500, unbuffered because this should be fast
-        int64_t relative_time     = sm_relative_time(&state_machine);
-        sensornet_packet_t packet = {
-            .id      = SENSOR_ID_VEHICLE_CLOCK,
-            .time_us = sm_absolute_time(),
-            .counter = time_packet_counter++,
-            .value   = relative_time,
-        };
-
-        // myspi_lock(&w5500);
-        // myspi_configure(&w5500);
-        // w5500_write_data(&w5500, SENSORNET_SOCKET, &packet,
-        //                  sizeof(sensornet_packet_t));  // dk if it made it
-        // myspi_unlock(&w5500);
-
-        // safeprintf("T-minus Clock: %" PRId64 "\n", relative_time);
-
-        xTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(1));
     }
 }

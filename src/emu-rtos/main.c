@@ -17,7 +17,7 @@
 #include <sensornet.h>
 #include <pico/unique_id.h>
 
-void setupHardware() {
+void setup_hardware() {
     stdio_usb_init();
 
     /*
@@ -66,7 +66,7 @@ StaticQueue_t static_queue;
 sm_t state_machine;
 
 int main() {
-    setupHardware();
+    setup_hardware();
 
     QueueHandle_t w5500_queue =
         xQueueCreateStatic(100, 1, QueueStorage, &static_queue);

@@ -6,7 +6,7 @@
 #include <commandnet.h>
 #include <sensornet.h>
 #include <ntp.h>
-#include "state-machine.h"
+#include <state-machine.h>
 
 //------------Devices------------
 extern myspi_device_t w5500;
