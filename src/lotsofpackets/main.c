@@ -4,17 +4,11 @@
 
 #include <w5500.h>
 
-spi_device_t w5500 = { //posi pico sclk
-  .spi_inst = spi1,
-  .miso_gpio = 27,
-  .mosi_gpio = 26,
-  .sck_gpio = 28,
-  .cs_gpio = 25,
-  .baudrate = 30000000
-  };
+spi_device_t w5500 = {  // posi pico sclk
+    .spi_inst = spi1, .miso_gpio = 27, .mosi_gpio = 26,
+    .sck_gpio = 28,   .cs_gpio = 25,   .baudrate = 30000000};
 
 int main() {
-
   spi_device_init(&w5500);
   stdio_init_all();
   while (!stdio_usb_connected())

@@ -126,10 +126,9 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
   } else if (spi->spi_bus->index == 1) {
     myspi_bus_1.current_task = xTaskGetCurrentTaskHandle();
   }
-  
+
   dma_start_channel_mask((1u << spi->spi_bus->dma_tx) |
                          (1u << spi->spi_bus->dma_rx));
-
 
   uint32_t ulNotificationValue;
 

@@ -45,8 +45,8 @@ int main() {
 
     while (w25n01_get_busy(flash))
       ;
-    // int64_t time_taken = absolute_time_diff_us(write_start, get_absolute_time());
-    // printf("took %lld us \n", time_taken); 
+    // int64_t time_taken = absolute_time_diff_us(write_start,
+    // get_absolute_time()); printf("took %lld us \n", time_taken);
   }
 
   int64_t time_taken = absolute_time_diff_us(start, get_absolute_time());
@@ -78,7 +78,7 @@ int main() {
 
   time_taken = absolute_time_diff_us(start, get_absolute_time());
 
-    for (int i = 0; i < 10; i++) {
+  for (int i = 0; i < 10; i++) {
     printf("Done Reading!\n");
     printf("Total time to read 65536 pages: %lld\n", time_taken);
   }

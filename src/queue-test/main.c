@@ -101,8 +101,7 @@ void vTaskSMP_print_core() {
   char out[32];
 
   while (true) {
-    sprintf(out, "%s  %d  %ld\n ", name, get_core_num(),
-    xTaskGetTickCount());
+    sprintf(out, "%s  %d  %ld\n ", name, get_core_num(), xTaskGetTickCount());
 
     sprint(out);
 
@@ -118,10 +117,11 @@ void queueSendTask() {
 
   char sender = 33;
   char out[128];
-  char *strpt  = &sender;
+  char *strpt = &sender;
 
   while (true) {
-    sprintf(out, "Input: %c     Core: %d    Tick: %ld ", sender, get_core_num(), xTaskGetTickCount());
+    sprintf(out, "Input: %c     Core: %d    Tick: %ld ", sender, get_core_num(),
+            xTaskGetTickCount());
 
     xQueueSend(queue, strpt, pdMS_TO_TICKS(1000));
     sender++;
@@ -145,7 +145,8 @@ void queueReceiveTask() {
 
     // sprintf(out, "%s  %d  %ld  %s\n ", name, get_core_num(),
     // xTaskGetTickCount(), receiver);
-    sprintf(out, "Output: %c    Core: %d    Tick: %ld ", receiver[0], get_core_num(), xTaskGetTickCount());
+    sprintf(out, "Output: %c    Core: %d    Tick: %ld ", receiver[0],
+            get_core_num(), xTaskGetTickCount());
 
     sprint(out);
 

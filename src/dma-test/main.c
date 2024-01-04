@@ -12,7 +12,7 @@
 // Arrays must be of size log2(MAX_SIZE/MIN_SIZE)+1
 void transfer_epoch(uint64_t *cpytimes, uint64_t *dma1times,
                     uint64_t *dma4times) {
-  for (size_t i = MIN_SIZE+1; i < MAX_SIZE+1; i++) {
+  for (size_t i = MIN_SIZE + 1; i < MAX_SIZE + 1; i++) {
     uint8_t source[MAX_SIZE];
     uint8_t destination[MAX_SIZE];
 
@@ -37,9 +37,8 @@ void transfer_epoch(uint64_t *cpytimes, uint64_t *dma1times,
     dma1times[i] += end_time - start_time;
     dma4times[i] += end_time3 - start_time3;
 
-    printf("%d,%lld,%lld,%lld\n",
-           i, end_time - start_time, end_time3 - start_time3,
-           end_time2 - start_time2);
+    printf("%d,%lld,%lld,%lld\n", i, end_time - start_time,
+           end_time3 - start_time3, end_time2 - start_time2);
   }
 }
 
@@ -49,9 +48,9 @@ int main() {
   while (!stdio_usb_connected())
     ;
 
-  uint64_t cpytimes[MAX_SIZE-MIN_SIZE]  = {0};
-  uint64_t dma1times[MAX_SIZE-MIN_SIZE] = {0};
-  uint64_t dma4times[MAX_SIZE-MIN_SIZE] = {0};
+  uint64_t cpytimes[MAX_SIZE - MIN_SIZE]  = {0};
+  uint64_t dma1times[MAX_SIZE - MIN_SIZE] = {0};
+  uint64_t dma4times[MAX_SIZE - MIN_SIZE] = {0};
 
   for (size_t i = 0; i < NUM_EPOCHS; i++) {
     transfer_epoch(cpytimes, dma1times, dma4times);
@@ -61,8 +60,8 @@ int main() {
   // printf("------------------------------------------------------\n");
   // for (size_t i = 0; i < log2(MAX_SIZE / MIN_SIZE) + 1; i++) {
   //   printf(" %5d bytes      %4lldus          %4lldus        %4lldus\n",
-  //          4 * (1 << i), dma1times[i] / NUM_EPOCHS, dma4times[i] / NUM_EPOCHS,
-  //          cpytimes[i] / NUM_EPOCHS);
+  //          4 * (1 << i), dma1times[i] / NUM_EPOCHS, dma4times[i] /
+  //          NUM_EPOCHS, cpytimes[i] / NUM_EPOCHS);
   // }
 
   // To keep keep stdout alive and readable

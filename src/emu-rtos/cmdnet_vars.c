@@ -26,6 +26,5 @@ cmdnet_var_t vars[] = {
     // {"lox_run", &lox_run},       {"eth_run", &eth_run},
     // {"lox_state", &lox_state},   {"eth_state", &eth_state},
     {"pyro_state", &pyro_state},
-    {"time_offset_us", (int64_t*)&time_offset}
-};
+    {"time_offset_us", (int64_t*)&time_offset}};
 const size_t vars_len = sizeof(vars) / sizeof(vars[0]);

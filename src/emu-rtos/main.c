@@ -65,11 +65,11 @@ StaticTask_t w5500_drdy_task_buffer;
 uint8_t QueueStorage[100];
 StaticQueue_t static_queue;
 
-
 int main() {
   setupHardware();
-  
-  QueueHandle_t w5500_queue = xQueueCreateStatic(100, 1, QueueStorage, &static_queue);
+
+  QueueHandle_t w5500_queue =
+      xQueueCreateStatic(100, 1, QueueStorage, &static_queue);
 
   //
   w5500_drdy_task = xTaskCreateStaticAffinitySet(

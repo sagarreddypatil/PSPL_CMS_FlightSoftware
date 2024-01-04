@@ -133,7 +133,7 @@ int main() {
   stdio_init_all();
   while (!stdio_usb_connected())
     ;  // @todo timeout needed
-  
+
   stdio_flush();
 
   myspi_bus_init(myspi1, &mutex_buf);

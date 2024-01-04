@@ -24,8 +24,6 @@ void w5500_drdy() {
 
   assert(ulNotificationValue);
   ulNotificationValue = 0;
-
-
 }
 
 void w5500_drdy_handler() {
