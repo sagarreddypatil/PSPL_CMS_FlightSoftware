@@ -103,11 +103,11 @@ processor and application]
 */
 
 /* SMP port only */
-#define configNUMBER_OF_CORES         2
-#define configTICK_CORE               1
-#define configRUN_MULTIPLE_PRIORITIES 1
-#define configUSE_CORE_AFFINITY       1
-#define portSUPPORT_SMP               1
+#define configNUMBER_OF_CORES         1
+#define configTICK_CORE               0
+#define configRUN_MULTIPLE_PRIORITIES 0
+// #define configUSE_CORE_AFFINITY       1
+// #define portSUPPORT_SMP               1
 
 /* RP2040 specific */
 #define configSUPPORT_PICO_SYNC_INTEROP 1
