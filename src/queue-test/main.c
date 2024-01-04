@@ -49,107 +49,108 @@ SemaphoreHandle_t print_mutex = NULL;
 QueueHandle_t queue;
 
 int main() {
-  stdio_init_all();
-  while (!stdio_usb_connected())
-    ;
+    stdio_init_all();
+    while (!stdio_usb_connected())
+        ;
 
-  stdio_flush();
+    stdio_flush();
 
-  print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
+    print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 
-  queue = xQueueCreateStatic(task_size, 1, QueueStorage, &static_queue);
+    queue = xQueueCreateStatic(task_size, 1, QueueStorage, &static_queue);
 
-  // This will be done for each task that needs to be pinned to a certain core
-  // (bit mask)
-  xTaskCreateStaticAffinitySet(queueSendTask, "A", task_size, NULL, 1, buffer_a,
-                               &task_buffer1, 1 << 0);
-  xTaskCreateStaticAffinitySet(queueReceiveTask, "B", task_size, NULL, 1,
-                               buffer_b, &task_buffer2, 1 << 1);
+    // This will be done for each task that needs to be pinned to a certain core
+    // (bit mask)
+    xTaskCreateStaticAffinitySet(queueSendTask, "A", task_size, NULL, 1,
+                                 buffer_a, &task_buffer1, 1 << 0);
+    xTaskCreateStaticAffinitySet(queueReceiveTask, "B", task_size, NULL, 1,
+                                 buffer_b, &task_buffer2, 1 << 1);
 
-  // This can be done for tasks that can run on either core
-  xTaskCreateStatic(vTaskSMP_print_core, "C", task_size, NULL, 1, buffer_c,
-                    &task_buffer3);
+    // This can be done for tasks that can run on either core
+    xTaskCreateStatic(vTaskSMP_print_core, "C", task_size, NULL, 1, buffer_c,
+                      &task_buffer3);
 
-  // Don't touch anything below here
-  vTaskStartScheduler();
+    // Don't touch anything below here
+    vTaskStartScheduler();
 
-  while (true)
-    ;
+    while (true)
+        ;
 
-  // This point should not be reached unless vTaskEndScheduler() is called
+    // This point should not be reached unless vTaskEndScheduler() is called
 
-  return EXIT_FAILURE;
+    return EXIT_FAILURE;
 }
 
 // Semaphore has to be used anytime a shared resource is used, i.e. memory
 
 // Safe print
 void sprint(char *out) {
-  xSemaphoreTake(print_mutex, 1000);
+    xSemaphoreTake(print_mutex, 1000);
 
-  puts(out);
+    puts(out);
 
-  xSemaphoreGive(print_mutex);
+    xSemaphoreGive(print_mutex);
 }
 
 void vTaskSMP_print_core() {
-  TickType_t starting_tick = xTaskGetTickCount();
-  TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
+    TickType_t starting_tick = xTaskGetTickCount();
+    TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
 
-  char *name = pcTaskGetName(handle);
+    char *name = pcTaskGetName(handle);
 
-  char out[32];
+    char out[32];
 
-  while (true) {
-    sprintf(out, "%s  %d  %ld\n ", name, get_core_num(), xTaskGetTickCount());
+    while (true) {
+        sprintf(out, "%s  %d  %ld\n ", name, get_core_num(),
+                xTaskGetTickCount());
 
-    sprint(out);
+        sprint(out);
 
-    vTaskDelayUntil(&starting_tick, 1000);
-  }
+        vTaskDelayUntil(&starting_tick, 1000);
+    }
 }
 
 void queueSendTask() {
-  TickType_t starting_tick = xTaskGetTickCount();
-  TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
+    TickType_t starting_tick = xTaskGetTickCount();
+    TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
 
-  char *name = pcTaskGetName(handle);
+    char *name = pcTaskGetName(handle);
 
-  char sender = 33;
-  char out[128];
-  char *strpt = &sender;
+    char sender = 33;
+    char out[128];
+    char *strpt = &sender;
 
-  while (true) {
-    sprintf(out, "Input: %c     Core: %d    Tick: %ld ", sender, get_core_num(),
-            xTaskGetTickCount());
+    while (true) {
+        sprintf(out, "Input: %c     Core: %d    Tick: %ld ", sender,
+                get_core_num(), xTaskGetTickCount());
 
-    xQueueSend(queue, strpt, pdMS_TO_TICKS(1000));
-    sender++;
+        xQueueSend(queue, strpt, pdMS_TO_TICKS(1000));
+        sender++;
 
-    sprint(out);
+        sprint(out);
 
-    vTaskDelayUntil(&starting_tick, 1000);
-  }
+        vTaskDelayUntil(&starting_tick, 1000);
+    }
 }
 void queueReceiveTask() {
-  TickType_t starting_tick = xTaskGetTickCount();
-  TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
+    TickType_t starting_tick = xTaskGetTickCount();
+    TaskHandle_t handle      = xTaskGetCurrentTaskHandle();
 
-  char *name = pcTaskGetName(handle);
+    char *name = pcTaskGetName(handle);
 
-  char out[128];
-  char receiver[1];
+    char out[128];
+    char receiver[1];
 
-  while (true) {
-    xQueueReceive(queue, receiver, pdMS_TO_TICKS(1000));
+    while (true) {
+        xQueueReceive(queue, receiver, pdMS_TO_TICKS(1000));
 
-    // sprintf(out, "%s  %d  %ld  %s\n ", name, get_core_num(),
-    // xTaskGetTickCount(), receiver);
-    sprintf(out, "Output: %c    Core: %d    Tick: %ld ", receiver[0],
-            get_core_num(), xTaskGetTickCount());
+        // sprintf(out, "%s  %d  %ld  %s\n ", name, get_core_num(),
+        // xTaskGetTickCount(), receiver);
+        sprintf(out, "Output: %c    Core: %d    Tick: %ld ", receiver[0],
+                get_core_num(), xTaskGetTickCount());
 
-    sprint(out);
+        sprint(out);
 
-    vTaskDelayUntil(&starting_tick, 1000);
-  }
+        vTaskDelayUntil(&starting_tick, 1000);
+    }
 }

@@ -33,49 +33,49 @@
  */
 
 typedef enum {
-  EXEC_CMD = 1,
-  ALL_CMDS,
-  SET_VAR,
-  GET_VAR,
-  ALL_VARS,
+    EXEC_CMD = 1,
+    ALL_CMDS,
+    SET_VAR,
+    GET_VAR,
+    ALL_VARS,
 } cmdnet_req_t;
 
 typedef enum {
-  CMD_SUCCESS  = 0,
-  CMD_NOTFOUND = -1,
-  CMD_INVALID  = -2,
-  CMD_ERROR    = -3,
+    CMD_SUCCESS  = 0,
+    CMD_NOTFOUND = -1,
+    CMD_INVALID  = -2,
+    CMD_ERROR    = -3,
 } cmdnet_status_t;
 
 typedef struct {
-  const char* name;
-  cmdnet_status_t (*handler)();
+    const char* name;
+    cmdnet_status_t (*handler)();
 } cmdnet_cmd_t;
 
-#define CMDNET_COMMAND(name)                                         \
-  cmdnet_status_t cmdnet_handle_##name();                            \
-  const cmdnet_cmd_t cmdnet_##name = {#name, &cmdnet_handle_##name}; \
-  cmdnet_status_t cmdnet_handle_##name()
+#define CMDNET_COMMAND(name)                                           \
+    cmdnet_status_t cmdnet_handle_##name();                            \
+    const cmdnet_cmd_t cmdnet_##name = {#name, &cmdnet_handle_##name}; \
+    cmdnet_status_t cmdnet_handle_##name()
 
 typedef struct {
-  const char* name;
-  int64_t* valptr;
+    const char* name;
+    int64_t* valptr;
 } cmdnet_var_t;
 
-#define CMDNET_VAR(name, val)             \
-  int64_t name                     = val; \
-  const cmdnet_var_t cmdnet_##name = {#name, &name};
+#define CMDNET_VAR(name, val)               \
+    int64_t name                     = val; \
+    const cmdnet_var_t cmdnet_##name = {#name, &name};
 
 typedef int (*cmdnet_io_func_t)(void* data, size_t len);
 
 typedef struct {
-  cmdnet_cmd_t* cmds;
-  size_t cmds_len;
+    cmdnet_cmd_t* cmds;
+    size_t cmds_len;
 
-  cmdnet_var_t* vars;
-  size_t vars_len;
+    cmdnet_var_t* vars;
+    size_t vars_len;
 
-  tcp_server_t* socket;
+    tcp_server_t* socket;
 } cmdnet_t;
 
 void cmdnet_init(cmdnet_t* cmdnet, tcp_server_t* socket, cmdnet_cmd_t* cmds,

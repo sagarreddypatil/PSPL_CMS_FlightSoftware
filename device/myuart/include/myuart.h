@@ -9,11 +9,11 @@
 #include <dma.h>
 
 typedef struct {
-  uart_inst_t *uart_inst;
-  const uint8_t rx_gpio;
-  const uint8_t tx_gpio;
+    uart_inst_t *uart_inst;
+    const uint8_t rx_gpio;
+    const uint8_t tx_gpio;
 
-  uint baudrate;  // is not guaranteed, actual is set when device initialized
+    uint baudrate;  // is not guaranteed, actual is set when device initialized
 } uart_device_t;
 
 /*! @brief initialize an UART device, writing configuration to provided struct

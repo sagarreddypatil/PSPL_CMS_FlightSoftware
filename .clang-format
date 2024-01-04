@@ -4,3 +4,4 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveMacros: true
 SortIncludes: false
 AllowShortFunctionsOnASingleLine: false
+IndentWidth: 4

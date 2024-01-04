@@ -19,19 +19,20 @@
 
 // Needs to move w5500 data to queue?
 void w5500_drdy() {
-  uint32_t ulNotificationValue;
-  ulNotificationValue = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(portMAX_DELAY));
+    uint32_t ulNotificationValue;
+    ulNotificationValue =
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(portMAX_DELAY));
 
-  assert(ulNotificationValue);
-  ulNotificationValue = 0;
+    assert(ulNotificationValue);
+    ulNotificationValue = 0;
 }
 
 void w5500_drdy_handler() {
-  portDISABLE_INTERRUPTS();
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    portDISABLE_INTERRUPTS();
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-  vTaskNotifyGiveFromISR(w5500_drdy_task, &xHigherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(w5500_drdy_task, &xHigherPriorityTaskWoken);
 
-  portENABLE_INTERRUPTS();
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portENABLE_INTERRUPTS();
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

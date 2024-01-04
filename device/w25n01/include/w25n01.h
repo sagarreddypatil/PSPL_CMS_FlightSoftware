@@ -30,21 +30,21 @@ static const uint8_t w25n01_ins_fast_read_4byte_addr     = 0x0C;
  * Status Register Address Definitions
  */
 typedef enum {
-  w25n01_protection_register = 0xA0,
-  w25n01_config_register     = 0xB0,
-  w25n01_status_register     = 0xC0
+    w25n01_protection_register = 0xA0,
+    w25n01_config_register     = 0xB0,
+    w25n01_status_register     = 0xC0
 } w25n01_status_register_t;
 
 typedef struct {
-  bool enabled;
-  bool invalid;
-  uint16_t logical_block_address;
-  uint16_t physical_block_address;
+    bool enabled;
+    bool invalid;
+    uint16_t logical_block_address;
+    uint16_t physical_block_address;
 } w25n01_bbm_entry;
 
 typedef struct {
-  uint8_t mfrId;
-  uint16_t deviceId;
+    uint8_t mfrId;
+    uint16_t deviceId;
 } w25n01_jedec_id_t;
 
 /*
@@ -84,18 +84,18 @@ void bbm_read(
                                  // array must be 20 entries long
 
 // This is used for instructions that only need the instruction byte
-#define __INSTR_SINGLE(name, ins)                      \
-  static inline void w25n01_##name(SPI_DEVICE_PARAM) { \
-    uint8_t src[] = {ins};                             \
-    w25n01_write(spi, src, 1);                         \
-  }
+#define __INSTR_SINGLE(name, ins)                        \
+    static inline void w25n01_##name(SPI_DEVICE_PARAM) { \
+        uint8_t src[] = {ins};                           \
+        w25n01_write(spi, src, 1);                       \
+    }
 
 // For a group of instructions that deal with page address
-#define __INSTR_PAGE(name, ins)                                       \
-  static inline void w25n01_##name(SPI_DEVICE_PARAM, uint16_t addr) { \
-    uint8_t src[4] = {ins, 0, addr >> 8, addr & 0xFF};                \
-    w25n01_write(spi, src, 4);                                        \
-  }
+#define __INSTR_PAGE(name, ins)                                         \
+    static inline void w25n01_##name(SPI_DEVICE_PARAM, uint16_t addr) { \
+        uint8_t src[4] = {ins, 0, addr >> 8, addr & 0xFF};              \
+        w25n01_write(spi, src, 4);                                      \
+    }
 
 __INSTR_SINGLE(reset,
                w25n01_ins_reset);  // reset the chip, erases chip's buffer
@@ -118,27 +118,27 @@ __INSTR_PAGE(block_erase,
  */
 
 // multi length bitfield
-#define __RREG_BITFIELD(name, addr, mask, shift)                         \
-  static inline uint8_t w25n01_get_##name(SPI_DEVICE_PARAM) {            \
-    return (w25n01_read_status_register(spi, addr) & (mask)) >> (shift); \
-  }
+#define __RREG_BITFIELD(name, addr, mask, shift)                             \
+    static inline uint8_t w25n01_get_##name(SPI_DEVICE_PARAM) {              \
+        return (w25n01_read_status_register(spi, addr) & (mask)) >> (shift); \
+    }
 
 // boolean bitfield
-#define __RREG_BITFIELD_BOOL(name, addr, bit)                     \
-  static inline bool w25n01_get_##name(SPI_DEVICE_PARAM) {        \
-    return w25n01_read_status_register(spi, addr) & (1 << (bit)); \
-  }
+#define __RREG_BITFIELD_BOOL(name, addr, bit)                         \
+    static inline bool w25n01_get_##name(SPI_DEVICE_PARAM) {          \
+        return w25n01_read_status_register(spi, addr) & (1 << (bit)); \
+    }
 
-#define __WREG_BITFIELD_BOOL(name, addr, bit)                          \
-  static inline void w25n01_set_##name(SPI_DEVICE_PARAM, bool value) { \
-    uint8_t reg = w25n01_read_status_register(spi, addr);              \
-    if (value) {                                                       \
-      reg |= (1 << (bit));                                             \
-    } else {                                                           \
-      reg &= ~(1 << (bit));                                            \
-    }                                                                  \
-    w25n01_write_status_register(spi, addr, reg);                      \
-  }
+#define __WREG_BITFIELD_BOOL(name, addr, bit)                            \
+    static inline void w25n01_set_##name(SPI_DEVICE_PARAM, bool value) { \
+        uint8_t reg = w25n01_read_status_register(spi, addr);            \
+        if (value) {                                                     \
+            reg |= (1 << (bit));                                         \
+        } else {                                                         \
+            reg &= ~(1 << (bit));                                        \
+        }                                                                \
+        w25n01_write_status_register(spi, addr, reg);                    \
+    }
 
 // the following lines are just for setting bitfields in the status registers
 // we're not gonna fuck with any of the OTP lockable areas, so we're not gonna

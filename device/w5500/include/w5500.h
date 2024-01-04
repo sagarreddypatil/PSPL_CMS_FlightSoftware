@@ -72,72 +72,72 @@ static const uint16_t W5500_Sn_KPALVTR = 0x2F;  // Socket n Keep Alive Timer
  * @brief W5500 Socket Interrupt Register bitfields
  */
 typedef union {
-  struct {
-    uint8_t CON : 1;
-    uint8_t DISCON : 1;
-    uint8_t RECV : 1;
-    uint8_t TIMEOUT : 1;
-    uint8_t SEND_OK : 1;
-    uint8_t : 3;
-  };
-  uint8_t value;
+    struct {
+        uint8_t CON : 1;
+        uint8_t DISCON : 1;
+        uint8_t RECV : 1;
+        uint8_t TIMEOUT : 1;
+        uint8_t SEND_OK : 1;
+        uint8_t : 3;
+    };
+    uint8_t value;
 } w5500_socket_interrupt_t;
 
 /**
  * @brief W5500 Commands
  */
 typedef enum {
-  W5500_CMD_OPEN      = 0x01,  ///< Open a socket
-  W5500_CMD_LISTEN    = 0x02,  ///< Listen for a connection
-  W5500_CMD_CONNECT   = 0x04,  ///< Connect to a remote host
-  W5500_CMD_DISCON    = 0x08,  ///< Disconnect socket
-  W5500_CMD_CLOSE     = 0x10,  ///< Close socket
-  W5500_CMD_SEND      = 0x20,  ///< Send data on TX buffer
-  W5500_CMD_SEND_MAC  = 0x21,  ///< Send MACRAW
-  W5500_CMD_SEND_KEEP = 0x22,  ///< Send keep alive
-  W5500_CMD_RECV      = 0x40,  ///< Inform RX buffer read
+    W5500_CMD_OPEN      = 0x01,  ///< Open a socket
+    W5500_CMD_LISTEN    = 0x02,  ///< Listen for a connection
+    W5500_CMD_CONNECT   = 0x04,  ///< Connect to a remote host
+    W5500_CMD_DISCON    = 0x08,  ///< Disconnect socket
+    W5500_CMD_CLOSE     = 0x10,  ///< Close socket
+    W5500_CMD_SEND      = 0x20,  ///< Send data on TX buffer
+    W5500_CMD_SEND_MAC  = 0x21,  ///< Send MACRAW
+    W5500_CMD_SEND_KEEP = 0x22,  ///< Send keep alive
+    W5500_CMD_RECV      = 0x40,  ///< Inform RX buffer read
 } w5500_socket_command_t;
 
 typedef enum {
-  W5500_SOCK_CLOSED = 0x00,  ///< Socket is closed
-  W5500_SOCK_INIT   = 0x13,  ///< TCP Socket is initialized, command LISTEN to
-                             ///< start accepting connections
-  W5500_SOCK_LISTEN      = 0x14,  ///< TCP Socket is listening for connections
-  W5500_SOCK_ESTABLISHED = 0x17,  ///< TCP Socket is connected to client
-  W5500_SOCK_CLOSE_WAIT =
-      0x1C,  ///< TCP Socket is waiting for a connection termination
-  W5500_SOCK_UDP     = 0x22,  ///< UDP Socket is initialized
-  W5500_SOCK_MACRAW  = 0x42,  ///< MACRAW Socket is initialized
-  W5500_SOCK_SYNSENT = 0x15,  ///< TCP Socket is sending a connection request
-  W5500_SOCK_SYNRECV = 0x16,  ///< TCP Socket is receiving a connection request,
-                              ///< moving to ESTABLISHED
-  W5500_SOCK_FIN_WAIT  = 0x18,  ///< no idea
-  W5500_SOCK_CLOSING   = 0x1A,  ///< TCP Socket is closing, transient
-  W5500_SOCK_TIME_WAIT = 0x1B,  ///< I have no idea lmao
-  W5500_SOCK_LAST_ACK  = 0x1D,  ///< also no idea
+    W5500_SOCK_CLOSED = 0x00,  ///< Socket is closed
+    W5500_SOCK_INIT   = 0x13,  ///< TCP Socket is initialized, command LISTEN to
+                               ///< start accepting connections
+    W5500_SOCK_LISTEN      = 0x14,  ///< TCP Socket is listening for connections
+    W5500_SOCK_ESTABLISHED = 0x17,  ///< TCP Socket is connected to client
+    W5500_SOCK_CLOSE_WAIT =
+        0x1C,  ///< TCP Socket is waiting for a connection termination
+    W5500_SOCK_UDP     = 0x22,  ///< UDP Socket is initialized
+    W5500_SOCK_MACRAW  = 0x42,  ///< MACRAW Socket is initialized
+    W5500_SOCK_SYNSENT = 0x15,  ///< TCP Socket is sending a connection request
+    W5500_SOCK_SYNRECV = 0x16,  ///< TCP Socket is receiving a connection
+                                ///< request, moving to ESTABLISHED
+    W5500_SOCK_FIN_WAIT  = 0x18,  ///< no idea
+    W5500_SOCK_CLOSING   = 0x1A,  ///< TCP Socket is closing, transient
+    W5500_SOCK_TIME_WAIT = 0x1B,  ///< I have no idea lmao
+    W5500_SOCK_LAST_ACK  = 0x1D,  ///< also no idea
 } w5500_socket_status_t;
 
 /**
  * @brief W5500 Socket Registers, value is the block select bits
  */
 typedef enum {
-  W5500_COMMON = 0b00000,  ///< Common register space
-  W5500_S0     = 0b00001,
-  W5500_S1     = 0b00101,
-  W5500_S2     = 0b01001,
-  W5500_S3     = 0b01101,
-  W5500_S4     = 0b10001,
-  W5500_S5     = 0b10101,
-  W5500_S6     = 0b11001,
-  W5500_S7     = 0b11101,
+    W5500_COMMON = 0b00000,  ///< Common register space
+    W5500_S0     = 0b00001,
+    W5500_S1     = 0b00101,
+    W5500_S2     = 0b01001,
+    W5500_S3     = 0b01101,
+    W5500_S4     = 0b10001,
+    W5500_S5     = 0b10101,
+    W5500_S6     = 0b11001,
+    W5500_S7     = 0b11101,
 } w5500_socket_t;
 
 /**
  * @brief Error codes
  */
 typedef enum {
-  ERR_INSUFFICIENT_MEM = -1,
-  SUCCESS              = 0,
+    ERR_INSUFFICIENT_MEM = -1,
+    SUCCESS              = 0,
 } w5500_error_t;
 
 /* Protocols for sockets */
@@ -146,11 +146,11 @@ typedef enum {
  * @brief W5500 Socket Protocol
  */
 typedef enum {
-  W5500_PROTOCOL_CLOSED = 0,     ///< Socket is closed
-  W5500_PROTOCOL_TCP    = 0b1,   ///< TCP Socket
-  W5500_PROTOCOL_UDP    = 0b10,  ///< UDP Socket
-  W5500_PROTOCOL_MACRAW =
-      0b100  ///< MACRAW Socket, for sending raw ethernet frames
+    W5500_PROTOCOL_CLOSED = 0,     ///< Socket is closed
+    W5500_PROTOCOL_TCP    = 0b1,   ///< TCP Socket
+    W5500_PROTOCOL_UDP    = 0b10,  ///< UDP Socket
+    W5500_PROTOCOL_MACRAW =
+        0b100  ///< MACRAW Socket, for sending raw ethernet frames
 } w5500_protocol_t;
 
 /**
@@ -194,9 +194,9 @@ void w5500_write(myspi_device_t *spi, w5500_socket_t s, uint16_t reg,
  */
 static inline uint8_t w5500_read8(myspi_device_t *spi, w5500_socket_t s,
                                   uint16_t reg) {
-  uint8_t data;
-  w5500_read(spi, s, reg, &data, 1);
-  return data;
+    uint8_t data;
+    w5500_read(spi, s, reg, &data, 1);
+    return data;
 }
 
 /**
@@ -208,7 +208,7 @@ static inline uint8_t w5500_read8(myspi_device_t *spi, w5500_socket_t s,
  */
 static inline void w5500_write8(myspi_device_t *spi, w5500_socket_t s,
                                 uint16_t reg, uint8_t data) {
-  w5500_write(spi, s, reg, &data, 1);
+    w5500_write(spi, s, reg, &data, 1);
 }
 
 /**
@@ -220,9 +220,9 @@ static inline void w5500_write8(myspi_device_t *spi, w5500_socket_t s,
  */
 static inline uint16_t w5500_read16(myspi_device_t *spi, w5500_socket_t s,
                                     uint16_t reg) {
-  uint8_t buf[2];
-  w5500_read(spi, s, reg, buf, 2);
-  return ((uint16_t)(buf[0]) << 8) | buf[1];
+    uint8_t buf[2];
+    w5500_read(spi, s, reg, buf, 2);
+    return ((uint16_t)(buf[0]) << 8) | buf[1];
 }
 
 /**
@@ -234,8 +234,8 @@ static inline uint16_t w5500_read16(myspi_device_t *spi, w5500_socket_t s,
  */
 static inline void w5500_write16(myspi_device_t *spi, w5500_socket_t s,
                                  uint16_t reg, uint16_t data) {
-  uint8_t buf[2] = {data >> 8, data & 0xFF};
-  w5500_write(spi, s, reg, buf, 2);
+    uint8_t buf[2] = {data >> 8, data & 0xFF};
+    w5500_write(spi, s, reg, buf, 2);
 }
 
 /**
@@ -248,7 +248,7 @@ static inline void w5500_write16(myspi_device_t *spi, w5500_socket_t s,
  */
 static inline void w5500_set_flag(myspi_device_t *spi, w5500_socket_t s,
                                   uint16_t reg, uint8_t bit, bool value) {
-  w5500_write8(spi, s, reg, w5500_read8(spi, s, reg) | ((value & 1) << bit));
+    w5500_write8(spi, s, reg, w5500_read8(spi, s, reg) | ((value & 1) << bit));
 }
 
 /*W5500 Constructors*/

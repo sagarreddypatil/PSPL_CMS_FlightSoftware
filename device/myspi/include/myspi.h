@@ -21,27 +21,27 @@
 #define SPI_TRANSFER(spi, src, dst, len) myspi_write_read(spi, src, dst, len)
 
 #define SPI_WRITE(spi, src, len) \
-  uint8_t __dst[len];            \
-  myspi_write_read(spi, src, __dst, len)
+    uint8_t __dst[len];          \
+    myspi_write_read(spi, src, __dst, len)
 
 #define SPI_READ(spi, dst, len) \
-  uint8_t __src[len];           \
-  myspi_write_read(spi, __src, dst, len)
+    uint8_t __src[len];         \
+    myspi_write_read(spi, __src, dst, len)
 
 // Type representing SPI bus, only needs spi_inst set
 typedef struct {
-  spi_inst_t *spi_inst;
-  // 0 or 1 representing SPI instance (spi_get_index())
-  uint8_t index;
+    spi_inst_t *spi_inst;
+    // 0 or 1 representing SPI instance (spi_get_index())
+    uint8_t index;
 
-  volatile TaskHandle_t current_task;
-  SemaphoreHandle_t mutex;
+    volatile TaskHandle_t current_task;
+    SemaphoreHandle_t mutex;
 
-  uint8_t dma_rx;
-  uint8_t dma_tx;
+    uint8_t dma_rx;
+    uint8_t dma_tx;
 
-  dma_channel_config rx_config;
-  dma_channel_config tx_config;
+    dma_channel_config rx_config;
+    dma_channel_config tx_config;
 } myspi_t;
 
 extern volatile myspi_t myspi_bus_0;
@@ -49,13 +49,13 @@ extern volatile myspi_t myspi_bus_1;
 
 // Type representing SPI device
 typedef struct {
-  uint8_t cs_gpio;
-  uint baudrate;
+    uint8_t cs_gpio;
+    uint baudrate;
 
-  spi_cpol_t cpol;
-  spi_cpha_t cpha;
+    spi_cpol_t cpol;
+    spi_cpha_t cpha;
 
-  myspi_t *spi_bus;
+    myspi_t *spi_bus;
 
 } myspi_device_t;
 
