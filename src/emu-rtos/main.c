@@ -31,11 +31,9 @@ void setupHardware() {
      */
 
     // --- SPI --- //
-    StaticSemaphore_t spi0_mutex_buffer;
-    myspi_bus_init(myspi0, &spi0_mutex_buffer);
+    myspi_bus_init(myspi0);
 
-    StaticSemaphore_t spi1_mutex_buffer;
-    myspi_bus_init(myspi1, &spi1_mutex_buffer);
+    myspi_bus_init(myspi1);
 
     // --- Ethernet --- //
     myspi_device_t w5500;

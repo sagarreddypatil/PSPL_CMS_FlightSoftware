@@ -40,7 +40,7 @@ void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
     spi->baudrate = baudrate;
 }
 
-void myspi_bus_init(myspi_t *bus, StaticSemaphore_t *mutex_buffer) {
+void myspi_bus_init(myspi_t *bus) {
     myspi_bus_0.spi_inst = spi0;
     myspi_bus_1.spi_inst = spi1;
 
@@ -88,7 +88,7 @@ void myspi_bus_init(myspi_t *bus, StaticSemaphore_t *mutex_buffer) {
     }
 
     // Create and assign mutex
-    bus->mutex = xSemaphoreCreateMutexStatic(mutex_buffer);
+    bus->mutex = xSemaphoreCreateMutexStatic(&bus->mutex_buf);
 }
 
 void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,

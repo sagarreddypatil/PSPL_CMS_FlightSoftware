@@ -31,7 +31,7 @@ int main() {
         ;
     stdio_flush();
 
-    myspi_bus_init(myspi1, &mutex_buf);
+    myspi_bus_init(myspi1);
     myspi_device_init(&w5500, myspi1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 

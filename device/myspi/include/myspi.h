@@ -35,6 +35,7 @@ typedef struct {
     uint8_t index;
 
     volatile TaskHandle_t current_task;
+    StaticSemaphore_t mutex_buf;
     SemaphoreHandle_t mutex;
 
     uint8_t dma_rx;
@@ -78,7 +79,7 @@ void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
  *  @param bus pointer to SPI bus struct that will be configured
  *  @param mutex_buffer pointer to mutex buffer
  */
-void myspi_bus_init(myspi_t *bus, StaticSemaphore_t *mutex_buffer);
+void myspi_bus_init(myspi_t *bus);
 
 /*! @brief Write from a buffer to an SPI device
  *  @param device SPI device that will be written to
