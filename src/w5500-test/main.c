@@ -136,8 +136,8 @@ int main() {
 
     stdio_flush();
 
-    myspi_bus_init(myspi1);
-    myspi_device_init(&w5500, myspi1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
+    myspi_bus_init(myspi1, 27U, 26U, 28U);
+    myspi_device_init(&w5500, myspi1, 25U, 1, 1, 30000000);
 
     StaticTask_t task;
     StaticTask_t task2;

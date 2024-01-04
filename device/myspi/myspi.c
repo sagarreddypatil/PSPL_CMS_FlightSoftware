@@ -20,13 +20,7 @@ volatile myspi_t myspi_bus_0;
 volatile myspi_t myspi_bus_1;
 
 void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
-                       uint8_t miso_gpio, uint8_t mosi_gpio, uint8_t sck_gpio,
                        spi_cpol_t cpol, spi_cpha_t cpha, uint baudrate) {
-    // Initialize SPI pins
-    gpio_set_function(miso_gpio, GPIO_FUNC_SPI);
-    gpio_set_function(mosi_gpio, GPIO_FUNC_SPI);
-    gpio_set_function(sck_gpio, GPIO_FUNC_SPI);
-
     // Initialize CS pin and set high
     gpio_init(spi->cs_gpio);
     gpio_put(spi->cs_gpio, 1);
@@ -40,9 +34,15 @@ void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
     spi->baudrate = baudrate;
 }
 
-void myspi_bus_init(myspi_t *bus) {
+void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
+                    uint8_t sck_gpio) {
     myspi_bus_0.spi_inst = spi0;
     myspi_bus_1.spi_inst = spi1;
+
+    // Initialize SPI pins
+    gpio_set_function(miso_gpio, GPIO_FUNC_SPI);
+    gpio_set_function(mosi_gpio, GPIO_FUNC_SPI);
+    gpio_set_function(sck_gpio, GPIO_FUNC_SPI);
 
     // Assign index of SPI instance (0 or 1)
     bus->index = spi_get_index(bus->spi_inst);

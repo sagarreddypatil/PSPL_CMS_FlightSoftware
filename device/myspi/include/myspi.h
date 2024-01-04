@@ -72,14 +72,14 @@ typedef struct {
  *  @param baudrate
  */
 void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
-                       uint8_t miso_gpio, uint8_t mosi_gpio, uint8_t sck_gpio,
                        spi_cpol_t cpol, spi_cpha_t cpha, uint baudrate);
 
 /*! @brief initalize an SPI bus, writing configuration to provided struct
  *  @param bus pointer to SPI bus struct that will be configured
  *  @param mutex_buffer pointer to mutex buffer
  */
-void myspi_bus_init(myspi_t *bus);
+void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
+                    uint8_t sck_gpio);
 
 /*! @brief Write from a buffer to an SPI device
  *  @param device SPI device that will be written to
