@@ -1,6 +1,6 @@
 #include <mydma.h>
 
-void dmacpy(volatile void *dst, volatile void *src, size_t size) {
+void dmacpy(volatile void *dst, const void *src, size_t size) {
     uint channel              = dma_claim_unused_channel(true);
     dma_channel_config config = dma_channel_get_default_config(channel);
 

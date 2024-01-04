@@ -183,7 +183,7 @@ void w5500_read(myspi_device_t *spi, w5500_socket_t s, uint16_t reg, void *data,
  * @param len Length of the data buffer
  */
 void w5500_write(myspi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 void *data, size_t len);
+                 const void *data, size_t len);
 
 /**
  * @brief Read a 1-byte register and return it

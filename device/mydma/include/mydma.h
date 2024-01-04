@@ -10,4 +10,4 @@
  *  \param src pointer to memory address that will be copied
  *  \param size size of memory transfer in bytes
  */
-void dmacpy(volatile void *dst, volatile void *src, size_t size);
+void dmacpy(volatile void *dst, const void *src, size_t size);

@@ -1,5 +1,6 @@
 #include "emu.h"
-#include "state_machine.h"
+#include "state-machine.h"
+#include "config.h"
 
 #include <assert.h>
 
@@ -167,15 +168,10 @@ void sm_run_polls_events(sm_t *sm) {
 }
 
 void sm_task_fn() {
-    DEBUGPRINT;
-
     uint64_t time_packet_counter = 0;
     TickType_t prev_wake         = xTaskGetTickCount();
 
-    DEBUGPRINT;
-
     while (1) {
-        DEBUGPRINT;
         sm_run_polls_events(&state_machine);
 
         // send a packet to w5500, unbuffered because this should be fast
@@ -186,7 +182,6 @@ void sm_task_fn() {
             .counter = time_packet_counter++,
             .value   = relative_time,
         };
-        DEBUGPRINT;
 
         // myspi_lock(&w5500);
         // myspi_configure(&w5500);
@@ -194,9 +189,8 @@ void sm_task_fn() {
         //                  sizeof(sensornet_packet_t));  // dk if it made it
         // myspi_unlock(&w5500);
 
-        safeprintf("T-minus Clock: %" PRId64 "\n", relative_time);
+        // safeprintf("T-minus Clock: %" PRId64 "\n", relative_time);
 
         xTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(1));
-        DEBUGPRINT;
     }
 }

@@ -37,7 +37,7 @@ void w5500_read(myspi_device_t *spi, w5500_socket_t s, uint16_t reg, void *data,
 }
 
 void w5500_write(myspi_device_t *spi, w5500_socket_t s, uint16_t reg,
-                 void *data, size_t len) {
+                 const void *data, size_t len) {
     uint8_t src[3 + len];
 
     src[0] = (reg >> 8) & 0xFF;

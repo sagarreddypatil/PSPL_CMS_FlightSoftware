@@ -1,9 +1,12 @@
+#pragma once
+
 #include <pico/stdlib.h>
 #include <w5500.h>
 #include <ads13x.h>
 #include <commandnet.h>
 #include <sensornet.h>
 #include <ntp.h>
+#include "state-machine.h"
 
 //------------Devices------------
 extern myspi_device_t w5500;
@@ -42,6 +45,11 @@ static const ip_t gateway     = {192, 168, 2, 1};
 static const ip_t subnet_mask = {255, 255, 255, 0};
 static const ip_t src_ip      = {192, 168, 2, 50};
 
+#define SENSORNET_SOCKET W5500_S1
+
+static const ip_t SENSORNET_IP = {192, 168, 2, 1};
+#define SENSORNET_PORT 5001
+
 // GPIO
 static const uint LOX_SOLENOID = 16;
 static const uint ETH_SOLENOID = 17;
@@ -66,3 +74,10 @@ void solenoid_task_init();
 void solenoid_task_run();
 
 void w5500_drdy_handler();
+
+//------------Data Writer------------
+
+extern QueueHandle_t dataOutputQueueHandle;
+
+//------------State Machine------------
+extern sm_t state_machine;
