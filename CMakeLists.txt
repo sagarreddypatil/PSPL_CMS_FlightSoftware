@@ -33,6 +33,7 @@ add_compile_options(
     -Os
     -Werror # Treat warnings as errors
     -Wno-unused-variable # annoying, don't keep it tho
+    -Wno-unused-but-set-variable
     -Wno-unused-function # FreeRTOS
     -Wno-strict-aliasing # pico-sdk fails this
 )
