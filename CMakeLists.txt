@@ -106,7 +106,6 @@ psp_lib(lib state-machine)
 
 # ---------- Boards  ----------
 set(boards
-
     emu-rtos
     # adc-test
     # w5500-test

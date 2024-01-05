@@ -111,9 +111,9 @@ void init_task() {
 
     init_eth0();
 
-    // CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
-    // CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
-    // CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
+    CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
+    CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
     CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
 
