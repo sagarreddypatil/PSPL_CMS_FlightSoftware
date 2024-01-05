@@ -22,7 +22,7 @@ myspi_device_t w5500 = {
     .baudrate = 30000000,
 };
 
-void not_main() {
+void w5500_main_task() {
     for (int i = 0; i < 12; i++) {
         sprint("\n");
     }
@@ -36,6 +36,7 @@ void not_main() {
     ip_t src_ip      = {192, 168, 2, 50};
     mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
+    myspi_lock(&w5500);
     w5500_reset(&w5500);
     uint64_t start = time_us_64();
 
@@ -64,10 +65,14 @@ void not_main() {
     w5500_read(&w5500, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
     sprint("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
 
+    myspi_unlock(&w5500);
+
     TickType_t starting_tick = xTaskGetTickCount();
 
     while (true) {
+        myspi_lock(&w5500);
         uint8_t phyreg = w5500_read8(&w5500, W5500_COMMON, W5500_PHYCFGR);
+        myspi_unlock(&w5500);
         sprint("0x%x                     Tick: %ld   Space: %ld\n", phyreg,
                xTaskGetTickCount(),
                uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle()));
@@ -75,7 +80,8 @@ void not_main() {
     }
 }
 
-void not_not_not_main() {
+void lotsofpackets_task() {
+    myspi_lock(&w5500);
     w5500_reset(&w5500);
     uint64_t start = time_us_64();
     while (!w5500_ready(&w5500))
@@ -86,37 +92,48 @@ void not_not_not_main() {
     while (!w5500_has_link(&w5500))
         ;
     sprint("W5500 has link, took %d us\n", (int)(time_us_64() - start));
+    myspi_unlock(&w5500);
 
     ip_t gateway     = {192, 168, 2, 1};
     ip_t subnet_mask = {255, 255, 255, 0};
     ip_t src_ip      = {192, 168, 2, 50};
     mac_t src_mac    = {0x09, 0xA, 0xB, 0xC, 0xD, 0xE};
 
-    w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
     ip_t victim          = {192, 168, 2, 1};
     uint16_t victim_port = 5000;
+
+    myspi_lock(&w5500);
+    w5500_config(&w5500, src_mac, src_ip, subnet_mask, gateway);
     w5500_create_udp_socket(&w5500, W5500_S0, 5000, false, false, false);
+    myspi_unlock(&w5500);
 
     char msg[1024];
     for (int i = 0; i < 1024; i++) {
         msg[i] = 'A';
     }
 
+    myspi_lock(&w5500);
     w5500_write(&w5500, W5500_S0, W5500_Sn_DIPR0, victim, 4);
     w5500_write16(&w5500, W5500_S0, W5500_Sn_DPORT0, victim_port);
+    myspi_unlock(&w5500);
     TickType_t starting_tick = xTaskGetTickCount();
 
     while (true) {
         // blast UDP packets to victim
+        myspi_lock(&w5500);
         w5500_write_data(&w5500, W5500_S0, msg, sizeof(msg));
+        myspi_unlock(&w5500);
+
         xTaskDelayUntil(&starting_tick, pdMS_TO_TICKS(1));
     }
 }
 
-void not_not_main() {
+void random_task() {
     TickType_t starting_tick = xTaskGetTickCount();
     while (true) {
+        myspi_lock(&w5500);
         uint16_t space = w5500_read16(&w5500, W5500_S3, W5500_Sn_TX_FSR0);
+        myspi_unlock(&w5500);
         sprint("Free Space: %d bytes    Tick: %ld    Space: %ld\n", space,
                xTaskGetTickCount(),
                uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle()));
@@ -146,12 +163,12 @@ int main() {
     StackType_t buffer2[PROC_STACK_SIZE];
     StackType_t buffer3[PROC_STACK_SIZE];
 
-    xTaskCreateStatic(not_main, "w5500_main", PROC_STACK_SIZE, NULL, 1, buffer,
-                      &task);
-    xTaskCreateStatic(not_not_main, "random", PROC_STACK_SIZE, NULL, 1, buffer2,
+    xTaskCreateStatic(w5500_main_task, "w5500_main", PROC_STACK_SIZE, NULL, 1,
+                      buffer, &task);
+    xTaskCreateStatic(random_task, "random", PROC_STACK_SIZE, NULL, 1, buffer2,
                       &task2);
-    xTaskCreateStatic(not_not_not_main, "lotsofpackets", PROC_STACK_SIZE, NULL,
-                      1, buffer3, &task3);
+    xTaskCreateStatic(lotsofpackets_task, "lotsofpackets", PROC_STACK_SIZE,
+                      NULL, 1, buffer3, &task3);
 
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
 

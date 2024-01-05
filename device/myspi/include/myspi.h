@@ -106,5 +106,13 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
  */
 uint myspi_configure(myspi_device_t *spi);
 
+static inline void myspi_lock(myspi_device_t *spi) {
+    xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
+}
+
+static inline void myspi_unlock(myspi_device_t *spi) {
+    xSemaphoreGive(spi->spi_bus->mutex);
+}
+
 void dma_finished_isr0();
 void dma_finished_isr1();

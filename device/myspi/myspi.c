@@ -111,10 +111,6 @@ void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
 
 void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
                       size_t size) {
-    BaseType_t success = xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
-
-    assert(success);
-
     spi->baudrate = spi_init(spi->spi_bus->spi_inst, spi->baudrate);
 
     asm volatile("nop \n nop \n nop");
@@ -128,8 +124,6 @@ void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
     asm volatile("nop \n nop \n nop");
     dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
     dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
-
-    xSemaphoreGive(spi->spi_bus->mutex);
 }
 
 void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
@@ -172,8 +166,6 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
 }
 
 uint myspi_configure(myspi_device_t *spi) {
-    xSemaphoreTake(spi->spi_bus->mutex, portMAX_DELAY);
-
     gpio_init(spi->cs_gpio);
     gpio_put(spi->cs_gpio, 1);
     gpio_set_dir(spi->cs_gpio, GPIO_OUT);
@@ -182,7 +174,6 @@ uint myspi_configure(myspi_device_t *spi) {
     spi_set_format(spi->spi_bus->spi_inst, 8, spi->cpol, spi->cpha,
                    SPI_MSB_FIRST);
 
-    xSemaphoreGive(spi->spi_bus->mutex);
     return actual_baud;
 }
 
