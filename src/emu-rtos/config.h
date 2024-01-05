@@ -34,6 +34,7 @@ static const uint16_t COMMANDNET_PORT = 8080;
 void test_event();
 
 static const uint32_t STATE_MACHINE_TICK = 10;  // milliseconds
+static const uint32_t T_MINUS_PACKET_DIV = 10;  // every 10th state machine tick
 
 static const sm_event_t sm_events[] = {
     {

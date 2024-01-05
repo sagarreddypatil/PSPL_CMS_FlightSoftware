@@ -2,8 +2,10 @@
 #include "state-machine.h"
 
 void sm_task_main() {
-    TickType_t prev_wake    = xTaskGetTickCount();
+    TickType_t prev_wake = xTaskGetTickCount();
+
     uint64_t packet_counter = 0;
+    uint64_t loop_counter   = 0;
 
     while (true) {
         const uint64_t abs_time = unix_time_us();
@@ -17,19 +19,19 @@ void sm_task_main() {
         global_unlock();
 
         // post the time to SensorNet, low latency so don't use the buffer
-        sensornet_packet_t packet = {.id      = SENSOR_ID_VEHICLE_CLOCK,
-                                     .counter = packet_counter++,
-                                     .time_us = abs_time,
-                                     .value   = relative_time};
+        if (loop_counter % T_MINUS_PACKET_DIV == 0) {
+            sensornet_packet_t packet = {.id      = SENSOR_ID_VEHICLE_CLOCK,
+                                         .counter = packet_counter++,
+                                         .time_us = abs_time,
+                                         .value   = relative_time};
 
-        safeprintf("State: %d, Relative Time: %" PRId64 " micros\n", state,
-                   relative_time);
+            myspi_lock(&eth0);
+            w5500_error_t status = w5500_write_data(
+                &eth0, SENSORNET_SOCKET, &packet, sizeof(sensornet_packet_t));
+            myspi_unlock(&eth0);
+        }
 
-        myspi_lock(&eth0);
-        w5500_error_t status = w5500_write_data(
-            &eth0, SENSORNET_SOCKET, &packet, sizeof(sensornet_packet_t));
-        myspi_unlock(&eth0);
-
+        loop_counter++;
         xTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(STATE_MACHINE_TICK));
     }
 }

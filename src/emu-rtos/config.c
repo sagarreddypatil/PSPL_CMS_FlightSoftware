@@ -76,7 +76,7 @@ const cmdnet_endpoint_t endpoints[] = {
 
 const size_t n_endpoints = sizeof(endpoints) / sizeof(cmdnet_endpoint_t);
 
-//------------CommandNet------------
+//------------State Machine------------
 
 // Event Handlers
 
