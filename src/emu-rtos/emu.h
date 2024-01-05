@@ -8,6 +8,8 @@
 #include <ntp.h>
 #include <state-machine.h>
 
+#include "config.h"
+
 //------------Devices------------
 
 extern myspi_device_t eth0;    // W5500
@@ -49,12 +51,8 @@ static const uint TC1_BAUD    = MHz(5);
 #undef MHz
 #undef KHz
 
-//------------Task Handles------------
-extern TaskHandle_t w5500_drdy_task;
+//------------CommandNet------------
 
-//------------Global Vars------------
-
-// CommandNet Arrays
 extern cmdnet_cmd_t cmds[];
 extern const size_t cmds_len;
 
@@ -64,16 +62,8 @@ extern const size_t vars_len;
 //------------Constants------------
 
 // Network
-static const ip_t gateway     = {192, 168, 2, 1};
-static const ip_t subnet_mask = {255, 255, 255, 0};
-static const ip_t src_ip      = {192, 168, 2, 50};
-
-static const w5500_socket_t SENSORNET_SOCKET = W5500_S0;
-static const ip_t SENSORNET_IP               = {192, 168, 2, 1};
-static const uint16_t SENSORNET_PORT         = 5001;
-
+static const w5500_socket_t SENSORNET_SOCKET  = W5500_S0;
 static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;
-static const uint16_t COMMANDNET_PORT         = 8080;
 
 // GPIO
 static const uint LOX_SOLENOID = 16;
@@ -89,17 +79,31 @@ static const uint PYRO_CONT_1       = 27;
 static const uint PYRO_CONT_1_INPUT = 1;
 
 //------------Tasks------------
-void cmdnet_task_entrypoint();
+void cmdnet_task_main();
+void data_writer_main();
+void sm_task_main();
 
 void w5500_drdy_handler();
 
+extern TaskHandle_t w5500_drdy_task;
+
 //------------Data Writer------------
 
-extern QueueHandle_t dataOutputQueueHandle;
+extern QueueHandle_t data_writer_queue;
 
-//------------State Machine------------
+//------------Globals------------
+
+extern SemaphoreHandle_t global_mutex;
+static inline void global_lock() {
+    xSemaphoreTake(global_mutex, portMAX_DELAY);
+}
+
+static inline void global_unlock() {
+    xSemaphoreGive(global_mutex);
+}
+
 extern sm_t state_machine;
 
-// Debug Things
+//------------Debug Things------------
 
 void safeprintf(const char* format, ...);

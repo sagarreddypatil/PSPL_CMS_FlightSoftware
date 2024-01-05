@@ -17,9 +17,6 @@
 
 #include "emu.h"
 
-#define TASK_STACK_SIZE 1024
-#define NUM_TASKS       8
-
 StackType_t task_stacks[TASK_STACK_SIZE * NUM_TASKS];
 StaticTask_t task_buffers[NUM_TASKS];
 
@@ -44,36 +41,39 @@ void task_wrapper(void* _task_entrypoint) {
 void setup_hardware();
 void init_task();
 
+StaticSemaphore_t print_mutex_buf;
+SemaphoreHandle_t print_mutex;
+
 myspi_device_t eth0;
 myspi_device_t flash0;
 myspi_device_t adc0;
 myspi_device_t tc0;
 myspi_device_t tc1;
 
-StaticQueue_t static_queue;
+uint8_t data_writer_queue_storage_buf[sizeof(sensornet_packet_t) *
+                                      DATA_WRITER_QUEUE_SIZE];
+StaticQueue_t data_writer_queue_buf;
+QueueHandle_t data_writer_queue;
+
+StaticSemaphore_t global_mutex_buf;
+SemaphoreHandle_t global_mutex;
 sm_t state_machine;
-
-StaticSemaphore_t print_mutex_buf;
-SemaphoreHandle_t print_mutex;
-
-void safeprintf(const char* format, ...) {
-    xSemaphoreTake(print_mutex, portMAX_DELAY);
-
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
-
-    xSemaphoreGive(print_mutex);
-}
 
 int main() {
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buf);
 
     setup_hardware();
 
-    CreateTaskCore0(0, init_task, "Initializer", 30);
+    //------------Data Writer Queue------------
+    data_writer_queue = xQueueCreateStatic(
+        DATA_WRITER_QUEUE_SIZE, sizeof(sensornet_packet_t),
+        data_writer_queue_storage_buf, &data_writer_queue_buf);
 
+    //------------Initialize Globals------------
+    global_mutex = xSemaphoreCreateMutexStatic(&global_mutex_buf);
+    sm_init(&state_machine, sm_events, sm_events_len, sm_polls, sm_polls_len);
+
+    CreateTaskCore0(0, init_task, "Initializer", 30);
     vTaskStartScheduler();
 
     // should not reach here
@@ -109,7 +109,9 @@ void init_task() {
 
     init_eth0();
 
-    CreateTaskCore0(1, cmdnet_task_entrypoint, "CommandNet", 1);
+    CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
+    CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
 }
 
 void init_eth0() {
@@ -132,11 +134,10 @@ void init_eth0() {
 
     myspi_unlock(&eth0);
 
-    uint64_t start = time_us_64();
-
     {
-        uint count = 0;
-        uint delay = 1;
+        uint64_t start = time_us_64();
+        uint count     = 0;
+        uint delay     = 1;
 
         while (true) {
             count++;
@@ -163,4 +164,15 @@ void init_eth0() {
 
     safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
                ip[3]);
+}
+
+void safeprintf(const char* format, ...) {
+    xSemaphoreTake(print_mutex, portMAX_DELAY);
+
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
+    xSemaphoreGive(print_mutex);
 }
