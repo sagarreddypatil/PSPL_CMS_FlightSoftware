@@ -9,30 +9,52 @@
 #include <state-machine.h>
 
 //------------Devices------------
-extern myspi_device_t w5500;
-extern myspi_device_t ads13x;
+
+extern myspi_device_t eth0;    // W5500
+extern myspi_device_t flash0;  // W25N01
+extern myspi_device_t adc0;    // ADS131M06
+extern myspi_device_t tc0;     // MAX31856
+extern myspi_device_t tc1;     // MAX31856
+
+// Chip select pin numbers
+static const uint ETH0_CS   = 25;
+static const uint FLASH0_CS = 20;
+static const uint ADC0_CS   = 6;
+static const uint TC0_CS    = 1;
+static const uint TC1_CS    = 0;
+
+// SPI Mode (Clock Polarity and Phase setting)
+// Specific to chip model
+#define W5500_MODE    SPI_CPOL_1, SPI_CPHA_1
+#define W25N01_MODE   SPI_CPOL_1, SPI_CPHA_1
+#define ADS13X_MODE   SPI_CPOL_0, SPI_CPHA_1
+#define MAX31856_MODE SPI_CPOL_1, SPI_CPHA_1
+
+#define MHz(x) (1000000 * (x))
+#define KHz(x) (1000 * (x))
+
+// Baud rates, specific to device because traces
+// affect SPI baud rate
+
+// these numbers are from datasheets
+// actual rates will differ, but this is the max
+// difference due to how RP2040 generates clock
+
+static const uint ETH0_BAUD   = MHz(80);
+static const uint FLASH0_BAUD = MHz(100);
+static const uint ADC0_BAUD   = MHz(10) + KHz(2);
+static const uint TC0_BAUD    = MHz(5);
+static const uint TC1_BAUD    = MHz(5);
+
+#undef MHz
+#undef KHz
 
 //------------Task Handles------------
 extern TaskHandle_t w5500_drdy_task;
 
 //------------Global Vars------------
-extern int64_t lox_period;
-extern int64_t lox_duty_cycle;
-
-extern int64_t eth_period;
-extern int64_t eth_duty_cycle;
-
-extern int64_t lox_run;
-extern int64_t eth_run;
-
-extern int64_t lox_state;
-extern int64_t eth_state;
-
-extern uint64_t time_offset;
-extern int64_t pyro_state;
 
 // CommandNet Arrays
-
 extern cmdnet_cmd_t cmds[];
 extern const size_t cmds_len;
 
@@ -40,6 +62,7 @@ extern cmdnet_var_t vars[];
 extern const size_t vars_len;
 
 //------------Constants------------
+
 // Network
 static const ip_t gateway     = {192, 168, 2, 1};
 static const ip_t subnet_mask = {255, 255, 255, 0};

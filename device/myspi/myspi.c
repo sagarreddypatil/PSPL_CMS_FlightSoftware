@@ -44,6 +44,24 @@ void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
     gpio_set_function(mosi_gpio, GPIO_FUNC_SPI);
     gpio_set_function(sck_gpio, GPIO_FUNC_SPI);
 
+    /*
+     * below rates are default, fast slew not yet tested, need to scope
+     * if signal ripples ripples, lower the rate
+     * if doesn't rise/fall to correct voltages, raise the rate
+     *
+     * See:
+     * Falstad Circuit Simulator
+     * https://tinyurl.com/2m9dxu53
+     */
+
+    // gpio_set_slew_rate(miso_gpio, GPIO_SLEW_RATE_FAST);
+    // gpio_set_slew_rate(mosi_gpio, GPIO_SLEW_RATE_FAST);
+    // gpio_set_slew_rate(sck_gpio, GPIO_SLEW_RATE_FAST);
+
+    // gpio_set_drive_strength(miso_gpio, GPIO_DRIVE_STRENGTH_4MA);
+    // gpio_set_drive_strength(moio_gpio, GPIO_DRIVE_STRENGTH_4MA);
+    // gpio_set_drive_strength(sck_gpio, GPIO_DRIVE_STRENGTH_4MA);
+
     // Assign index of SPI instance (0 or 1)
     bus->index = spi_get_index(bus->spi_inst);
 
