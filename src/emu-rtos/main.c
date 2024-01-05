@@ -124,31 +124,43 @@ void init_eth0() {
                            board_id.id[5], board_id.id[6], board_id.id[7]};
 
     myspi_lock(&eth0);
-    myspi_configure(&eth0);
-
-    uint64_t start = time_us_64();
-    uint count     = 0;
+    myspi_configure(&eth0);  // only need to do this once, as it's the only
+                             // device on this bus
 
     w5500_reset(&eth0);
-
-    do {
-        count++;
-    } while (!w5500_ready(&eth0));
-    safeprintf("W5500 ready, took %d us after %d tries\n",
-               (int)(time_us_64() - start), count);
-
-    count = 0;
-    do {
-        count++;
-    } while (!w5500_has_link(&eth0));
-    safeprintf("W5500 has link, took %d us after %d tries\n",
-               (int)(time_us_64() - start), count);
-
-    w5500_config(&eth0, src_mac, src_ip, subnet_mask, gateway);
-
-    ip_t ip;
-    w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
-    safeprintf("Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+    while (!w5500_ready(&eth0)) tight_loop_contents();
 
     myspi_unlock(&eth0);
+
+    uint64_t start = time_us_64();
+
+    {
+        uint count = 0;
+        uint delay = 1;
+
+        while (true) {
+            count++;
+            vTaskDelay(pdMS_TO_TICKS(delay));
+            delay *= 2;
+
+            myspi_lock(&eth0);
+            if (w5500_has_link(&eth0)) {
+                myspi_unlock(&eth0);
+                break;
+            }
+            myspi_unlock(&eth0);
+        }
+
+        safeprintf("W5500 has link, took %d us after %d tries\n",
+                   (int)(time_us_64() - start), count);
+    }
+
+    ip_t ip;
+    myspi_lock(&eth0);
+    w5500_config(&eth0, src_mac, src_ip, subnet_mask, gateway);
+    w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
+    myspi_unlock(&eth0);
+
+    safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
+               ip[3]);
 }
