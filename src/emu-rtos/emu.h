@@ -68,10 +68,12 @@ static const ip_t gateway     = {192, 168, 2, 1};
 static const ip_t subnet_mask = {255, 255, 255, 0};
 static const ip_t src_ip      = {192, 168, 2, 50};
 
-#define SENSORNET_SOCKET W5500_S1
+static const w5500_socket_t SENSORNET_SOCKET = W5500_S0;
+static const ip_t SENSORNET_IP               = {192, 168, 2, 1};
+static const uint16_t SENSORNET_PORT         = 5001;
 
-static const ip_t SENSORNET_IP = {192, 168, 2, 1};
-#define SENSORNET_PORT 5001
+static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;
+static const uint16_t COMMANDNET_PORT         = 8080;
 
 // GPIO
 static const uint LOX_SOLENOID = 16;
