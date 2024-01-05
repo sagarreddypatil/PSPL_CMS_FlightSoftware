@@ -64,8 +64,8 @@ bool w5500_has_link(myspi_device_t *spi) {
     return w5500_read8(spi, W5500_COMMON, W5500_PHYCFGR) & 0x1;  // LNK bit
 }
 
-void w5500_config(myspi_device_t *spi, mac_t src_mac, ip_t src_ip,
-                  ip_t subnet_mask, ip_t gateway) {
+void w5500_config(myspi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
+                  const ip_t subnet_mask, const ip_t gateway) {
     // Physical Layer and Default Options
     uint8_t mode = 0;
     w5500_write8(spi, W5500_COMMON, W5500_MR, mode);

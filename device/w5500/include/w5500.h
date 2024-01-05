@@ -281,8 +281,8 @@ bool w5500_has_link(myspi_device_t *spi);
  * @param subnet_mask Device subnet mask
  * @param gateway Network gateway address
  */
-void w5500_config(myspi_device_t *spi, mac_t src_mac, ip_t src_ip,
-                  ip_t subnet_mask, ip_t gateway);
+void w5500_config(myspi_device_t *spi, const mac_t src_mac, const ip_t src_ip,
+                  const ip_t subnet_mask, const ip_t gateway);
 
 /**
  * @brief Set WOL mode
