@@ -22,11 +22,11 @@ void sm_init(sm_t *sm, const sm_event_t *events, uint32_t num_events,
     sm->current_poll_status = SM_POLL_INIT;
 }
 
-void sm_hold(sm_t *sm) {
+void sm_hold(sm_t *sm, const uint64_t absolute_time) {
     sm->state = SM_STATE_HOLD;
 
     sm->hold_state = sm->state;
-    sm->hold_time  = sm_absolute_time();
+    sm->hold_time  = absolute_time;
 }
 
 void sm_continue_new_t0(sm_t *sm, uint64_t t0) {
@@ -40,12 +40,10 @@ void sm_continue_new_t0(sm_t *sm, uint64_t t0) {
 
     sm->state = sm->hold_state;
     sm->t0    = t0;
-
-    sm_run_polls_events(sm);
 }
 
-void sm_continue(sm_t *sm) {
-    uint64_t time_at_continue = sm_absolute_time();
+void sm_continue(sm_t *sm, const uint64_t absolute_time) {
+    uint64_t time_at_continue = absolute_time;
     uint64_t time_held        = time_at_continue - sm->hold_time;
 
     uint64_t new_t0 = sm->t0 + time_held;
@@ -57,7 +55,7 @@ void sm_continue_old_t0(sm_t *sm) {
     sm_continue_new_t0(sm, sm->t0);
 }
 
-int64_t sm_relative_time(sm_t *sm) {
+int64_t sm_relative_time(sm_t *sm, const uint64_t absolute_time) {
     if (sm->state == SM_STATE_HOLD) {
         // countdown stays static during hold
         // it's held at the time at which it was held
@@ -65,17 +63,15 @@ int64_t sm_relative_time(sm_t *sm) {
         return sm->t0 - sm->hold_time;
     }
 
-    return (int64_t)sm->t0 - sm_absolute_time();
+    return (int64_t)sm->t0 - absolute_time;
 }
 
 void sm_poll_answer(sm_t *sm, sm_poll_status_t status) {
     if (sm->state != SM_STATE_POLLING) return;
     sm->current_poll_status = status;
-
-    sm_run_polls_events(sm);
 }
 
-void sm_run_polls_events(sm_t *sm) {
+void sm_run_polls_events(sm_t *sm, const uint64_t absolute_time) {
     // ALWAYS CHECK FOR POLLS BEFORE EVENTS
 
     if (sm->state == SM_STATE_HOLD) {
@@ -105,14 +101,15 @@ void sm_run_polls_events(sm_t *sm) {
         if (sm->current_poll_status == SM_POLL_NOGO) {
             // poll is No Go, hold countdown
 
-            sm_hold(sm);
+            sm_hold(sm, absolute_time);
             return;
         }
 
-        if (sm_relative_time(sm) > poll->start_time + poll->timeout_duration) {
+        if (sm_relative_time(sm, absolute_time) >
+            poll->start_time + poll->timeout_duration) {
             // poll is INIT + timed out, hold countdown
 
-            sm_hold(sm);
+            sm_hold(sm, absolute_time);
             return;
         }
     }
@@ -132,7 +129,7 @@ void sm_run_polls_events(sm_t *sm) {
 
             const sm_poll_t *poll = &sm->polls[sm->current_poll];
 
-            if (sm_relative_time(sm) >= poll->start_time) {
+            if (sm_relative_time(sm, absolute_time) >= poll->start_time) {
                 // we should be in a poll, switch state
                 sm->state = SM_STATE_POLLING;
                 return;
@@ -143,7 +140,7 @@ void sm_run_polls_events(sm_t *sm) {
         if (sm->upcoming_event < sm->num_events) {
             const sm_event_t *event = &sm->events[sm->upcoming_event];
 
-            if (sm_relative_time(sm) >= event->time) {
+            if (sm_relative_time(sm, absolute_time) >= event->time) {
                 // run the event
                 event->fn();
 
@@ -153,7 +150,7 @@ void sm_run_polls_events(sm_t *sm) {
             }
         }
 
-        if (sm_relative_time(sm) >= 0) {
+        if (sm_relative_time(sm, absolute_time) >= 0) {
             // countdown is over, go to flight
 
             sm->state = SM_STATE_FLIGHT;

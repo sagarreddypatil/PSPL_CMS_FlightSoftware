@@ -49,10 +49,6 @@ typedef struct {
     sm_poll_status_t current_poll_status;
 } sm_t;
 
-static inline uint64_t sm_absolute_time() {
-    return time_us_64();  // TODO: change to NTP time
-}
-
 void sm_init(sm_t *sm, const sm_event_t *events, uint32_t num_events,
              const sm_poll_t *polls, uint32_t num_polls);
 
@@ -60,9 +56,9 @@ void sm_init(sm_t *sm, const sm_event_t *events, uint32_t num_events,
  * Time in microseconds relative to T-0
  * For example, T-1s will return -1000000
  */
-int64_t sm_relative_time(sm_t *sm);
+int64_t sm_relative_time(sm_t *sm, const uint64_t absolute_time);
 
-void sm_hold(sm_t *sm);
+void sm_hold(sm_t *sm, const uint64_t absolute_time);
 
 /*
  * Continue the countdown with a new T-0 time.
@@ -74,7 +70,7 @@ void sm_continue_new_t0(sm_t *sm, uint64_t t0);
  * Continue the countdown with the increased T-0 time.
  * Because T-0 gets pushed back during a hold
  */
-void sm_continue(sm_t *sm);
+void sm_continue(sm_t *sm, const uint64_t absolute_time);
 
 /*
  * Continue the task with the old T-0 time
@@ -89,4 +85,4 @@ void sm_poll_answer(sm_t *sm, sm_poll_status_t status);
  * Basically run it everywhere you change the state machine
  * Also run it in a 1ms tick
  */
-void sm_run_polls_events(sm_t *sm);
+void sm_run_polls_events(sm_t *sm, const uint64_t absolute_time);

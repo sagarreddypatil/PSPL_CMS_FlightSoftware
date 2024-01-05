@@ -10,6 +10,13 @@
 
 #include "config.h"
 
+//------------Time------------
+extern int64_t offset;
+
+static inline uint64_t unix_time_us() {
+    return time_us_64() + offset;
+}
+
 //------------Devices------------
 
 extern myspi_device_t eth0;    // W5500

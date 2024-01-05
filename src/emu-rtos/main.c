@@ -1,4 +1,5 @@
 /* Kernel includes. */
+
 #include "FreeRTOS.h" /* Must come first. */
 #include "task.h"     /* RTOS task related API prototypes. */
 #include "queue.h"    /* RTOS queue related API prototypes. */
@@ -101,8 +102,7 @@ void setup_hardware() {
 }
 
 void init_eth0();
-
-void ntp_test_main();
+bool ntp_sync();
 
 void init_task() {
     safeprintf(psp_logo);
@@ -110,11 +110,19 @@ void init_task() {
     safeprintf("Version: %s\n\n", PICO_PROGRAM_VERSION_STRING);
 
     init_eth0();
+    bool success = ntp_sync();
+
+    if (success) {
+        safeprintf("Time synced, offset: %" PRId64 "\n", offset);
+    } else {
+        safeprintf("NTP Sync Failed! Halting\n");
+        while (1) tight_loop_contents();
+    }
 
     CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
     CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
     CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
-    CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
+    // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
 
 void init_eth0() {
@@ -167,6 +175,22 @@ void init_eth0() {
 
     safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
                ip[3]);
+}
+
+// --- NTP Sync --- //
+int64_t offset = 0;
+bool ntp_sync() {
+    // TODO: make something that'll work in flight
+
+    myspi_lock(&eth0);
+    int64_t new_offset = get_server_time(&eth0, NTP_SERVER_IP, NTP_SOCKET);
+    myspi_unlock(&eth0);
+
+    if (new_offset > 0) {
+        offset = new_offset;
+        return true;
+    }
+    return false;
 }
 
 void safeprintf(const char* format, ...) {
