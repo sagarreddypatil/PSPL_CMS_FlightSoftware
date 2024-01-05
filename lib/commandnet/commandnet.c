@@ -2,10 +2,14 @@
 #include <commandnet/mpack_socket.h>
 
 #ifndef NDEBUG
-#include <stdio.h>
-#define DEBUG_PRINT(...) printf(__VA_ARGS__)
+
+void safeprintf(const char* format, ...);
+#define DEBUG_PRINT(...) safeprintf(__VA_ARGS__)
+
 #else
+
 #define DEBUG_PRINT(...)
+
 #endif
 
 void cmdnet_init(cmdnet_t* cmdnet, tcp_server_t* socket, cmdnet_cmd_t* cmds,
@@ -62,7 +66,7 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
         return;
     }
 
-    char buf[MPACK_BUFFER_SIZE];  // don't expect this to take much more
+    char buf[256];  // don't expect this to take much more
 
     // parse the command
     mpack_reader_t reader;
@@ -76,7 +80,13 @@ void cmdnet_handle(cmdnet_t* cmdnet) {
     }
 
     cmdnet_req_t req = mpack_expect_u8(&reader);
-    printf("got request %d\n", req);
+    if (mpack_reader_error(&reader)) {
+        DEBUG_PRINT("got invalid request\n");
+        tcp_server_disconnect(cmdnet->socket);
+        return;
+    }
+
+    DEBUG_PRINT("received request %" PRIu8 "\n", req);
 
     mpack_writer_t writer;
     mpack_writer_init_socket(&writer, cmdnet->socket, buf, sizeof(buf));

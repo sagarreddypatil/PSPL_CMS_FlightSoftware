@@ -2,11 +2,13 @@
 #include <task.h>
 #include <stdio.h>
 
+void safeprintf(const char* format, ...);
+
 void vApplicationTickHook(void) {
 }
 
-void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
-    for (size_t i = 0; i < 100; i++) {
-        printf("STACK OVERFLOW");
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char* pcTaskName) {
+    for (size_t i = 0; i < 10; i++) {
+        safeprintf("STACK OVERFLOW, PROCESS \"%s\"\n", pcTaskName);
     }
 }
