@@ -97,3 +97,7 @@ extern QueueHandle_t dataOutputQueueHandle;
 
 //------------State Machine------------
 extern sm_t state_machine;
+
+// Debug Things
+
+void safeprintf(const char* format, ...);

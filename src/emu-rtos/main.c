@@ -6,6 +6,7 @@
 #include "semphr.h"   /* Semaphore related API prototypes. */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <pico/stdlib.h>
 #include <pico/multicore.h>
 #include <pico/unique_id.h>
@@ -39,10 +40,29 @@ myspi_device_t tc1;     // MAX31856
 StaticQueue_t static_queue;
 sm_t state_machine;
 
+StaticSemaphore_t print_mutex_buf;
+SemaphoreHandle_t print_mutex;
+
+void safeprintf(const char* format, ...) {
+    xSemaphoreTake(print_mutex, portMAX_DELAY);
+
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
+    xSemaphoreGive(print_mutex);
+}
+
 int main() {
+    print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buf);
+
     setup_hardware();
 
-    CreateTaskCore0(0, init_task, "Initializer", 100);
+    for (int i = 0; i < 10; i++) printf("here1\n");
+    // CreateTaskCore0(0, init_task, "Initializer", 100);
+    xTaskCreateStatic(init_task, "Initialization", TASK_STACK_SIZE, NULL, 1,
+                      task_stacks, &task_buffers[0]);
 
     vTaskStartScheduler();
 
@@ -56,6 +76,7 @@ int main() {
 void setup_hardware() {
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();
+    stdio_flush();
     for (int i = 0; i < 10; i++) printf("\n");
 
     // --- SPI --- //
@@ -71,15 +92,14 @@ void setup_hardware() {
 
 void init_task() {
     // --- Ethernet --- //
-    myspi_device_init(&eth0, myspi1, 25U, 1, 1, 30000000);
 
-    pico_unique_board_id_t board_id;
-    pico_get_unique_board_id(&board_id);
+    // pico_unique_board_id_t board_id;
+    // pico_get_unique_board_id(&board_id);
 
-    mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
-                     board_id.id[5], board_id.id[6], board_id.id[7]};
+    // mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
+    //                  board_id.id[5], board_id.id[6], board_id.id[7]};
 
-    printf(psp_logo);
-    printf("Program: %s\n", PICO_PROGRAM_NAME);
-    printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
+    safeprintf(psp_logo);
+    safeprintf("Program: %s\n", PICO_PROGRAM_NAME);
+    safeprintf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 }
