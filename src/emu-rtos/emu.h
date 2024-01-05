@@ -3,7 +3,7 @@
 #include <pico/stdlib.h>
 #include <w5500.h>
 #include <ads13x.h>
-#include <commandnet.h>
+#include <cmdnet.h>
 #include <sensornet.h>
 #include <state-machine.h>
 #include <ntp.h>
@@ -60,11 +60,7 @@ static const uint TC1_BAUD    = MHz(5);
 
 //------------CommandNet------------
 
-extern cmdnet_cmd_t cmds[];
-extern const size_t cmds_len;
-
-extern cmdnet_var_t vars[];
-extern const size_t vars_len;
+extern const cmdnet_endpoint_t endpoints[];
 
 //------------Constants------------
 

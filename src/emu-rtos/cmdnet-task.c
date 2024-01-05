@@ -1,25 +1,28 @@
 #include "emu.h"
 
-int64_t test_var = 0;
+bool test_handler(mpack_reader_t *reader) {
+    safeprintf("Test handler called!\n");
+    return true;
+}
 
-cmdnet_cmd_t cmds[]   = {};
-const size_t cmds_len = sizeof(cmds) / sizeof(cmds[0]);
+const cmdnet_endpoint_t endpoints[] = {
+    CMDNET_HANDLER(test),
+};
 
-cmdnet_var_t vars[]   = {{"test_var", &test_var}};
-const size_t vars_len = sizeof(vars) / sizeof(vars[0]);
+const size_t n_endpoints = sizeof(endpoints) / sizeof(cmdnet_endpoint_t);
 
 tcp_server_t server;
 cmdnet_t cmdnet;
 
 void cmdnet_task_main() {
     tcp_server_init(&server, &eth0, COMMANDNET_SOCKET, COMMANDNET_PORT);
-    cmdnet_init(&cmdnet, &server, cmds, cmds_len, vars, vars_len);
+    cmdnet2_init(&cmdnet, &server, endpoints, n_endpoints);
 
     while (true) {
         tcp_server_poll(&server);
 
         if (tcp_server_connected(&server)) {
-            cmdnet_handle(&cmdnet);
+            cmdnet2_handle(&cmdnet);
         }
     }
 }

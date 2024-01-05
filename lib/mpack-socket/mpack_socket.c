@@ -1,4 +1,4 @@
-#include <commandnet/mpack_socket.h>
+#include <mpack_socket.h>
 
 void mpack_socket_writer_flush(mpack_writer_t* writer, const char* buf,
                                size_t len) {

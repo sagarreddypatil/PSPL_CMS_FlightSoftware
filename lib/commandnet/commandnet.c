@@ -1,5 +1,5 @@
 #include <commandnet.h>
-#include <commandnet/mpack_socket.h>
+#include <mpack_socket.h>
 
 #ifndef NDEBUG
 
