@@ -15,23 +15,19 @@ void tcp_server_poll(tcp_server_t *server) {
     uint8_t status = w5500_read8(server->w5500, server->socket, W5500_Sn_SR);
     myspi_unlock(server->w5500);
 
+    myspi_lock(server->w5500);
     if (status == W5500_SOCK_CLOSED) {
-        myspi_lock(server->w5500);
         w5500_command(server->w5500, server->socket, W5500_CMD_OPEN);
-        myspi_unlock(server->w5500);
     }
 
     if (status == W5500_SOCK_INIT) {
-        myspi_lock(server->w5500);
         w5500_command(server->w5500, server->socket, W5500_CMD_LISTEN);
-        myspi_unlock(server->w5500);
     }
 
     if (status == W5500_SOCK_CLOSE_WAIT) {
-        myspi_lock(server->w5500);
         w5500_command(server->w5500, server->socket, W5500_CMD_DISCON);
-        myspi_unlock(server->w5500);
     }
+    myspi_unlock(server->w5500);
 }
 
 bool tcp_server_connected(tcp_server_t *server) {
