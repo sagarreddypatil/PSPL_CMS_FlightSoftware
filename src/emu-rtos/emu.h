@@ -5,8 +5,8 @@
 #include <ads13x.h>
 #include <commandnet.h>
 #include <sensornet.h>
-#include <ntp.h>
 #include <state-machine.h>
+#include <ntp.h>
 
 #include "config.h"
 
@@ -64,6 +64,8 @@ extern const size_t vars_len;
 // Network
 static const w5500_socket_t SENSORNET_SOCKET  = W5500_S0;
 static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;
+
+static const w5500_socket_t NTP_SOCKET = W5500_S3;
 
 // GPIO
 static const uint LOX_SOLENOID = 16;

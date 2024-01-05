@@ -102,6 +102,8 @@ void setup_hardware() {
 
 void init_eth0();
 
+void ntp_test_main();
+
 void init_task() {
     safeprintf(psp_logo);
     safeprintf("Program: %s\n", PICO_PROGRAM_NAME);
@@ -109,9 +111,10 @@ void init_task() {
 
     init_eth0();
 
-    CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
-    CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
-    CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
+    // CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
+    // CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
+    // CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
+    CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
 
 void init_eth0() {
@@ -158,7 +161,7 @@ void init_eth0() {
 
     ip_t ip;
     myspi_lock(&eth0);
-    w5500_config(&eth0, src_mac, src_ip, subnet_mask, gateway);
+    w5500_config(&eth0, src_mac, SRC_IP, SUBNET_MASK, GATEWAY_IP);
     w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
     myspi_unlock(&eth0);
 

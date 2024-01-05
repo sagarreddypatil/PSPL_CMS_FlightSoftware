@@ -108,7 +108,8 @@ psp_lib(lib state-machine)
 set(boards
     emu-rtos
     # adc-test
-    w5500-test
+    # w5500-test
+    # ntp-test
 )
 
 foreach(board ${boards})

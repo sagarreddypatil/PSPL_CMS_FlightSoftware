@@ -31,8 +31,8 @@ ntp_time_t us_to_ntp_time(uint64_t micros) {
     return ntp_time;
 }
 
-int64_t get_server_time(SPI_DEVICE_PARAM, ip_t server_addr,
-                        w5500_socket_t socket) {
+int64_t get_server_time(SPI_DEVICE_PARAM, const ip_t server_addr,
+                        const w5500_socket_t socket) {
     ntp_packet_t packet = {0};
 
     packet.li_vn_mode = 0b00011011;  // li=0, vn=3, mode=3, DEC 27

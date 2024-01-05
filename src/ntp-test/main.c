@@ -1,25 +1,14 @@
-#include <ntp.h>
-#include <stdio.h>
-#include <psp.h>
 #include <pico/stdlib.h>
-#include <FreeRTOS.h>
-#include <semphr.h>
-#include <stdarg.h>
+#include <stdio.h>
 
 #include <w5500.h>
+#include <ntp.h>
+
+#include <psp.h>
 
 int64_t offset = 0;
 
-myspi_device_t w5500 = {
-    // posi pico sclk
-    .spi_bus  = myspi1,
-    .cs_gpio  = 25,
-    .baudrate = 30000000,
-};
-
-StaticSemaphore_t mutex_buf;
-SemaphoreHandle_t print_mutex = NULL;
-StaticSemaphore_t print_mutex_buffer;
+myspi_device_t w5500;
 
 static inline uint64_t unix_time_us() {
     return time_us_64() + offset;
@@ -31,9 +20,9 @@ int main() {
         ;
     stdio_flush();
 
-    myspi_bus_init(myspi1);
-    myspi_device_init(&w5500, myspi1, 25U, 27U, 26U, 28U, 1, 1, 30000000);
-    print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buffer);
+    myspi_bus_init(myspi1, 27, 26, 28);
+    myspi_device_init(&w5500, myspi1, 25, 1, 1, 30000000);
+    uint actual_baud = myspi_configure(&w5500);
 
     for (int i = 0; i < 10; i++) {
         printf("\n");
@@ -43,7 +32,7 @@ int main() {
     printf("Program: %s\n", PICO_PROGRAM_NAME);
     printf("Version: %s\n", PICO_PROGRAM_VERSION_STRING);
 
-    printf("actual baud: %d\n", w5500.baudrate);
+    printf("actual baud: %d\n", actual_baud);
 
     ip_t gateway       = {192, 168, 2, 1};
     ip_t ntp_server_ip = {192, 168, 2, 1};
@@ -53,6 +42,7 @@ int main() {
 
     w5500_reset(&w5500);
     uint64_t start = time_us_64();
+    printf("Reset W5500, waiting for ready\n");
     while (!w5500_ready(&w5500))
         ;
     printf("W5500 ready, awaiting link, took %d us\n",
