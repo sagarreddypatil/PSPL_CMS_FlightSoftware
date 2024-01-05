@@ -87,14 +87,7 @@ static const uint PYRO_CONT_1       = 27;
 static const uint PYRO_CONT_1_INPUT = 1;
 
 //------------Tasks------------
-void cmdnet_task_init();
-void cmdnet_task_run();
-
-void sensornet_task_init();
-void sensornet_task_run();
-
-void solenoid_task_init();
-void solenoid_task_run();
+void cmdnet_task_entrypoint();
 
 void w5500_drdy_handler();
 
