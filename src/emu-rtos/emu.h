@@ -40,7 +40,7 @@ static const uint TC1_CS    = 0;
 // actual rates will differ, but this is the max
 // difference due to how RP2040 generates clock
 
-static const uint ETH0_BAUD   = MHz(80);
+static const uint ETH0_BAUD   = MHz(60);  // 80 MHz was too fast
 static const uint FLASH0_BAUD = MHz(100);
 static const uint ADC0_BAUD   = MHz(10) + KHz(2);
 static const uint TC0_BAUD    = MHz(5);

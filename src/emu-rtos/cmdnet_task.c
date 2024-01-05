@@ -7,9 +7,11 @@ void cmdnet_task_entrypoint() {
     tcp_server_init(&server, &eth0, W5500_S0, 8080);
     cmdnet_init(&cmdnet, &server, cmds, cmds_len, vars, vars_len);
 
-    tcp_server_poll(&server);
+    while (true) {
+        tcp_server_poll(&server);
 
-    if (tcp_server_connected(&server)) {
-        cmdnet_handle(&cmdnet);
+        if (tcp_server_connected(&server)) {
+            cmdnet_handle(&cmdnet);
+        }
     }
 }
