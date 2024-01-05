@@ -1,16 +1,5 @@
 #include "emu.h"
 
-bool test_handler(mpack_reader_t *reader) {
-    safeprintf("Test handler called!\n");
-    return true;
-}
-
-const cmdnet_endpoint_t endpoints[] = {
-    CMDNET_HANDLER(test),
-};
-
-const size_t n_endpoints = sizeof(endpoints) / sizeof(cmdnet_endpoint_t);
-
 tcp_server_t server;
 cmdnet_t cmdnet;
 

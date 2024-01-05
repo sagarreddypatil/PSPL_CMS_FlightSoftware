@@ -13,6 +13,7 @@ void sm_task_main() {
         sm_run_polls_events(&state_machine, abs_time);
         const int64_t relative_time =
             sm_relative_time(&state_machine, abs_time);
+        const sm_state_t state = state_machine.state;
         global_unlock();
 
         // post the time to SensorNet, low latency so don't use the buffer
@@ -21,7 +22,8 @@ void sm_task_main() {
                                      .time_us = abs_time,
                                      .value   = relative_time};
 
-        // safeprintf("Relative Time: %" PRId64 "\n", relative_time);
+        safeprintf("State: %d, Relative Time: %" PRId64 " micros\n", state,
+                   relative_time);
 
         myspi_lock(&eth0);
         w5500_error_t status = w5500_write_data(

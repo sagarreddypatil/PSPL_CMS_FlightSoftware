@@ -22,7 +22,12 @@ void sm_init(sm_t *sm, const sm_event_t *events, uint32_t num_events,
     sm->current_poll_status = SM_POLL_INIT;
 }
 
+void safeprintf(const char *, ...);
+
 void sm_hold(sm_t *sm, const uint64_t absolute_time) {
+    if (sm->state != SM_STATE_COUNTDOWN && sm->state != SM_STATE_POLLING)
+        return;
+
     sm->state = SM_STATE_HOLD;
 
     sm->hold_state = sm->state;
@@ -30,7 +35,7 @@ void sm_hold(sm_t *sm, const uint64_t absolute_time) {
 }
 
 void sm_continue_new_t0(sm_t *sm, uint64_t t0) {
-    if (sm->state == SM_STATE_HOLD) return;
+    if (sm->state != SM_STATE_HOLD) return;
 
     sm_state_t continue_state = sm->hold_state;
     if (continue_state == SM_STATE_HOLD) {
@@ -38,7 +43,7 @@ void sm_continue_new_t0(sm_t *sm, uint64_t t0) {
         continue_state = SM_STATE_COUNTDOWN;
     }
 
-    sm->state = sm->hold_state;
+    sm->state = continue_state;
     sm->t0    = t0;
 }
 
@@ -60,14 +65,30 @@ int64_t sm_relative_time(sm_t *sm, const uint64_t absolute_time) {
         // countdown stays static during hold
         // it's held at the time at which it was held
 
-        return sm->t0 - sm->hold_time;
+        return sm->hold_time - sm->t0;
     }
 
-    return (int64_t)sm->t0 - absolute_time;
+    return absolute_time - (int64_t)sm->t0;
 }
 
-void sm_poll_answer(sm_t *sm, sm_poll_status_t status) {
-    if (sm->state != SM_STATE_POLLING) return;
+void sm_poll_answer(sm_t *sm, sm_poll_status_t status,
+                    const uint64_t absolute_time) {
+    // already gone through all polls
+    if (sm->current_poll >= sm->num_polls) return;
+
+    const sm_poll_t *poll = &sm->polls[sm->current_poll];
+
+    if (sm->state != SM_STATE_POLLING) {
+        // not polling or holding, so return
+        if (sm->state != SM_STATE_HOLD) return;
+
+        // holding, so only answer a poll if one's pending
+        if (sm_relative_time(sm, absolute_time) < poll->start_time) {
+            // we're not in a poll, return
+            return;
+        }
+    }
+
     sm->current_poll_status = status;
 }
 

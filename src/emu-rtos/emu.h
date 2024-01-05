@@ -61,6 +61,7 @@ static const uint TC1_BAUD    = MHz(5);
 //------------CommandNet------------
 
 extern const cmdnet_endpoint_t endpoints[];
+extern const size_t n_endpoints;
 
 //------------Constants------------
 

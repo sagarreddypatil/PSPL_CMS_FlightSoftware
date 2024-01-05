@@ -22,6 +22,3 @@ typedef struct {
 void cmdnet2_init(cmdnet_t* cmdnet, tcp_server_t* server,
                   const cmdnet_endpoint_t* endpoints, size_t n_endpoints);
 void cmdnet2_handle(cmdnet_t* cmdnet);
-
-#define CMDNET_HANDLER(endpoint_name) \
-    { .name = #endpoint_name, .handler = endpoint_name##_handler }

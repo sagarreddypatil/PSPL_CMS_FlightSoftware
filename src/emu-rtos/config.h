@@ -28,10 +28,26 @@ static const uint16_t SENSORNET_DEST_PORT = 5001;
 static const uint16_t COMMANDNET_PORT = 8080;
 
 //------------State Machine------------
+
+#define MICROS(x) ((x) * 1000000)
+
+void test_event();
+
 static const uint32_t STATE_MACHINE_TICK = 10;  // milliseconds
 
-static const sm_event_t sm_events[] = {};
-static const sm_poll_t sm_polls[]   = {};
+static const sm_event_t sm_events[] = {
+    {
+        .time = MICROS(-10),
+        .fn   = test_event,
+    },
+};
+static const sm_poll_t sm_polls[] = {
+    {
+        .message          = "Test Poll",
+        .start_time       = MICROS(-30),
+        .timeout_duration = MICROS(15),
+    },
+};
 
 static const uint sm_events_len = sizeof(sm_events) / sizeof(sm_event_t);
 static const uint sm_polls_len  = sizeof(sm_polls) / sizeof(sm_poll_t);

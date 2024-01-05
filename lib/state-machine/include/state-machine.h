@@ -6,7 +6,7 @@
 typedef void (*sm_event_fn_t)(void);
 
 typedef struct {
-    uint64_t time;
+    int64_t time;
     sm_event_fn_t fn;
 } sm_event_t;
 
@@ -17,13 +17,13 @@ typedef enum {
 } sm_poll_status_t;
 
 typedef struct {
-    uint64_t start_time;
+    int64_t start_time;
     uint64_t timeout_duration;
     const char *message;  // string literal
 } sm_poll_t;
 
 typedef enum {
-    SM_STATE_HOLD,
+    SM_STATE_HOLD = 0,
     SM_STATE_COUNTDOWN,
     SM_STATE_POLLING,
     SM_STATE_FLIGHT,
@@ -78,7 +78,8 @@ void sm_continue(sm_t *sm, const uint64_t absolute_time);
  */
 void sm_continue_old_t0(sm_t *sm);
 
-void sm_poll_answer(sm_t *sm, sm_poll_status_t status);
+void sm_poll_answer(sm_t *sm, sm_poll_status_t status,
+                    const uint64_t absolute_time);
 
 /*
  * Checks if any polls, events need to be run
