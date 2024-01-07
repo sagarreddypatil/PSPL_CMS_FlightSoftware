@@ -14,6 +14,7 @@
 
 #include <mydma.h>
 
+// void safeprintf(const char *format, ...);
 // #define DEBUG_TRANSFER 1
 
 volatile myspi_t myspi_bus_0;
@@ -21,17 +22,17 @@ volatile myspi_t myspi_bus_1;
 
 void myspi_device_init(myspi_device_t *spi, myspi_t *spi_bus, uint8_t cs_gpio,
                        spi_cpol_t cpol, spi_cpha_t cpha, uint baudrate) {
-    // Initialize CS pin and set high
-    gpio_init(spi->cs_gpio);
-    gpio_put(spi->cs_gpio, 1);
-    gpio_set_dir(spi->cs_gpio, GPIO_OUT);
-
     // Struct configuration
     spi->spi_bus  = spi_bus;
     spi->cs_gpio  = cs_gpio;
     spi->cpol     = cpol;
     spi->cpha     = cpha;
     spi->baudrate = baudrate;
+
+    // Initialize CS pin and set high
+    gpio_init(spi->cs_gpio);
+    gpio_put(spi->cs_gpio, 1);
+    gpio_set_dir(spi->cs_gpio, GPIO_OUT);
 }
 
 void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
@@ -43,6 +44,9 @@ void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
     gpio_set_function(miso_gpio, GPIO_FUNC_SPI);
     gpio_set_function(mosi_gpio, GPIO_FUNC_SPI);
     gpio_set_function(sck_gpio, GPIO_FUNC_SPI);
+
+    // Initialize the HW
+    spi_init(bus->spi_inst, 1000);  // dummy baudrate, doesn't matter
 
     /*
      * below rates are default, fast slew not yet tested, need to scope
@@ -111,8 +115,6 @@ void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
 
 void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
                       size_t size) {
-    spi->baudrate = spi_init(spi->spi_bus->spi_inst, spi->baudrate);
-
     asm volatile("nop \n nop \n nop");
     gpio_put(spi->cs_gpio, 0);
     asm volatile("nop \n nop \n nop");
@@ -153,23 +155,20 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
     ulNotificationValue = 0;
 
 #if DEBUG_TRANSFER
-    printf("\nwrite: ");
+    safeprintf("\nbaudrate: %d", spi->baudrate);
+    safeprintf("\nwrite: ");
     for (int i = 0; i < size; i++) {
-        printf("%02x ", ((uint8_t *)src)[i]);
+        safeprintf("%02x ", ((uint8_t *)src)[i]);
     }
-    printf("\nread: ");
+    safeprintf("\nread: ");
     for (int i = 0; i < size; i++) {
-        printf("%02x ", ((uint8_t *)dst)[i]);
+        safeprintf("%02x ", ((uint8_t *)dst)[i]);
     }
-    printf("\n");
+    safeprintf("\n");
 #endif
 }
 
 uint myspi_configure(myspi_device_t *spi) {
-    gpio_init(spi->cs_gpio);
-    gpio_put(spi->cs_gpio, 1);
-    gpio_set_dir(spi->cs_gpio, GPIO_OUT);
-
     uint actual_baud = spi_set_baudrate(spi->spi_bus->spi_inst, spi->baudrate);
     spi_set_format(spi->spi_bus->spi_inst, 8, spi->cpol, spi->cpha,
                    SPI_MSB_FIRST);

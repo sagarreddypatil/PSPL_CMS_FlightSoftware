@@ -23,6 +23,11 @@ void _tc_reader_main(int dev_index) {
         return;
     }
 
+    myspi_lock(device);
+    myspi_configure(device);
+    max31856_init(device);
+    myspi_unlock(device);
+
     uint64_t counter = 0;
 
     while (true) {
