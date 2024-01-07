@@ -78,7 +78,7 @@ static const uint8_t max31856_fr_ovuv     = 1 << 1;
 static const uint8_t max31856_fr_open     = 1 << 0;
 
 // initialize the chip
-void max31856_init(SPI_DEVICE_PARAM);
+bool max31856_init(SPI_DEVICE_PARAM);
 
 // read a single register
 uint8_t max31856_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg);

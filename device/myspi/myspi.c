@@ -14,8 +14,13 @@
 
 #include <mydma.h>
 
-// void safeprintf(const char *format, ...);
-// #define DEBUG_TRANSFER 1
+// #define DEBUG_TRANSFER
+
+#ifdef DEBUG_TRANSFER
+#include "semphr.h"
+extern SemaphoreHandle_t print_mutex;
+void safeprintf(const char *format, ...);
+#endif
 
 volatile myspi_t myspi_bus_0;
 volatile myspi_t myspi_bus_1;
@@ -97,14 +102,14 @@ void myspi_bus_init(myspi_t *bus, uint8_t miso_gpio, uint8_t mosi_gpio,
     // which) so we don't have overlapping interrupts
     dma_irqn_set_channel_enabled(bus->index, bus->dma_rx, true);
     dma_irqn_set_channel_enabled(bus->index, bus->dma_tx, false);
-    dma_irqn_set_channel_enabled(!bus->index, bus->dma_rx, false);
-    dma_irqn_set_channel_enabled(!bus->index, bus->dma_tx, false);
+    // dma_irqn_set_channel_enabled(!bus->index, bus->dma_rx, false);
+    // dma_irqn_set_channel_enabled(!bus->index, bus->dma_tx, false);
 
     // Set interrupt handler depending on which SPI bus
-    if (bus->index) {
+    if (bus->index == 1) {
         irq_set_enabled(DMA_IRQ_1, true);
         irq_set_exclusive_handler(DMA_IRQ_1, dma_finished_isr1);
-    } else {
+    } else if (bus->index == 0) {
         irq_set_enabled(DMA_IRQ_0, true);
         irq_set_exclusive_handler(DMA_IRQ_0, dma_finished_isr0);
     }
@@ -154,17 +159,20 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
 
     ulNotificationValue = 0;
 
-#if DEBUG_TRANSFER
-    safeprintf("\nbaudrate: %d", spi->baudrate);
-    safeprintf("\nwrite: ");
+#ifdef DEBUG_TRANSFER
+    xSemaphoreTake(print_mutex, portMAX_DELAY);
+    printf("\nbaudrate: %d", spi->baudrate);
+
+    printf("\nwrite: ");
     for (int i = 0; i < size; i++) {
-        safeprintf("%02x ", ((uint8_t *)src)[i]);
+        printf("%02x ", ((uint8_t *)src)[i]);
     }
-    safeprintf("\nread: ");
+    printf("\nread: ");
     for (int i = 0; i < size; i++) {
-        safeprintf("%02x ", ((uint8_t *)dst)[i]);
+        printf("%02x ", ((uint8_t *)dst)[i]);
     }
-    safeprintf("\n");
+    printf("\n");
+    xSemaphoreGive(print_mutex);
 #endif
 }
 

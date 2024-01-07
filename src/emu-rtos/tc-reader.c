@@ -23,10 +23,18 @@ void _tc_reader_main(int dev_index) {
         return;
     }
 
-    myspi_lock(device);
-    myspi_configure(device);
-    max31856_init(device);
-    myspi_unlock(device);
+    bool success = false;
+
+    while (!success) {
+        myspi_lock(device);
+        myspi_configure(device);
+        success = max31856_init(device);
+        myspi_unlock(device);
+
+        if (!success) vTaskDelay(pdMS_TO_TICKS(TC_INIT_FAIL_RETRY_TIME));
+    }
+
+    printf("TC %d Initialized\n", dev_index);
 
     uint64_t counter = 0;
 

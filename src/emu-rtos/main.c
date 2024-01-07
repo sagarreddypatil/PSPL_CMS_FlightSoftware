@@ -27,7 +27,7 @@ void task_wrapper(void* _task_entrypoint) {
 
     TaskHandle_t my_handle = xTaskGetCurrentTaskHandle();
 
-    safeprintf("Task \"%s\" exited\n", pcTaskGetName(my_handle));
+    safeprintf("\nTask \"%s\" exited\n\n", pcTaskGetName(my_handle));
     vTaskDelete(my_handle);
 
     while (1)
@@ -110,6 +110,7 @@ void init_task() {
     safeprintf("Version: %s\n\n", PICO_PROGRAM_VERSION_STRING);
 
     init_eth0();
+    safeprintf("\n");
     bool success = ntp_sync();
 
     if (success) {

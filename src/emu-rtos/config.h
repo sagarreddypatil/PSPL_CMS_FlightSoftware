@@ -15,6 +15,8 @@
 
 #define TC_SAMPLE_PERIOD 40  // milliseconds, 25 Hz
 
+#define TC_INIT_FAIL_RETRY_TIME 500  // ms
+
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
 

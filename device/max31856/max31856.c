@@ -28,14 +28,17 @@
 #define READ(x)  (x & 0x7F)
 #define WRITE(x) (x | 0x80)
 
-void max31856_init(SPI_DEVICE_PARAM) {
+bool max31856_init(SPI_DEVICE_PARAM) {
+    const uint8_t cr0_val = max31856_cr0_default | max31856_cr0_cmode;
+
     for (int i = 0; i < 100; i++) {
-        max31856_wreg_byte(
-            spi, max31856_cr0,
-            max31856_cr0_default |
-                max31856_cr0_cmode);  // build off of default cr0,
+        max31856_wreg_byte(spi, max31856_cr0,
+                           cr0_val);  // build off of default cr0,
                                       // enable continous mode
     }
+
+    const uint8_t actual = max31856_rreg_byte(spi, max31856_cr0);
+    return actual == cr0_val;
 }
 
 uint8_t max31856_rreg_byte(SPI_DEVICE_PARAM, uint8_t reg) {
