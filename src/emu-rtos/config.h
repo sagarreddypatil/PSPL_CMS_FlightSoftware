@@ -3,19 +3,27 @@
 #include <stdint.h>
 #include <sensornet.h>
 #include <w5500.h>
+#include <ads13x.h>
 #include <state-machine.h>
 
 //------------Misc------------
-#define TASK_STACK_SIZE 1024
+#define TASK_STACK_SIZE 4096
 #define NUM_TASKS       8
 
 #define DATA_WRITER_QUEUE_SIZE 1024
 
-//------------Timing------------
+//------------Thermocouples------------
 
-#define TC_SAMPLE_PERIOD 40  // milliseconds, 25 Hz
-
+#define TC_SAMPLE_PERIOD        40   // milliseconds, 25 Hz
 #define TC_INIT_FAIL_RETRY_TIME 500  // ms
+
+//------------PT ADCs------------
+
+// See the datasheet for info https://www.ti.com/lit/ds/symlink/ads131m06.pdf
+
+// TODO: Actually use this sample rate
+#define ADC0_OSR      SR_1K  // 1 ksps
+#define ADC0_CHANNELS 3      // ADC is 6 channel, we only use 3
 
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
@@ -24,6 +32,10 @@ static const sensornet_id_t SENSOR_ID_TC0_PROBE_TEMP = 2;
 static const sensornet_id_t SENSOR_ID_TC0_CJ_TEMP    = 3;
 static const sensornet_id_t SENSOR_ID_TC1_PROBE_TEMP = 4;
 static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
+
+static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
+
+// Next available: 9
 
 //------------Network------------
 static const ip_t GATEWAY_IP  = {192, 168, 2, 1};

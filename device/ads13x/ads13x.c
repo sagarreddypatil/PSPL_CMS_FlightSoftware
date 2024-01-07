@@ -160,15 +160,6 @@ uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {
     SPI_WRITE(spi, src, TRANSFER_SIZE * 2);
     SPI_READ(spi, dst, TRANSFER_SIZE * 2);
 
-    for (int i = 0; i < TRANSFER_SIZE * 2; i++) {
-        printf("%02x ", src[i]);
-    }
-    printf("\n");
-    for (int i = 0; i < TRANSFER_SIZE * 2; i++) {
-        printf("%02x ", dst[i]);
-    }
-    printf("\n");
-
     uint16_t resp = (dst[TRANSFER_SIZE] << 8) | dst[TRANSFER_SIZE + 1];
     return resp;
 }
@@ -186,11 +177,6 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     uint8_t dst[TRANSFER_SIZE];
     SPI_READ(spi, dst, TRANSFER_SIZE);
-    // for (int i = 0; i < TRANSFER_SIZE; i++) {
-    //   printf("%02X ", dst[i]);
-    // }
-
-    // printf("\n");
 
     *status = PTOH16(dst);
     for (int i = 0; i < len; i++) {

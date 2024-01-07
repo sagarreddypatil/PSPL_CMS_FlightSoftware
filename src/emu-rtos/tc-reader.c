@@ -3,6 +3,8 @@
 #include <max31856.h>
 
 void _tc_reader_main(int dev_index) {
+    // slow enough, no need to DRDY
+
     TickType_t prev_wake = xTaskGetTickCount();
 
     myspi_device_t* device;
@@ -34,7 +36,7 @@ void _tc_reader_main(int dev_index) {
         if (!success) vTaskDelay(pdMS_TO_TICKS(TC_INIT_FAIL_RETRY_TIME));
     }
 
-    printf("TC %d Initialized\n", dev_index);
+    safeprintf("TC %d Initialized\n", dev_index);
 
     uint64_t counter = 0;
 

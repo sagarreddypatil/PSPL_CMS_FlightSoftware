@@ -1,8 +1,8 @@
 #pragma once
 
+#include <stdbool.h>
 #include <pico/stdlib.h>
 #include <w5500.h>
-#include <ads13x.h>
 #include <cmdnet.h>
 #include <sensornet.h>
 #include <state-machine.h>
@@ -32,6 +32,8 @@ static const uint ADC0_CS   = 6;
 static const uint TC0_CS    = 1;
 static const uint TC1_CS    = 0;
 
+static const uint ADC0_RESET = 7;
+
 // SPI Mode (Clock Polarity and Phase setting)
 // Specific to chip model
 #define W5500_MODE    SPI_CPOL_1, SPI_CPHA_1
@@ -51,7 +53,7 @@ static const uint TC1_CS    = 0;
 
 static const uint ETH0_BAUD   = MHz(60);  // 80 MHz was too fast
 static const uint FLASH0_BAUD = MHz(100);
-static const uint ADC0_BAUD   = MHz(10) + KHz(2);
+static const uint ADC0_BAUD   = MHz(10) + KHz(200);
 static const uint TC0_BAUD    = MHz(5);
 static const uint TC1_BAUD    = MHz(5);
 
@@ -91,6 +93,8 @@ void sm_task_main();
 
 void tc0_reader_main();
 void tc1_reader_main();
+
+void adc0_reader_main();
 
 void w5500_drdy_handler();
 
