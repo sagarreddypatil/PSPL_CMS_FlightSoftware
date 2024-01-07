@@ -11,8 +11,17 @@
 
 #define DATA_WRITER_QUEUE_SIZE 1024
 
+//------------Timing------------
+
+#define TC_SAMPLE_PERIOD 40  // milliseconds, 25 Hz
+
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
+
+static const sensornet_id_t SENSOR_ID_TC0_PROBE_TEMP = 2;
+static const sensornet_id_t SENSOR_ID_TC0_CJ_TEMP    = 3;
+static const sensornet_id_t SENSOR_ID_TC1_PROBE_TEMP = 4;
+static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 
 //------------Network------------
 static const ip_t GATEWAY_IP  = {192, 168, 2, 1};

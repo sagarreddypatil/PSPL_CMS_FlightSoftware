@@ -120,8 +120,13 @@ void init_task() {
     }
 
     CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
+
     CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
     CreateTaskCore0(3, sm_task_main, "State Machine", 10);  // high priority
+
+    CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 5);
+    CreateTaskCore0(5, tc1_reader_main, "TC1 Reader", 5);
+
     // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
 

@@ -16,6 +16,11 @@ void data_writer_main() {
             continue;
         }
 
+        // print the packet for testing
+        printf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64 "| Time: %-10" PRIu64
+               "| Value: %" PRId64 "\n",
+               packet.id, packet.counter, packet.time_us, packet.value);
+
         // send the packet
         myspi_lock(&eth0);
         w5500_error_t status = w5500_write_data(

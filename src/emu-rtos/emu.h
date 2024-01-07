@@ -89,6 +89,9 @@ void cmdnet_task_main();
 void data_writer_main();
 void sm_task_main();
 
+void tc0_reader_main();
+void tc1_reader_main();
+
 void w5500_drdy_handler();
 
 extern TaskHandle_t w5500_drdy_task;
