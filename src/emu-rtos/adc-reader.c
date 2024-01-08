@@ -23,10 +23,6 @@ bool adc0_init_routine() {
         myspi_configure(&adc0);
         adc_ready = ads13x_ready(&adc0);
         myspi_unlock(&adc0);
-
-        safeprintf("ADC not yet ready, delaying: %d\n", delay);
-        if (!adc_ready) vTaskDelay(delay);
-        delay *= 2;
     }
 
     safeprintf("ADC0 Ready\n");

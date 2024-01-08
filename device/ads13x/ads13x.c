@@ -74,10 +74,10 @@ void ads13x_reset(SPI_DEVICE_PARAM) {
 
     // SPI_TRANSFER(src24, dst24, TRANSFER_SIZE);
 
-    uint8_t src32[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
-    uint8_t dst32[TRANSFER_SIZE_INIT];
+    uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
+    uint8_t dst[TRANSFER_SIZE_INIT];
 
-    SPI_TRANSFER(spi, src32, dst32, TRANSFER_SIZE);
+    SPI_TRANSFER(spi, src, dst, TRANSFER_SIZE_INIT);
 }
 
 bool ads13x_ready(SPI_DEVICE_PARAM) {
