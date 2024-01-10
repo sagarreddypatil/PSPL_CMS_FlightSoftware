@@ -7,7 +7,7 @@
 #include <state-machine.h>
 
 //------------Misc------------
-#define TASK_STACK_SIZE 4096
+#define TASK_STACK_SIZE 2048
 #define NUM_TASKS       8
 
 #define DATA_WRITER_QUEUE_SIZE 1024

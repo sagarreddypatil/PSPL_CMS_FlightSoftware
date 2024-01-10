@@ -26,7 +26,8 @@ void data_writer_main() {
                 continue;
             }
 
-            if (total % 10 == 0) {
+            // modulo a prime so there's even representation
+            if (total % 11 == 0) {
                 // print the packet for testing
                 // safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
                 //            "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",

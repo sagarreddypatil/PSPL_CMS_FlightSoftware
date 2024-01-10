@@ -10,8 +10,6 @@ bool adc0_init_routine() {
     // loop waiting for the ADS13x to start working in the case that
     // it doesn't
 
-    safeprintf("Initializing ADC0\n");
-
     // The chip takes 250 microseconds to start accepting commands after first
     // powered on. Not accounting for this causes this type of error:
     // You power on avionics, ADC init fails. You soft reboot, and now it works
@@ -35,8 +33,6 @@ bool adc0_init_routine() {
         if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
     }
 
-    safeprintf("ADC0 Ready\n");
-
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
@@ -58,6 +54,9 @@ void adc0_reader_main() {
         safeprintf("ADC0 failed to initialize\n");
         return;  // kill self
     }
+
+    gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
+                                       &adc0_drdy_isr);
 
     safeprintf("ADC0 Initialized\n");
 
@@ -95,6 +94,9 @@ void adc0_reader_main() {
         for (int i = 0; i < ADC0_CHANNELS; i++) {
             // this channel did not DRDY, skip
             if (!(read_channels & (1 << i))) continue;
+
+            // garbage, adc is 24-bit
+            if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
 
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
