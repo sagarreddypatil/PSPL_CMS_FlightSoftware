@@ -173,7 +173,7 @@ void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate) {
 
 bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
                       uint32_t len) {
-    if (len > 2) len = 2;
+    if (len > NUM_CHANNELS) len = NUM_CHANNELS;
 
     uint8_t dst[TRANSFER_SIZE];
     SPI_READ(spi, dst, TRANSFER_SIZE);

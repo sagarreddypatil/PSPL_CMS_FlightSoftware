@@ -44,14 +44,12 @@ void adc0_reader_main() {
     uint64_t counter   = 0;
     uint64_t prev_time = 0;
 
-    // return;
-
     while (true) {
         // Wait on DRDY ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        safeprintf("%llu\n", time_us_64() - prev_time);
-        prev_time = time_us_64();
+        // safeprintf("%llu\n", time_us_64() - prev_time);
+        // prev_time = time_us_64();
 
         uint16_t status_reg;
         int32_t data[ADC0_CHANNELS];  // this is an ads131m06, 6 channel
@@ -67,7 +65,6 @@ void adc0_reader_main() {
             safeprintf("ADC0: All channels not DRDYd!\n");
         }
 
-        bool success = true;
         for (int i = 0; i < ADC0_CHANNELS; i++) {
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
@@ -77,7 +74,7 @@ void adc0_reader_main() {
             };
 
             // this CAN NOT take up time
-            success &= xQueueSend(data_writer_queue, &packet, 0);
+            bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
 
         counter++;

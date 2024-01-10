@@ -12,26 +12,32 @@ void data_writer_main() {
                   SENSORNET_DEST_PORT);
     myspi_unlock(&eth0);
 
+    uint64_t total = 0;
+
     uint8_t send_buf[1024];
     size_t offset = 0;
 
     while (true) {
         sensornet_packet_t packet;
-        if (xQueueReceive(data_writer_queue, &packet, portMAX_DELAY) ==
-            pdFALSE) {
-            continue;
-        }
 
-        // print the packet for testing
-        safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
-                   "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
-                   packet.id, packet.counter, packet.time_us, packet.value);
-        safeprintf("Queue Space: %d\n",
-                   uxQueueSpacesAvailable(data_writer_queue));
+        if (offset <= UDP_PACKET_SIZE - sizeof(sensornet_packet_t)) {
+            if (xQueueReceive(data_writer_queue, &packet, portMAX_DELAY) ==
+                pdFALSE) {
+                continue;
+            }
 
-        if (offset < UDP_PACKET_SIZE - sizeof(sensornet_packet_t) - 1) {
+            if (total % 1 == 0) {
+                // print the packet for testing
+                safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
+                           "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
+                           packet.id, packet.counter, packet.time_us,
+                           packet.value);
+            }
+
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
+            total++;
+
             continue;
         }
 
