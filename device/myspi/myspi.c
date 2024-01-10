@@ -124,13 +124,17 @@ void myspi_write_read(myspi_device_t *spi, uint8_t *src, uint8_t *dst,
     gpio_put(spi->cs_gpio, 0);
     asm volatile("nop \n nop \n nop");
 
-    myspi_dma_transfer(spi, src, dst, size);
+    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) {
+        spi_write_read_blocking(spi->spi_bus->spi_inst, src, dst, size);
+    } else {
+        myspi_dma_transfer(spi, src, dst, size);
+        dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
+        dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
+    }
 
     asm volatile("nop \n nop \n nop");
     gpio_put(spi->cs_gpio, 1);
     asm volatile("nop \n nop \n nop");
-    dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_rx);
-    dma_channel_wait_for_finish_blocking(spi->spi_bus->dma_tx);
 }
 
 void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
