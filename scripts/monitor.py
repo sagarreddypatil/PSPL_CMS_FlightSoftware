@@ -10,19 +10,17 @@ import os
 
 path = sys.argv[1]
 file_name = os.path.basename(path)
-script_location = os.path.dirname(os.path.abspath(__file__))
-output_dir = os.path.join(script_location, "monitor_outputs")
+output_dir = os.path.join("/tmp", "monitor_outputs")
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
-
 
 output_location = os.path.join(output_dir, file_name)
 lockfile_location = output_location + ".lock"
 
 if check_lockfile(lockfile_location):
     # lockfile exists, just start f"cat ${output_location}" instead
-    os.execl("/bin/cat", "cat", output_location)
+    os.execl("/bin/tail", "tail", "-f", output_location)
 
 
 create_lockfile(lockfile_location)
@@ -37,6 +35,7 @@ while True:
                 if ser.in_waiting:
                     data = ser.readline().decode("utf-8").rstrip()
                     outfile.write(data + "\n")
+                    outfile.flush()
                     print(data)
                 else:
                     time.sleep(0)  # yield
