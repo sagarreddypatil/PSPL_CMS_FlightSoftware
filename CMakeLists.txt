@@ -108,13 +108,15 @@ psp_lib(lib state-machine)
 
 # ---------- Boards  ----------
 set(boards
-    # emu-rtos
+    emu-rtos
     # adc-test
     # w5500-test
-    ntp-test
+    # ntp-test
 )
 
 foreach(board ${boards})
+    message("Adding board: ${board}")
+
     file(GLOB_RECURSE srcs src/${board}/*.c)
     file(GLOB_RECURSE hdrs src/${board}/*.h)
 
