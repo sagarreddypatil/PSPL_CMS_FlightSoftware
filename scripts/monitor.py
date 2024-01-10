@@ -43,8 +43,10 @@ while True:
     except KeyboardInterrupt:
         break
     except:
-        outfile.write("Device disconnected, attempting to reconnect...\n")
-        print(data)
+        message = "Device disconnected, attempting to reconnect..."
+        outfile.write(message + "\n")
+        print(message)
+
         try:
             time.sleep(1)  # Wait before attempting to reconnect
         except KeyboardInterrupt:
