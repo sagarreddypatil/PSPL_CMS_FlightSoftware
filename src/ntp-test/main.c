@@ -3,6 +3,7 @@
 
 #include <w5500.h>
 #include <ntp.h>
+#include <sensornet.h>
 
 #include <psp.h>
 
@@ -35,6 +36,7 @@ int main() {
     printf("actual baud: %d\n", actual_baud);
 
     ip_t gateway       = {192, 168, 2, 1};
+    ip_t recv_ip       = {192, 168, 2, 1};
     ip_t ntp_server_ip = {192, 168, 2, 1};
     ip_t subnet_mask   = {255, 255, 255, 0};
     ip_t src_ip        = {192, 168, 2, 50};
@@ -61,6 +63,39 @@ int main() {
         }
 
         printf("%lld,%lld\n", unix_time_us(), offset);
+
+        // Sending data over ethernet to the w5500 pico with offset as the
+        // time_us
+
+        static uint64_t counter0 = 0;
+        static uint64_t counter1 = 0;
+
+        w5500_create_udp_socket(&w5500, W5500_S1, 5001, false, false, false);
+        w5500_write(&w5500, W5500_S1, W5500_Sn_DIPR0, recv_ip, 4);
+        w5500_write16(&w5500, W5500_S1, W5500_Sn_DPORT0, 5001);
+
+        uint64_t current_time = offset + time_us_64();
+
+        sensornet_packet_t packet_ntp_0 = {
+            .id      = 3,
+            .time_us = current_time,
+            .counter = counter0++,
+            .value   = current_time,
+        };
+
+        w5500_write_data(&w5500, W5500_S1, &packet_ntp_0,
+                         sizeof(sensornet_packet_t));
+
+        // int64_t
+        //     recv_offset[1];  // TODO check if array is necessary (check
+        //                      // parameters for read_data) or if directly
+        //                      passing
+        //                      // in a 64-bit integer to read_data works
+
+        // w5500_read_data(&w5500, W5500_S1, recv_offset,
+        //                 8);  // Retrieves data sent back from the pico
+
+        // printf("Recieved time: %lld\n\n", recv_offset[0]);
 
         sleep_ms(100);
     }
