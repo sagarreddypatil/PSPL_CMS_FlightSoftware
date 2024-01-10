@@ -27,7 +27,7 @@ release: CMAKE_FLAGS += -DCMAKE_BUILD_TYPE=Release
 release: cmake
 
 cmake: deps build-folder
-	@cd build && cmake $(CMAKE_FLAGS) .. --log-level=ERROR && ninja
+	@cd build && cmake $(CMAKE_FLAGS) .. --log-level=STATUS && ninja
 
 build-folder:
 	-@sh -c 'mkdir build 2>/dev/null || true'

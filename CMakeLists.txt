@@ -115,6 +115,8 @@ set(boards
 )
 
 foreach(board ${boards})
+    message("Adding board: ${board}")
+
     file(GLOB_RECURSE srcs src/${board}/*.c)
     file(GLOB_RECURSE hdrs src/${board}/*.h)
 
