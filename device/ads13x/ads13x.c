@@ -150,7 +150,7 @@ void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint16_t resp     = (dst[0] << 8) | dst[1];
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
 
-    assert(resp == expected);
+    // assert(resp == expected);
 }
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {

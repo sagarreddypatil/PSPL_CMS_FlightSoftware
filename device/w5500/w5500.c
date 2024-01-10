@@ -92,7 +92,7 @@ w5500_error_t w5500_create_udp_socket(myspi_device_t *spi, w5500_socket_t s,
     w5500_write16(spi, s, W5500_Sn_PORT0, src_port);
     w5500_command(spi, s, W5500_CMD_OPEN);
 
-    return SUCCESS;
+    return W5500_SUCCESS;
 }
 
 w5500_error_t w5500_create_tcp_socket(myspi_device_t *spi, w5500_socket_t s,
@@ -109,7 +109,7 @@ w5500_error_t w5500_create_tcp_socket(myspi_device_t *spi, w5500_socket_t s,
 
     w5500_command(spi, s, W5500_CMD_OPEN);
 
-    return SUCCESS;
+    return W5500_SUCCESS;
 }
 
 size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, uint8_t *data,
@@ -140,7 +140,7 @@ w5500_error_t w5500_write_data(myspi_device_t *spi, w5500_socket_t s,
 
     // checking if there is enough free space in buffer for the data
     if (free_size <= len) {
-        return ERR_INSUFFICIENT_MEM;
+        return W5500_ERR_INSUFFICIENT_MEM;
     }
 
     // get current write address
@@ -155,7 +155,7 @@ w5500_error_t w5500_write_data(myspi_device_t *spi, w5500_socket_t s,
 
     w5500_command(spi, s, W5500_CMD_SEND);
 
-    return SUCCESS;
+    return W5500_SUCCESS;
 }
 
 void w5500_command(myspi_device_t *spi, w5500_socket_t s,

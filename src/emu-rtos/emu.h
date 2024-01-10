@@ -33,6 +33,7 @@ static const uint TC0_CS    = 1;
 static const uint TC1_CS    = 0;
 
 static const uint ADC0_RESET = 7;
+static const uint ADC0_DRDY = 5;
 
 // SPI Mode (Clock Polarity and Phase setting)
 // Specific to chip model
@@ -94,11 +95,12 @@ void sm_task_main();
 void tc0_reader_main();
 void tc1_reader_main();
 
+extern TaskHandle_t adc0_reader_task;
 void adc0_reader_main();
 
 void w5500_drdy_handler();
+void adc0_drdy_isr();
 
-extern TaskHandle_t w5500_drdy_task;
 
 //------------Data Writer------------
 

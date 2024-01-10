@@ -108,10 +108,10 @@ psp_lib(lib state-machine)
 
 # ---------- Boards  ----------
 set(boards
-    # emu-rtos
+    emu-rtos
     # adc-test
     # w5500-test
-    ntp-test
+    # ntp-test
 )
 
 foreach(board ${boards})

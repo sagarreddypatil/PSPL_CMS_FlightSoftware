@@ -17,22 +17,18 @@
 // EMU Includes
 #include <emu.h>
 
-// Needs to move w5500 data to queue?
-void w5500_drdy() {
-    uint32_t ulNotificationValue;
-    ulNotificationValue =
-        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(portMAX_DELAY));
-
-    assert(ulNotificationValue);
-    ulNotificationValue = 0;
+// enables specific interrupts on a given socket
+void w5500_enable_sint(myspi_device_t *spi, w5500_socket_t socket,
+                        w5500_socket_interrupt_t intr) {
+    w5500_write8(spi, socket, W5500_Sn_IMR, intr.value);
 }
 
-void w5500_drdy_handler() {
-    portDISABLE_INTERRUPTS();
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
-    vTaskNotifyGiveFromISR(w5500_drdy_task, &xHigherPriorityTaskWoken);
-
-    portENABLE_INTERRUPTS();
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+// reads w5500 socket interrupt
+uint8_t w5500_read_sint(myspi_device_t *spi, w5500_socket_t socket) {
+    uint8_t data;
+    w5500_read(spi, socket, W5500_SIR, &data, 1);
+    return data;
+}
+// clears w5500 specific socket interrupt
+void w5500_clear_sint(myspi_device_t *spi, w5500_socket_t socket) {
 }

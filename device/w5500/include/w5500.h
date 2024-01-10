@@ -136,8 +136,8 @@ typedef enum {
  * @brief Error codes
  */
 typedef enum {
-    ERR_INSUFFICIENT_MEM = -1,
-    SUCCESS              = 0,
+    W5500_ERR_INSUFFICIENT_MEM = -1,
+    W5500_SUCCESS              = 0,
 } w5500_error_t;
 
 /* Protocols for sockets */

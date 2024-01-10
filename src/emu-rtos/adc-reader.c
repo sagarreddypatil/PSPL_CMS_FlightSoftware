@@ -1,5 +1,6 @@
 #include "emu.h"
 #include <ads13x.h>
+#include <hardware/gpio.h>
 
 #define CHANNELS_MASK ((1 << ADC0_CHANNELS) - 1)
 
@@ -25,6 +26,11 @@ bool adc0_init_routine() {
         myspi_unlock(&adc0);
     }
 
+    // myspi_lock(&adc0);
+    // myspi_configure(&adc0);
+    // ads13x_set_sample_rate(&adc0, ADC0_OSR);
+    // myspi_unlock(&adc0);
+
     safeprintf("ADC0 Ready\n");
 
     myspi_lock(&adc0);
@@ -39,13 +45,17 @@ void adc0_reader_main() {
     adc0_init_routine();
     safeprintf("ADC0 Initialized\n");
 
-    uint64_t counter = 0;
+    uint64_t counter   = 0;
+    uint64_t prev_time = 0;
 
-    return;
+    // return;
 
     while (true) {
         // Wait on DRDY ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+
+        safeprintf("%llu\n", time_us_64() - prev_time);
+        prev_time = time_us_64();
 
         uint16_t status_reg;
         int32_t data[ADC0_CHANNELS];  // this is an ads131m06, 6 channel
@@ -76,4 +86,20 @@ void adc0_reader_main() {
 
         counter++;
     }
+}
+
+void adc_drdy_isr(uint pin) {
+    portDISABLE_INTERRUPTS();
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+    vTaskNotifyGiveFromISR(adc0_reader_task, &xHigherPriorityTaskWoken);
+
+    gpio_acknowledge_irq(pin, GPIO_IRQ_EDGE_FALL);
+
+    portENABLE_INTERRUPTS();
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+}
+
+void adc0_drdy_isr() {
+    adc_drdy_isr(ADC0_DRDY);
 }
