@@ -26,16 +26,12 @@ bool adc0_init_routine() {
         myspi_unlock(&adc0);
     }
 
-    // myspi_lock(&adc0);
-    // myspi_configure(&adc0);
-    // ads13x_set_sample_rate(&adc0, ADC0_OSR);
-    // myspi_unlock(&adc0);
-
     safeprintf("ADC0 Ready\n");
 
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     ads13x_init(&adc0);
+    ads13x_set_sample_rate(&adc0, ADC0_OSR);
     myspi_unlock(&adc0);
 
     return true;
