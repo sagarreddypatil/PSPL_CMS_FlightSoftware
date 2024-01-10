@@ -1,7 +1,6 @@
 #include "ads13x.h"
 
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <myspi.h>
 
@@ -91,7 +90,7 @@ bool ads13x_ready(SPI_DEVICE_PARAM) {
     return (status & 0xFF00) == 0x0500;  // check status is init state
 }
 
-void ads13x_init(SPI_DEVICE_PARAM) {
+bool ads13x_init(SPI_DEVICE_PARAM) {
     // reset the chip
     {
         uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(RESET), 0};
@@ -102,7 +101,7 @@ void ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
         uint16_t status = PTOH16(dst);
-        assert(status == RESET_RESP);  // TODO: better error handling
+        if (status != RESET_RESP) return false;
     }
 
     const uint16_t mode_reg_value =
@@ -121,7 +120,7 @@ void ads13x_init(SPI_DEVICE_PARAM) {
         uint16_t resp     = PTOH16(dst);
         uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
 
-        assert(resp == expected);
+        if (resp != expected) return false;
     }
 
     {
@@ -135,11 +134,13 @@ void ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE);
 
         uint16_t resp = PTOH16(dst);
-        assert(resp == mode_reg_value);
+        if (resp != mode_reg_value) return false;
     }
+
+    return true;
 }
 
-void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
+bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint8_t src[TRANSFER_SIZE] = {
         HTOP16(REG_OP_SINGLE(WREG, reg)), 0, 0, HTOP16(data), 0, 0};
     uint8_t dst[TRANSFER_SIZE];
@@ -150,7 +151,7 @@ void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint16_t resp     = (dst[0] << 8) | dst[1];
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
 
-    // assert(resp == expected);
+    return resp == expected;
 }
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg) {

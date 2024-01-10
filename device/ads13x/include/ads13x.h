@@ -47,10 +47,10 @@ typedef enum {
 
 void ads13x_reset(SPI_DEVICE_PARAM);
 bool ads13x_ready(SPI_DEVICE_PARAM);
-void ads13x_init(SPI_DEVICE_PARAM);
+bool ads13x_init(SPI_DEVICE_PARAM);
 
 uint16_t ads13x_rreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg);
-void ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
+bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data);
 
 void ads13x_set_sample_rate(SPI_DEVICE_PARAM, ads13x_sample_rate sample_rate);
 

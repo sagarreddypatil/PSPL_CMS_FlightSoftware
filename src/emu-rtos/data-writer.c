@@ -26,12 +26,12 @@ void data_writer_main() {
                 continue;
             }
 
-            if (total % 1 == 0) {
+            if (total % 10 == 0) {
                 // print the packet for testing
-                safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
-                           "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
-                           packet.id, packet.counter, packet.time_us,
-                           packet.value);
+                // safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
+                //            "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
+                //            packet.id, packet.counter, packet.time_us,
+                //            packet.value);
             }
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
