@@ -43,9 +43,14 @@ while True:
         break
     except:
         message = "Device disconnected, attempting to reconnect..."
+<<<<<<< Updated upstream
         outfile.write(message + "\n")
         print(message)
 
+=======
+        outfile.write()
+        print(messag)
+>>>>>>> Stashed changes
         try:
             time.sleep(1)  # Wait before attempting to reconnect
         except KeyboardInterrupt:
