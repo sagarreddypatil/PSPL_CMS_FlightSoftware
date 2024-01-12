@@ -8,6 +8,8 @@
 #include <commandnet.h>
 #include <ntp.h>
 
+#include <inttypes.h>
+
 //------------Devices------------
 SPI_DEVICE(tc_0, spi0, 1);
 SPI_DEVICE(tc_1, spi0, 0);
