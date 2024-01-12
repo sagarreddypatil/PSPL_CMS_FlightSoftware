@@ -11,7 +11,7 @@
 
 bool sm_hold_handler(PARAM) {
     global_lock();
-    sm_hold(&state_machine, unix_time_us());
+    sm_hold(state_machine, unix_time_us());
     global_unlock();
 
     return true;
@@ -22,7 +22,7 @@ bool sm_continue_new_t0_handler(PARAM) {
     CHECK_ERRORS;
 
     global_lock();
-    sm_continue_new_t0(&state_machine, new_t0);
+    sm_continue_new_t0(state_machine, new_t0);
     global_unlock();
 
     safeprintf("Set new T-0 to %" PRId64 "\n", new_t0);
@@ -32,7 +32,7 @@ bool sm_continue_new_t0_handler(PARAM) {
 
 bool sm_continue_handler(PARAM) {
     global_lock();
-    sm_continue(&state_machine, unix_time_us());
+    sm_continue(state_machine, unix_time_us());
     global_unlock();
 
     return true;
@@ -40,7 +40,7 @@ bool sm_continue_handler(PARAM) {
 
 bool sm_continue_old_t0_handler(PARAM) {
     global_lock();
-    sm_continue_old_t0(&state_machine);
+    sm_continue_old_t0(state_machine);
     global_unlock();
 
     return true;
@@ -48,7 +48,7 @@ bool sm_continue_old_t0_handler(PARAM) {
 
 static inline bool _sm_poll_answer(sm_poll_status_t status) {
     global_lock();
-    sm_poll_answer(&state_machine, status, unix_time_us());
+    sm_poll_answer(state_machine, status, unix_time_us());
     global_unlock();
 
     return true;

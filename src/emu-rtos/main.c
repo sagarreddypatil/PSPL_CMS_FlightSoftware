@@ -44,8 +44,10 @@ void init_task();
 
 TaskHandle_t adc0_reader_task;
 
+#ifndef NDEBUG
 StaticSemaphore_t print_mutex_buf;
 SemaphoreHandle_t print_mutex;
+#endif
 
 myspi_device_t eth0;
 myspi_device_t flash0;
@@ -58,10 +60,6 @@ uint8_t data_writer_queue_storage_buf[sizeof(sensornet_packet_t) *
 StaticQueue_t data_writer_queue_buf;
 QueueHandle_t data_writer_queue;
 
-StaticSemaphore_t global_mutex_buf;
-SemaphoreHandle_t global_mutex;
-sm_t state_machine;
-
 int main() {
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buf);
 
@@ -73,8 +71,7 @@ int main() {
         data_writer_queue_storage_buf, &data_writer_queue_buf);
 
     //------------Initialize Globals------------
-    global_mutex = xSemaphoreCreateMutexStatic(&global_mutex_buf);
-    sm_init(&state_machine, sm_events, sm_events_len, sm_polls, sm_polls_len);
+    sm_init(state_machine, sm_events, sm_events_len, sm_polls, sm_polls_len);
 
     CreateTaskCore0(0, init_task, "Initializer", 30);
     vTaskStartScheduler();
@@ -107,10 +104,12 @@ void setup_hardware() {
     gpio_set_dir(AUX_SOLENOID, GPIO_OUT);
     gpio_put(AUX_SOLENOID, SOLENOID_CLOSE);
 
+#ifndef NDEBUG
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();
     stdio_flush();
     for (int i = 0; i < 10; i++) printf("\n");
+#endif
 
     // --- SPI --- //
     myspi_bus_init(myspi0, 2, 3, 4);
@@ -151,6 +150,8 @@ void init_task() {
     // CreateTaskCore0(5, tc1_reader_main, "TC1 Reader", 5);
 
     adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 6);
+
+    CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 30);
 
     // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
@@ -224,6 +225,7 @@ bool ntp_sync() {
 }
 
 void safeprintf(const char* format, ...) {
+#ifndef NDEBUG
     xSemaphoreTake(print_mutex, portMAX_DELAY);
 
     va_list args;
@@ -232,4 +234,5 @@ void safeprintf(const char* format, ...) {
     va_end(args);
 
     xSemaphoreGive(print_mutex);
+#endif
 }

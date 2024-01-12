@@ -105,6 +105,7 @@ void adc0_reader_main() {
                 .value   = data[i],
             };
 
+            // using critical section since we can't take up time
             switch (i) {
                 case ADC0_OX_CHANNEL:
                     taskENTER_CRITICAL();

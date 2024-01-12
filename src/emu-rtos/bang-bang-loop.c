@@ -1,18 +1,6 @@
 #include "emu.h"
 #include "config.h"
 
-int32_t fuel_pressure;
-int32_t ox_pressure;
-
-int32_t fuel_upper_setpoint = 0;
-int32_t fuel_lower_setpoint = 0;
-
-int32_t ox_upper_setpoint = 0;
-int32_t ox_lower_setpoint = 0;
-
-bb_state_t fuel_state = BB_ISOLATE;
-bb_state_t ox_state   = BB_ISOLATE;
-
 void bang_bang_loop_main() {
     // NOTE: GPIO Put is atomic
 
@@ -31,14 +19,18 @@ void bang_bang_loop_main() {
         // Thread safe get values
 
         global_lock();
-        const int32_t my_fuel_upper_setpoint = fuel_upper_setpoint;
-        const int32_t my_fuel_lower_setpoint = fuel_lower_setpoint;
+        const int32_t my_fuel_upper_setpoint =
+            presistent_globals.fuel_upper_setpoint;
+        const int32_t my_fuel_lower_setpoint =
+            presistent_globals.fuel_lower_setpoint;
 
-        const int32_t my_ox_upper_setpoint = ox_upper_setpoint;
-        const int32_t my_ox_lower_setpoint = ox_lower_setpoint;
+        const int32_t my_ox_upper_setpoint =
+            presistent_globals.ox_upper_setpoint;
+        const int32_t my_ox_lower_setpoint =
+            presistent_globals.ox_lower_setpoint;
 
-        const bb_state_t my_fuel_state = fuel_state;
-        const bb_state_t my_ox_state   = ox_state;
+        const bb_state_t my_fuel_state = presistent_globals.fuel_state;
+        const bb_state_t my_ox_state   = presistent_globals.ox_state;
         global_unlock();
 
         taskENTER_CRITICAL();

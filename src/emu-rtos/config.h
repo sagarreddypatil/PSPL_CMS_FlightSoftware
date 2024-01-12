@@ -32,7 +32,7 @@
 #define ADC0_CHAMBER_CHANNEL 2
 
 //------------Bang Bang------------
-#define BB_LOOP_PERIOD 10  // milliseconds
+#define BB_LOOP_PERIOD 1  // milliseconds
 
 #define FUEL_SOLENOID_MIN_PERIOD 70000  // microseconds
 #define OX_SOLENOID_MIN_PERIOD   70000  // microseconds

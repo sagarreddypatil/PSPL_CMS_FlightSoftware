@@ -12,10 +12,9 @@ void sm_task_main() {
 
         // solve the state machine and get the current T-0 time
         global_lock();
-        sm_run_polls_events(&state_machine, abs_time);
-        const int64_t relative_time =
-            sm_relative_time(&state_machine, abs_time);
-        const sm_state_t state = state_machine.state;
+        sm_run_polls_events(state_machine, abs_time);
+        const int64_t relative_time = sm_relative_time(state_machine, abs_time);
+        const sm_state_t state      = state_machine->state;
         global_unlock();
 
         // post the time to SensorNet, low latency so don't use the buffer

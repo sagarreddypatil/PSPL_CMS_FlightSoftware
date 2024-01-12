@@ -104,30 +104,40 @@ extern QueueHandle_t data_writer_queue;
 
 //------------Globals------------
 
-extern SemaphoreHandle_t global_mutex;
-
 static inline void global_lock() {
-    xSemaphoreTake(global_mutex, portMAX_DELAY);
+    taskENTER_CRITICAL();
 }
 
 static inline void global_unlock() {
-    xSemaphoreGive(global_mutex);
+    taskEXIT_CRITICAL();
 }
 
-extern sm_t state_machine;
-
 typedef enum { BB_ISOLATE = 0, BB_OPEN, BB_REGULATE } bb_state_t;
-extern bb_state_t fuel_state;
-extern bb_state_t ox_state;
+
+typedef struct {
+    sm_t state_machine;
+
+    bb_state_t fuel_state;
+    bb_state_t ox_state;
+
+    int32_t fuel_upper_setpoint;
+    int32_t fuel_lower_setpoint;
+
+    int32_t ox_upper_setpoint;
+    int32_t ox_lower_setpoint;
+} presistent_globals_t;
+
+extern presistent_globals_t presistent_globals;
+
+static sm_t* const state_machine = &presistent_globals.state_machine;
 
 extern int32_t fuel_pressure;
 extern int32_t ox_pressure;
 
-extern int32_t fuel_upper_setpoint;
-extern int32_t fuel_lower_setpoint;
+// Saving and Loading Flash Values
 
-extern int32_t ox_upper_setpoint;
-extern int32_t ox_lower_setpoint;
+void save_presistent_globals();
+void load_persistent_globals();
 
 //------------Debug Things------------
 
