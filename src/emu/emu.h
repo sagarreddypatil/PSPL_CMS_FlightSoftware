@@ -33,8 +33,9 @@ static const ip_t subnet_mask = {255, 255, 255, 0};
 static const ip_t src_ip      = {192, 168, 2, 50};
 
 // GPIO
-static const uint LOX_SOLENOID = 16;
-static const uint ETH_SOLENOID = 17;
+static const uint FUEL_SOLENOID = 9;
+static const uint OX_SOLENOID   = 10;
+static const uint AUX_SOLENOID  = 15;
 
 static const uint PYRO = 28;
 

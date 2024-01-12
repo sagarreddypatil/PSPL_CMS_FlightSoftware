@@ -36,7 +36,7 @@ void task_wrapper(void* _task_entrypoint) {
 
 #define CreateTaskCore0(index, entrypoint, name, priority)                    \
     xTaskCreateStatic(task_wrapper, name, TASK_STACK_SIZE, (void*)entrypoint, \
-                      priority, &task_stacks[(index) * TASK_STACK_SIZE],      \
+                      priority, &task_stacks[(index)*TASK_STACK_SIZE],        \
                       &task_buffers[index])
 
 void setup_hardware();
@@ -94,6 +94,18 @@ void setup_hardware() {
     gpio_init(ADC0_DRDY);
     gpio_set_dir(ADC0_DRDY, GPIO_IN);
     gpio_set_input_enabled(ADC0_DRDY, true);
+
+    gpio_init(FUEL_SOLENOID);
+    gpio_set_dir(FUEL_SOLENOID, GPIO_OUT);
+    gpio_put(FUEL_SOLENOID, SOLENOID_CLOSE);
+
+    gpio_init(OX_SOLENOID);
+    gpio_set_dir(OX_SOLENOID, GPIO_OUT);
+    gpio_put(OX_SOLENOID, SOLENOID_CLOSE);
+
+    gpio_init(AUX_SOLENOID);
+    gpio_set_dir(AUX_SOLENOID, GPIO_OUT);
+    gpio_put(AUX_SOLENOID, SOLENOID_CLOSE);
 
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();

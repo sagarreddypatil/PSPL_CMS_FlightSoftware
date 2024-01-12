@@ -105,6 +105,19 @@ void adc0_reader_main() {
                 .value   = data[i],
             };
 
+            switch (i) {
+                case ADC0_OX_CHANNEL:
+                    taskENTER_CRITICAL();
+                    ox_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+                case ADC0_FUEL_CHANNEL:
+                    taskENTER_CRITICAL();
+                    fuel_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+            }
+
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }

@@ -27,6 +27,16 @@
 #define ADC0_RATE          1000   // sps, make sure it's same as above
 #define ADC0_CHANNELS      3      // ADC is 6 channel, we only use 3
 
+#define ADC0_FUEL_CHANNEL    0
+#define ADC0_OX_CHANNEL      1
+#define ADC0_CHAMBER_CHANNEL 2
+
+//------------Bang Bang------------
+#define BB_LOOP_PERIOD 10  // milliseconds
+
+#define FUEL_SOLENOID_MIN_PERIOD 70000  // microseconds
+#define OX_SOLENOID_MIN_PERIOD   70000  // microseconds
+
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
 
@@ -54,7 +64,7 @@ static const uint16_t COMMANDNET_PORT = 8080;
 
 //------------State Machine------------
 
-#define MICROS(x) ((x) * 1000000)
+#define MICROS(x) ((x)*1000000)
 
 void test_event();
 

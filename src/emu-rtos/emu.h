@@ -33,7 +33,7 @@ static const uint TC0_CS    = 1;
 static const uint TC1_CS    = 0;
 
 static const uint ADC0_RESET = 7;
-static const uint ADC0_DRDY = 5;
+static const uint ADC0_DRDY  = 5;
 
 // SPI Mode (Clock Polarity and Phase setting)
 // Specific to chip model
@@ -75,22 +75,19 @@ static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;
 static const w5500_socket_t NTP_SOCKET = W5500_S3;
 
 // GPIO
-static const uint LOX_SOLENOID = 16;
-static const uint ETH_SOLENOID = 17;
 
-static const uint PYRO = 28;
+static const bool SOLENOID_CLOSE = 0;
+static const bool SOLENOID_OPEN  = 1;
 
-// ADC Builtin
-
-static const uint PYRO_CONT_0       = 26;
-static const uint PYRO_CONT_0_INPUT = 0;
-static const uint PYRO_CONT_1       = 27;
-static const uint PYRO_CONT_1_INPUT = 1;
+static const uint FUEL_SOLENOID = 9;
+static const uint OX_SOLENOID   = 10;
+static const uint AUX_SOLENOID  = 15;
 
 //------------Tasks------------
 void cmdnet_task_main();
 void data_writer_main();
 void sm_task_main();
+void bang_bang_loop_main();
 
 void tc0_reader_main();
 void tc1_reader_main();
@@ -101,7 +98,6 @@ void adc0_reader_main();
 void w5500_drdy_handler();
 void adc0_drdy_isr();
 
-
 //------------Data Writer------------
 
 extern QueueHandle_t data_writer_queue;
@@ -109,6 +105,7 @@ extern QueueHandle_t data_writer_queue;
 //------------Globals------------
 
 extern SemaphoreHandle_t global_mutex;
+
 static inline void global_lock() {
     xSemaphoreTake(global_mutex, portMAX_DELAY);
 }
@@ -118,6 +115,19 @@ static inline void global_unlock() {
 }
 
 extern sm_t state_machine;
+
+typedef enum { BB_ISOLATE = 0, BB_OPEN, BB_REGULATE } bb_state_t;
+extern bb_state_t fuel_state;
+extern bb_state_t ox_state;
+
+extern int32_t fuel_pressure;
+extern int32_t ox_pressure;
+
+extern int32_t fuel_upper_setpoint;
+extern int32_t fuel_lower_setpoint;
+
+extern int32_t ox_upper_setpoint;
+extern int32_t ox_lower_setpoint;
 
 //------------Debug Things------------
 
