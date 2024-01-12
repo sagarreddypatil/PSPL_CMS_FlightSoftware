@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <pico/stdlib.h>
+#include <hardware/flash.h>
 #include <w5500.h>
 #include <cmdnet.h>
 #include <sensornet.h>
@@ -114,17 +115,23 @@ static inline void global_unlock() {
 
 typedef enum { BB_ISOLATE = 0, BB_OPEN, BB_REGULATE } bb_state_t;
 
-typedef struct {
-    sm_t state_machine;
+typedef union {
+    struct {
+        uint32_t magic;
 
-    bb_state_t fuel_state;
-    bb_state_t ox_state;
+        sm_t state_machine;
 
-    int32_t fuel_upper_setpoint;
-    int32_t fuel_lower_setpoint;
+        bb_state_t fuel_state;
+        bb_state_t ox_state;
 
-    int32_t ox_upper_setpoint;
-    int32_t ox_lower_setpoint;
+        int32_t fuel_upper_setpoint;
+        int32_t fuel_lower_setpoint;
+
+        int32_t ox_upper_setpoint;
+        int32_t ox_lower_setpoint;
+    };
+
+    uint8_t raw[FLASH_PAGE_SIZE];
 } presistent_globals_t;
 
 extern presistent_globals_t presistent_globals;
@@ -135,6 +142,12 @@ extern int32_t fuel_pressure;
 extern int32_t ox_pressure;
 
 // Saving and Loading Flash Values
+
+#define FLASH_MAGIC 0xcafebabe
+
+#define FLASH_OFFSET (256 * 1024)  // 256 KiB, size of the program
+static const uint8_t* stored_presistent_contents =
+    (uint8_t*)(XIP_BASE + FLASH_OFFSET);
 
 void save_presistent_globals();
 void load_persistent_globals();

@@ -157,8 +157,6 @@ void init_task() {
 }
 
 void init_eth0() {
-    // TODO: make this a separate task
-
     // --- Ethernet --- //
 
     pico_unique_board_id_t board_id;
