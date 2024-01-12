@@ -92,6 +92,15 @@ $RECYCLE.BIN/
 .history
 .ionide
 
+### JetBrains ###
+
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+cmake-build-*/*
+
 build/*
 release/*
 external/*

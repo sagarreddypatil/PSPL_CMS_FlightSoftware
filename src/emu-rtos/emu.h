@@ -134,9 +134,9 @@ typedef union {
     uint8_t raw[FLASH_PAGE_SIZE];
 } presistent_globals_t;
 
-extern presistent_globals_t presistent_globals;
+extern presistent_globals_t persistent_globals;
 
-static sm_t* const state_machine = &presistent_globals.state_machine;
+static sm_t* const state_machine = &persistent_globals.state_machine;
 
 extern int32_t fuel_pressure;
 extern int32_t ox_pressure;
