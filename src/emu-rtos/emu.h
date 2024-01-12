@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <inttypes.h>
 #include <pico/stdlib.h>
 #include <hardware/flash.h>
 #include <w5500.h>
