@@ -27,12 +27,12 @@ void data_writer_main() {
             }
 
             // modulo a prime so there's even representation
-            if (total % 11 == 0) {
+            if (packet.id == 6 && total % 10 == 0) {
                 // print the packet for testing
-                // safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
-                //            "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
-                //            packet.id, packet.counter, packet.time_us,
-                //            packet.value);
+                safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
+                           "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
+                           packet.id, packet.counter, packet.time_us,
+                           packet.value);
             }
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
@@ -43,10 +43,12 @@ void data_writer_main() {
         }
 
         // send the packet
-        myspi_lock(&eth0);
-        w5500_error_t status =
-            w5500_write_data(&eth0, SENSORNET_SOCKET, &send_buf, offset);
-        myspi_unlock(&eth0);
+        // myspi_lock(&eth0);
+        // w5500_error_t status =
+        //     w5500_write_data(&eth0, SENSORNET_SOCKET, &send_buf, offset);
+        // myspi_unlock(&eth0);
+
+	w5500_error_t status = W5500_SUCCESS;
 
         if (status == W5500_SUCCESS) offset = 0;
 
