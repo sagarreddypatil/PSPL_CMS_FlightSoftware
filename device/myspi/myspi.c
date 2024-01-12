@@ -164,6 +164,8 @@ void myspi_dma_transfer(myspi_device_t *spi, volatile void *src,
     ulNotificationValue = 0;
 
 #ifdef DEBUG_TRANSFER
+    // if (size != 32) return;
+
     xSemaphoreTake(print_mutex, portMAX_DELAY);
     printf("\nbaudrate: %d", spi->baudrate);
 

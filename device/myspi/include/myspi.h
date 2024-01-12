@@ -22,10 +22,12 @@
 
 #define SPI_WRITE(spi, src, len) \
     uint8_t __dst[len];          \
+    memset(__dst, 0, len);       \
     myspi_write_read(spi, src, __dst, len)
 
 #define SPI_READ(spi, dst, len) \
     uint8_t __src[len];         \
+    memset(__src, 0, len);      \
     myspi_write_read(spi, __src, dst, len)
 
 // Type representing SPI bus, only needs spi_inst set
