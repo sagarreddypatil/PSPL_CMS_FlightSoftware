@@ -1,5 +1,7 @@
 #pragma once
 
+#define __STDC_FORMAT_MACROS
+
 #include <stdbool.h>
 #include <inttypes.h>
 #include <pico/stdlib.h>
