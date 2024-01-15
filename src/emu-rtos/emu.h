@@ -1,8 +1,5 @@
 #pragma once
 
-#define _STDC_FORMAT_MACROS 1
-#include <inttypes.h>
-
 #include <stdbool.h>
 #include <pico/stdlib.h>
 #include <hardware/flash.h>

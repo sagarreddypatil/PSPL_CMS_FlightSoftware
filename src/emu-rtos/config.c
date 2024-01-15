@@ -25,7 +25,12 @@ bool sm_continue_new_t0_handler(PARAM) {
     sm_continue_new_t0(state_machine, new_t0);
     global_unlock();
 
-    safeprintf("Set new T-0 to %" PRId64 "\n", new_t0);
+    safeprintf(
+        "Set new T-0 to %"
+        "ll"
+        "d"
+        "\n",
+        new_t0);
 
     return true;
 }

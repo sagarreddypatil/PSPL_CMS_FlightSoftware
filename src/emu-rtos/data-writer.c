@@ -29,10 +29,9 @@ void data_writer_main() {
             // modulo a prime so there's even representation
             if (packet.id == 7 && total % 10 == 0) {
                 // print the packet for testing
-                // safeprintf("ID: %-6" PRIu16 "| Counter: %-8" PRIu64
-                //            "| Time: %-10" PRIu64 "| Value: %" PRId64 "\n",
-                //            packet.id, packet.counter, packet.time_us,
-                //            packet.value);
+                safeprintf(
+                    "ID: %-6hu| Counter: %-8llu| Time: %-10llu| Value: %lld\n",
+                    packet.id, packet.counter, packet.time_us, packet.value);
             }
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
