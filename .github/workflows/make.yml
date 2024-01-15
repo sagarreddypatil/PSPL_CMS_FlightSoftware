@@ -22,7 +22,7 @@ jobs:
       - name: Generate Docs
         run: make docs
 
-  build-debug:
+  build-release:
     runs-on: ubuntu-latest
 
     steps:
