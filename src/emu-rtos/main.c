@@ -61,7 +61,9 @@ StaticQueue_t data_writer_queue_buf;
 QueueHandle_t data_writer_queue;
 
 int main() {
+#ifndef NDEBUG
     print_mutex = xSemaphoreCreateMutexStatic(&print_mutex_buf);
+#endif
 
     setup_hardware();
 
