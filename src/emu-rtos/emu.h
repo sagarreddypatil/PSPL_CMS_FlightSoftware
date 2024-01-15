@@ -1,9 +1,9 @@
 #pragma once
 
-#define __STDC_FORMAT_MACROS
+#define _STDC_FORMAT_MACROS 1
+#include <inttypes.h>
 
 #include <stdbool.h>
-#include <inttypes.h>
 #include <pico/stdlib.h>
 #include <hardware/flash.h>
 #include <w5500.h>
