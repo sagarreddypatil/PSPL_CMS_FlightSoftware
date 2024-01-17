@@ -6,7 +6,7 @@
 void data_writer_main() {
     myspi_lock(&eth0);
     w5500_create_udp_socket(&eth0, SENSORNET_SOCKET, SENSORNET_SRC_PORT, false,
-                            false, false);
+                            false, false); // TODO: not sure if port 0 is valid
     w5500_write(&eth0, SENSORNET_SOCKET, W5500_Sn_DIPR0, SENSORNET_IP, 4);
     w5500_write16(&eth0, SENSORNET_SOCKET, W5500_Sn_DPORT0,
                   SENSORNET_DEST_PORT);

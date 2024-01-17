@@ -57,10 +57,10 @@ static const ip_t SRC_IP      = {192, 168, 2, 50};
 static const ip_t NTP_SERVER_IP = {192, 168, 2, 1};
 
 static const ip_t SENSORNET_IP            = {192, 168, 2, 1};
-static const uint16_t SENSORNET_SRC_PORT  = 5002;
-static const uint16_t SENSORNET_DEST_PORT = 5001;
+static const uint16_t SENSORNET_DEST_PORT = 3746;
+static const uint16_t SENSORNET_SRC_PORT = 14499; // meaningless, doesn't matter
 
-static const uint16_t COMMANDNET_PORT = 8080;
+static const uint16_t COMMANDNET_PORT = 8106;
 
 //------------State Machine------------
 
