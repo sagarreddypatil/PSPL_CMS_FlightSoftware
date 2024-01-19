@@ -31,6 +31,10 @@
 #define ADC0_OX_CHANNEL      1
 #define ADC0_CHAMBER_CHANNEL 2
 
+//------------Pyros------------
+#define PYRO_CONTS 6
+#define PYRO_CONT_PERIOD 100 // milliseconds, = 10 HZ
+
 //------------Bang Bang------------
 #define BB_LOOP_PERIOD 1  // milliseconds
 
@@ -46,8 +50,11 @@ static const sensornet_id_t SENSOR_ID_TC1_PROBE_TEMP = 4;
 static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 
 static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
-
 // Next available: 9
+
+static const sensornet_id_t SENSOR_ID_PYRO_CONT_START = 9; // + PYRO_CONTS
+// Next available: 15
+
 
 //------------Network------------
 static const ip_t GATEWAY_IP  = {192, 168, 2, 1};

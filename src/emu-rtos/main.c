@@ -85,6 +85,12 @@ int main() {
     return EXIT_FAILURE;
 }
 
+void setup_gpio_output(uint pin, uint default_state){
+    gpio_init(pin);
+    gpio_set_dir(pin, GPIO_OUT);
+    gpio_put(pin, default_state);
+}
+
 void setup_hardware() {
     gpio_init(ADC0_RESET);
     gpio_set_dir(ADC0_RESET, GPIO_OUT);
@@ -105,6 +111,23 @@ void setup_hardware() {
     gpio_init(AUX_SOLENOID);
     gpio_set_dir(AUX_SOLENOID, GPIO_OUT);
     gpio_put(AUX_SOLENOID, SOLENOID_CLOSE);
+
+    setup_gpio_output(PYRO_0, PYRO_OFF);
+    setup_gpio_output(PYRO_1, PYRO_OFF);
+    setup_gpio_output(PYRO_2, PYRO_OFF);
+
+    setup_gpio_output(PYRO_CONT_MUX_A, 0);
+    setup_gpio_output(PYRO_CONT_MUX_B, 0);
+    setup_gpio_output(PYRO_CONT_MUX_C, 0);
+
+    // TODO: make both of these zero and switch them as needed
+    setup_gpio_output(PYRO_CONT_MUX_ENABLE, 1);
+    setup_gpio_output(PS_SENSE_MUX_ENABLE, 0);
+
+    adc_init();
+    adc_gpio_init(PYRO_POWER_MUX_AI);
+    adc_select_input(PYRO_POWER_MUX_AI - 26); // 26...29 is 0...3
+
 
 #ifndef NDEBUG
     stdio_usb_init();
@@ -154,6 +177,8 @@ void init_task() {
     adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 10);
 
     CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 9);
+
+    CreateTaskCore0(8, pyro_cont_reader_main, "Pyro Cont Reader", 5);
 
     // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
