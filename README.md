@@ -3,7 +3,7 @@
 ## Overview
 
 - MCU: RP2040
-- RTOS: None
+- RTOS: FreeRTOS
 - HAL: pico-sdk
 
 ## Branches
@@ -18,8 +18,8 @@ Information as of Aug 28, 2023, bother Sagar if you want it updated
 - `lte-modem`: LTE modem driver, POC is Jay Jagani
 - `stuff_on_pi`: random stuff from Taylor's Pi, should probably merge it, POC is
   Sagar Patil
-- `freertos`: exploratory branch for FreeRTOS, POC is Sagar Patil and Jay Jagani
-- `vn210`: driver for the VN210 IMU, POC no longer contributing, stale
+- `freertos`: exploratory branch for FreeRTOS, POC is Sagar Patil and Charlie Schoettle
+- `vn220`: driver for the VN200 IMU, POC is Charlie Schoettle
 - `tests`: working test framework, but dead branch, POC is Sagar Patil
 - `host-compilation`: dead branch, host compilation for testing purposes, POC is
   Jay Jagani (?)
