@@ -19,7 +19,7 @@ Information as of Aug 28, 2023, bother Sagar if you want it updated
 - `stuff_on_pi`: random stuff from Taylor's Pi, should probably merge it, POC is
   Sagar Patil
 - `freertos`: exploratory branch for FreeRTOS, POC is Sagar Patil and Charlie Schoettle
-- `vn220`: driver for the VN200 IMU, POC is Charlie Schoettle
+- `vn200`: driver for the VN200 IMU, POC is Charlie Schoettle
 - `tests`: working test framework, but dead branch, POC is Sagar Patil
 - `host-compilation`: dead branch, host compilation for testing purposes, POC is
   Jay Jagani (?)
