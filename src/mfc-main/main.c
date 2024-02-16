@@ -25,7 +25,7 @@ void task_wrapper(void* _task_entrypoint) {
     void (*task_entrypoint)(void) = _task_entrypoint;
     task_entrypoint();
 
-    TaskHandle_t my_handle = xTaskGe    urrentTaskHandle();
+    TaskHandle_t my_handle = xTaskGetCurrentTaskHandle();
 
     safeprintf("\nTask \"%s\" exited\n\n", pcTaskGetName(my_handle));
     vTaskDelete(my_handle);
@@ -89,18 +89,8 @@ void setup_gpio_output(uint pin, uint default_state){
 }
 
 void setup_hardware() {
-    gpio_init(ADC0_RESET);
-    gpio_set_dir(ADC0_RESET, GPIO_OUT);
-    gpio_put(ADC0_RESET, 1);
-
-    gpio_init(ADC0_DRDY);
-    gpio_set_dir(ADC0_DRDY, GPIO_IN);
-    gpio_set_input_enabled(ADC0_DRDY, true);
-
-    adc_init();
-    // adc_gpio_init(PYRO_POWER_MUX_AI);
-    // adc_select_input(PYRO_POWER_MUX_AI - 26); // 26...29 is 0...3
-
+    setup_gpio_output(ADC0_RESET, true);
+    setup_gpio_output(ADC0_DRDY,  true);
 
 #ifndef NDEBUG
     stdio_usb_init();
@@ -137,11 +127,9 @@ void init_task() {
         while (1) tight_loop_contents();
     }
 
-    CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(0, data_writer_main, "Data Writer", 2);
 
-    adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 10);
-
-    // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
+    adc0_reader_task = CreateTaskCore0(1, adc0_reader_main, "ADC0 Reader", 2);
 }
 
 void init_eth0() {

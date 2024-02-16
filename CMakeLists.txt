@@ -108,10 +108,11 @@ psp_lib(lib state-machine)
 
 # ---------- Boards  ----------
 set(boards
-    emu-rtos
+    # emu-rtos
     # adc-test
     # w5500-test
     # ntp-test
+    mfc-main
 )
 
 foreach(board ${boards})
@@ -122,6 +123,7 @@ foreach(board ${boards})
 
     add_executable(${board} ${srcs} ${hdrs})
     target_include_directories(${board} PUBLIC src/${board}/)
+    target_link_directories(${board} PUBLIC src/${board}/)
     pico_set_program_name(${board} "${board}")
     pico_set_program_version(${board} "${GIT_DESCRIBE_STRING} (build ${CMAKE_BUILD_TYPE})")
 

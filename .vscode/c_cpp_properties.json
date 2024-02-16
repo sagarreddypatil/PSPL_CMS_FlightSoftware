@@ -6,7 +6,7 @@
             "includePath": [
                 "${workspaceFolder}/**"
             ],
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
             "cStandard": "c11"
         }
     ],
