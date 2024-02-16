@@ -25,7 +25,7 @@ void task_wrapper(void* _task_entrypoint) {
     void (*task_entrypoint)(void) = _task_entrypoint;
     task_entrypoint();
 
-    TaskHandle_t my_handle = xTaskGetCurrentTaskHandle();
+    TaskHandle_t my_handle = xTaskGe    urrentTaskHandle();
 
     safeprintf("\nTask \"%s\" exited\n\n", pcTaskGetName(my_handle));
     vTaskDelete(my_handle);
@@ -52,8 +52,6 @@ SemaphoreHandle_t print_mutex;
 myspi_device_t eth0;
 myspi_device_t flash0;
 myspi_device_t adc0;
-myspi_device_t tc0;
-myspi_device_t tc1;
 
 uint8_t data_writer_queue_storage_buf[sizeof(sensornet_packet_t) *
                                       DATA_WRITER_QUEUE_SIZE];
@@ -112,8 +110,8 @@ void setup_hardware() {
 #endif
 
     // --- SPI --- //
-    myspi_bus_init(myspi0, 2, 3, 4);
-    myspi_bus_init(myspi1, 27, 26, 28);
+    myspi_bus_init(myspi0, 3, 4, 2);
+    myspi_bus_init(myspi1, 27, 28, 26);
 
     myspi_device_init(&eth0, myspi1, ETH0_CS, W5500_MODE, ETH0_BAUD);
     myspi_device_init(&flash0, myspi0, FLASH0_CS, W25N01_MODE, FLASH0_BAUD);
