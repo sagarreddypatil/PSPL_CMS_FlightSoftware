@@ -26,13 +26,13 @@ void data_writer_main() {
                 continue;
             }
 
-            // modulo a prime so there's even representation
-            if (packet.id == 7 && total % 10 == 0) {
-                // print the packet for testing
-                safeprintf(
-                    "ID: %-6hu| Counter: %-8llu| Time: %-10llu| Value: %lld\n",
-                    packet.id, packet.counter, packet.time_us, packet.value);
-            }
+            // // modulo a prime so there's even representation
+            // if (packet.id == 7 && total % 10 == 0) {
+            //     // print the packet for testing
+            //     safeprintf(
+            //         "ID: %-6hu| Counter: %-8llu| Time: %-10llu| Value: %lld\n",
+            //         packet.id, packet.counter, packet.time_us, packet.value);
+            // }
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
@@ -42,14 +42,15 @@ void data_writer_main() {
         }
 
         // send the packet
-        // myspi_lock(&eth0);
-        // w5500_error_t status =
-        //     w5500_write_data(&eth0, SENSORNET_SOCKET, &send_buf, offset);
-        // myspi_unlock(&eth0);
-
-        w5500_error_t status = W5500_SUCCESS;
+        myspi_lock(&eth0);
+        w5500_error_t status =
+            w5500_write_data(&eth0, SENSORNET_SOCKET, &send_buf, offset);
+        myspi_unlock(&eth0);
 
         if (status == W5500_SUCCESS) offset = 0;
+        else {
+            safeprintf("Failed, status = %d", status);
+        }
 
         // if (status < 0) {
         //     // insufficient space in socket, put the packet back in the queue

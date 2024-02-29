@@ -65,16 +65,11 @@ static const w5500_socket_t NTP_SOCKET = W5500_S3;
 // GPIO
 
 //------------Tasks------------
-void cmdnet_task_main();
 void data_writer_main();
 
 extern TaskHandle_t adc0_reader_task;
 void adc0_reader_main();
-
-void w5500_drdy_handler();
 void adc0_drdy_isr();
-
-void pyro_cont_reader_main();
 
 //------------Data Writer------------
 

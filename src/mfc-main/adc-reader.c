@@ -114,14 +114,14 @@ void adc0_reader_main() {
 }
 
 void adc_drdy_isr(uint pin) {
-    portDISABLE_INTERRUPTS();
+    portENTER_CRITICAL();
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     vTaskNotifyGiveFromISR(adc0_reader_task, &xHigherPriorityTaskWoken);
 
     gpio_acknowledge_irq(pin, GPIO_IRQ_EDGE_FALL);
 
-    portENABLE_INTERRUPTS();
+    portEXIT_CRITICAL();
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 

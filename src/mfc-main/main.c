@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <pico/stdlib.h>
-#include <pico/multicore.h>
 #include <pico/unique_id.h>
 
 #include <myspi.h>
