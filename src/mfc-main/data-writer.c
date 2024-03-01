@@ -26,14 +26,6 @@ void data_writer_main() {
                 continue;
             }
 
-            // // modulo a prime so there's even representation
-            // if (packet.id == 7 && total % 10 == 0) {
-            //     // print the packet for testing
-            //     safeprintf(
-            //         "ID: %-6hu| Counter: %-8llu| Time: %-10llu| Value: %lld\n",
-            //         packet.id, packet.counter, packet.time_us, packet.value);
-            // }
-
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
             total++;
@@ -51,10 +43,5 @@ void data_writer_main() {
         else {
             safeprintf("Failed, status = %d", status);
         }
-
-        // if (status < 0) {
-        //     // insufficient space in socket, put the packet back in the queue
-        //     xQueueSendToFront(data_writer_queue, &packet, portMAX_DELAY);
-        // }
     }
 }

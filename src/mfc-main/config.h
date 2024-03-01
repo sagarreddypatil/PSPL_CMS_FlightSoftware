@@ -18,8 +18,8 @@
 // TODO: Actually use this sample rate
 #define ADC0_READY_TIMEOUT 10000  // microseconds
 #define ADC0_OSR           SR_1K  // 1 ksps
-#define ADC0_RATE          1000   // sps, make sure it's same as above
-#define ADC0_CHANNELS      5      // ADC is 6 channel, we only use 3
+#define ADC0_RATE          1000   // samples per second, make sure it's same as above
+#define ADC0_CHANNELS      3      // ADC is 6 channel, we only have 3 wired
 
 #define ADC0_CHAMBER_CHANNEL 2
 

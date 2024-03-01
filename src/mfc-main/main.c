@@ -152,17 +152,23 @@ void init_eth0() {
     {
         uint64_t start = time_us_64();
         uint count     = 0;
-        uint delay     = 1;
+        uint delay     = 10;
 
         while (true) {
             count++;
-            vTaskDelay(pdMS_TO_TICKS(delay));
-            delay *= 2;
+            sleep_ms(delay);
 
             myspi_lock(&eth0);
             if (w5500_has_link(&eth0)) {
                 myspi_unlock(&eth0);
                 break;
+            }
+            // blink top, outermost LED if ethernet is not connected
+            else if (count > 50) {
+                gpio_put(24, true);
+                sleep_ms(100);
+                gpio_put(24, false);
+                sleep_ms(100);
             }
             myspi_unlock(&eth0);
         }
