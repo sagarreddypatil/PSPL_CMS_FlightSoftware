@@ -90,6 +90,7 @@ void setup_gpio_output(uint pin, uint default_state){
 void setup_hardware() {
     setup_gpio_output(ADC0_RESET, true);
     setup_gpio_output(ADC0_DRDY,  true);
+    setup_gpio_output(19,  true);
 
 #ifndef NDEBUG
     stdio_usb_init();
@@ -126,9 +127,9 @@ void init_task() {
         while (1) tight_loop_contents();
     }
 
-    CreateTaskCore0(0, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(1, data_writer_main, "Data Writer", 2);
 
-    adc0_reader_task = CreateTaskCore0(1, adc0_reader_main, "ADC0 Reader", 2);
+    adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 2);
 }
 
 void init_eth0() {

@@ -4,7 +4,7 @@
 #include <string.h>
 #include <myspi.h>
 
-#define NUM_CHANNELS   6
+#define NUM_CHANNELS   2
 #define WORD_SIZE      4
 #define WORD_SIZE_INIT 3
 
@@ -23,7 +23,7 @@
 #define WREG    0b0110000000000000
 
 // Command Responses
-#define RESET_RESP   0xff26
+#define RESET_RESP   (0xff20 + NUM_CHANNELS)
 #define STANDBY_RESP 0b0000000000100010
 #define WAKEUP_RESP  0b0000000000110011
 #define LOCK_RESP    0b0000010101010101
@@ -65,6 +65,25 @@
     ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | \
      (ptr)[3])  // just byte order swapping
 
+#define POLY_CCITT 0x1021
+
+uint16_t crc_ccitt_byte(uint16_t crc, uint8_t data) {
+    crc = (uint8_t)(crc >> 8) | (crc << 8);
+    crc ^= data;
+    crc ^= (uint8_t)(crc & 0xff) >> 4;
+    crc ^= (crc << 8) << 4;
+    crc ^= ((crc & 0xff) << 4) << 1;
+    return crc;
+}
+
+uint16_t calculate_crc_ccitt(const uint8_t *data, size_t length) {
+    uint16_t crc = 0xFFFF;  // Seed value
+    while (length--) {
+        crc = crc_ccitt_byte(crc, *data++);
+    }
+    return crc;
+}
+
 void ads13x_reset(SPI_DEVICE_PARAM) {
     // try both 24-bit and 32-bit word size
 
@@ -101,11 +120,13 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
         uint16_t status = PTOH16(dst);
-        if (status != RESET_RESP) return false;
+        if (status != RESET_RESP) {
+            return false;
+        }
     }
 
     const uint16_t mode_reg_value =
-        0x0510 | (0b11 << 8);  // set WLENGTH to 0b11
+        0x0510 | (0b00010011 << 8);  // set WLENGTH to 0b11
     {
         // set the mode register
         const uint16_t opcode = REG_OP_SINGLE(WREG, ads13x_mode);
@@ -120,7 +141,9 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         uint16_t resp     = PTOH16(dst);
         uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
 
-        if (resp != expected) return false;
+        if (resp != expected) {
+            return false;
+        }
     }
 
     {
@@ -134,7 +157,9 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE);
 
         uint16_t resp = PTOH16(dst);
-        if (resp != mode_reg_value) return false;
+        if (resp != mode_reg_value) {
+            return false;
+        }
     }
 
     return true;
@@ -178,6 +203,15 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     uint8_t dst[TRANSFER_SIZE];
     SPI_READ(spi, dst, TRANSFER_SIZE);
+
+    uint16_t crc_local = calculate_crc_ccitt(dst, TRANSFER_SIZE - 4);
+
+    uint16_t crc_spi = (dst[TRANSFER_SIZE - 3]) + (dst[TRANSFER_SIZE - 4] << 8);
+
+
+    if (crc_local != crc_spi) {
+        return false;
+    }
 
     *status = PTOH16(dst);
     for (int i = 0; i < len; i++) {

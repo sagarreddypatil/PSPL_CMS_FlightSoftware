@@ -35,22 +35,17 @@ bool adc0_init_routine() {
 
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-    bool success = ads13x_init(&adc0);
-    myspi_unlock(&adc0);
 
-    if (!success) return false;
-
-    myspi_lock(&adc0);
-    myspi_configure(&adc0);
+    if (!ads13x_init(&adc0)) return false;
     ads13x_set_sample_rate(&adc0, ADC0_OSR);
+
     myspi_unlock(&adc0);
 
     return true;
 }
 
 void adc0_reader_main() {
-    bool success = adc0_init_routine();
-    if (!success) {
+    if (!adc0_init_routine()) {
         safeprintf("ADC0 failed to initialize\n");
         return;  // kill self
     }
@@ -81,9 +76,14 @@ void adc0_reader_main() {
 
         myspi_lock(&adc0);
         myspi_configure(&adc0);
-        ads13x_read_data(&adc0, &status_reg, data, ADC0_CHANNELS);
-        uint64_t sample_time = unix_time_us();
+
+        if (!ads13x_read_data(&adc0, &status_reg, data, ADC0_CHANNELS)) {
+            myspi_unlock(&adc0);
+            continue;
+        }
         myspi_unlock(&adc0);
+
+        uint64_t sample_time = unix_time_us();
 
         // checking if all channels are DRDY'd (they should be)
         uint16_t read_channels = status_reg & CHANNELS_MASK;
