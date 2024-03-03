@@ -126,7 +126,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
     }
 
     const uint16_t mode_reg_value =
-        0x0510 | (0b00010011 << 8);  // set WLENGTH to 0b11
+        0x0510 | (0b11 << 8);  // set WLENGTH to 0b11
     {
         // set the mode register
         const uint16_t opcode = REG_OP_SINGLE(WREG, ads13x_mode);

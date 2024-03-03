@@ -38,6 +38,8 @@ bool adc0_init_routine() {
 
     if (!ads13x_init(&adc0)) return false;
     ads13x_set_sample_rate(&adc0, ADC0_OSR);
+    // ads13x_wreg_single(&adc0, 0x14, (number >> 8) & 0xFFFF);
+    // ads13x_wreg_single(&adc0, 0x14, (number << 8) & 0xFFFF);
 
     myspi_unlock(&adc0);
 
