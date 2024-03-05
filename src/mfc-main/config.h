@@ -21,8 +21,6 @@
 #define ADC0_RATE          1000   // samples per second, make sure it's same as above
 #define ADC0_CHANNELS      3      // ADC is 6 channel, we only have 5 wired
 
-#define ADC0_CHAMBER_CHANNEL 2
-
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_ADC0_START = 13;  // + ADC0_CHANNELS
 
@@ -36,5 +34,7 @@ static const ip_t NTP_SERVER_IP = {192, 168, 2, 114};
 
 static const ip_t SENSORNET_IP            = {192, 168, 2, 114};
 
-static const uint16_t SENSORNET_SRC_PORT = 5002; 
+static const uint16_t SENSORNET_SRC_PORT  = 5002; 
 static const uint16_t SENSORNET_DEST_PORT = 3746;
+
+static const uint16_t COMMANDNET_PORT = 8080;

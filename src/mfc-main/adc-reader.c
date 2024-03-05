@@ -35,13 +35,19 @@ bool adc0_init_routine() {
 
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-
-    if (!ads13x_init(&adc0)) return false;
-    ads13x_set_sample_rate(&adc0, ADC0_OSR);
-    // ads13x_wreg_single(&adc0, 0x14, (number >> 8) & 0xFFFF);
-    // ads13x_wreg_single(&adc0, 0x14, (number << 8) & 0xFFFF);
-
+    bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
+    if (!success) return false;
+
+    myspi_lock(&adc0);
+    myspi_configure(&adc0);
+    ads13x_set_sample_rate(&adc0, ADC0_OSR);
+    myspi_unlock(&adc0);
+
+    // ads13x_wreg_single(&adc0, 0x14, (number << 8) & 0xFFFF);
+    // ads13x_wreg_single(&adc0, 0x14, (number >> 8) & 0xFFFF);
+
+    return true;
 
     return true;
 }
@@ -78,14 +84,9 @@ void adc0_reader_main() {
 
         myspi_lock(&adc0);
         myspi_configure(&adc0);
-
-        if (!ads13x_read_data(&adc0, &status_reg, data, ADC0_CHANNELS)) {
-            myspi_unlock(&adc0);
-            continue;
-        }
-        myspi_unlock(&adc0);
-
+        ads13x_read_data(&adc0, &status_reg, data, ADC0_CHANNELS);
         uint64_t sample_time = unix_time_us();
+        myspi_unlock(&adc0);
 
         // checking if all channels are DRDY'd (they should be)
         uint16_t read_channels = status_reg & CHANNELS_MASK;
@@ -110,20 +111,20 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-
+        safeprintf("%d\n", data[2]);
         counter++;
     }
 }
 
 void adc_drdy_isr(uint pin) {
-    portENTER_CRITICAL();
+    portDISABLE_INTERRUPTS();
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     vTaskNotifyGiveFromISR(adc0_reader_task, &xHigherPriorityTaskWoken);
 
     gpio_acknowledge_irq(pin, GPIO_IRQ_EDGE_FALL);
 
-    portEXIT_CRITICAL();
+    portENABLE_INTERRUPTS();
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 

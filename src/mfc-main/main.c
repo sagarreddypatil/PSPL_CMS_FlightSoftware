@@ -88,8 +88,10 @@ void setup_gpio_output(uint pin, uint default_state){
 }
 
 void setup_hardware() {
-    setup_gpio_output(ADC0_RESET, true);
-    setup_gpio_output(ADC0_DRDY,  true);
+    gpio_init(ADC0_RESET);
+    gpio_set_dir(ADC0_RESET, GPIO_OUT);
+    gpio_init(ADC0_DRDY);
+    gpio_set_dir(ADC0_DRDY, GPIO_IN);
     setup_gpio_output(19,  true);
 
 #ifndef NDEBUG
@@ -129,7 +131,7 @@ void init_task() {
 
     CreateTaskCore0(1, data_writer_main, "Data Writer", 2);
 
-    adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 2);
+    adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 10);
 }
 
 void init_eth0() {
@@ -153,10 +155,13 @@ void init_eth0() {
     {
         uint64_t start = time_us_64();
         uint count     = 0;
-        uint delay     = 10;
+        uint delay     = 1;
 
+        safeprintf("no link yet :(\n");
         while (true) {
             count++;
+            vTaskDelay(pdMS_TO_TICKS(delay));
+            delay += 1;
 
             myspi_lock(&eth0);
             if (w5500_has_link(&eth0)) {

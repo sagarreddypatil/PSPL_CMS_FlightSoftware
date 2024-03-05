@@ -1,5 +1,7 @@
 #pragma once
 
+#define __STDC_FORMAT_MACROS
+
 #include <stdbool.h>
 #include <pico/stdlib.h>
 #include <hardware/flash.h>
@@ -49,7 +51,7 @@ static const uint ADC0_DRDY  = 5;
 
 static const uint ETH0_BAUD   = MHz(60);  // 80 MHz was too fast
 static const uint FLASH0_BAUD = MHz(100);
-static const uint ADC0_BAUD   = MHz(10) + KHz(200);
+static const uint ADC0_BAUD   = MHz(1);
 
 #undef MHz
 #undef KHz
