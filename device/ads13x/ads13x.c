@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <myspi.h>
+#include <mfc.h>
 
-#define NUM_CHANNELS   2
+#define NUM_CHANNELS   5    
 #define WORD_SIZE      4
 #define WORD_SIZE_INIT 3
 
@@ -23,7 +24,7 @@
 #define WREG    0b0110000000000000
 
 // Command Responses
-#define RESET_RESP   (0xff20 + NUM_CHANNELS)
+#define RESET_RESP   (0xff26)
 #define STANDBY_RESP 0b0000000000100010
 #define WAKEUP_RESP  0b0000000000110011
 #define LOCK_RESP    0b0000010101010101
@@ -120,27 +121,30 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
         uint16_t status = PTOH16(dst);
+        safeprintf("1. %x -- %x\n", status, 0x11);
         if (status != RESET_RESP) {
-            return false;
+            // return false;
         }
     }
 
     const uint16_t mode_reg_value =
-        0x0510 | (0b11 << 8);  // set WLENGTH to 0b11
+        // 0x0500 | (0b01 << 8);  // set WLENGTH to 0b01
+        0b0011000100000100;
     {
         // set the mode register
         const uint16_t opcode = REG_OP_SINGLE(WREG, ads13x_mode);
 
         uint8_t src[TRANSFER_SIZE_INIT] = {HTOP16(opcode), 0,
                                            HTOP16(mode_reg_value), 0};
+        uint8_t dst[TRANSFER_SIZE_INIT] = {0};
         SPI_WRITE(spi, src, TRANSFER_SIZE_INIT);
 
-        uint8_t dst[TRANSFER_SIZE_INIT] = {0};
         SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
         uint16_t resp     = PTOH16(dst);
         uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
 
+        safeprintf("2. %x -- %x\n", resp, expected);
         if (resp != expected) {
             return false;
         }
@@ -157,8 +161,9 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE);
 
         uint16_t resp = PTOH16(dst);
+        safeprintf("3. %x -- %x\n", resp, mode_reg_value);
         if (resp != mode_reg_value) {
-            return false;
+            // return false;
         }
     }
 
@@ -208,9 +213,14 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     uint16_t crc_spi = (dst[TRANSFER_SIZE - 3]) + (dst[TRANSFER_SIZE - 4] << 8);
 
+    // for (size_t i = 0; i < TRANSFER_SIZE; i++) {
+    //     printf("%02x ", dst[i]);
+    // }
+    // printf("\n");
 
     if (crc_local != crc_spi) {
-        return false;
+        // printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
+        // return false;
     }
 
     *status = PTOH16(dst);

@@ -3,6 +3,8 @@
 #include "FreeRTOS.h" /* Must come first. */
 #include "task.h"     /* RTOS task related API prototypes. */
 #include "queue.h"    /* RTOS queue related API prototypes. */
+#include "timers.h"   /* Software timer related API prototypes. */
+#include "semphr.h"   /* Semaphore related API prototypes. */
 
 #include <stdio.h>
 #include <stdarg.h>
@@ -90,8 +92,12 @@ void setup_gpio_output(uint pin, uint default_state){
 void setup_hardware() {
     gpio_init(ADC0_RESET);
     gpio_set_dir(ADC0_RESET, GPIO_OUT);
+    gpio_put(ADC0_RESET, 1);
+
     gpio_init(ADC0_DRDY);
     gpio_set_dir(ADC0_DRDY, GPIO_IN);
+    gpio_set_input_enabled(ADC0_DRDY, true);
+
     setup_gpio_output(19,  true);
 
 #ifndef NDEBUG
@@ -131,7 +137,7 @@ void init_task() {
 
     CreateTaskCore0(1, data_writer_main, "Data Writer", 2);
 
-    adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 10);
+    adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 3);
 }
 
 void init_eth0() {
@@ -155,12 +161,12 @@ void init_eth0() {
     {
         uint64_t start = time_us_64();
         uint count     = 0;
-        uint delay     = 1;
+        uint delay     = 100;
 
         safeprintf("no link yet :(\n");
         while (true) {
             count++;
-            vTaskDelay(pdMS_TO_TICKS(delay));
+            sleep_ms(delay);
             delay += 1;
 
             myspi_lock(&eth0);

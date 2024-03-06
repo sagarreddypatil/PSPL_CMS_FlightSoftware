@@ -51,7 +51,7 @@ static const uint ADC0_DRDY  = 5;
 
 static const uint ETH0_BAUD   = MHz(60);  // 80 MHz was too fast
 static const uint FLASH0_BAUD = MHz(100);
-static const uint ADC0_BAUD   = MHz(1);
+static const uint ADC0_BAUD   = MHz(60);
 
 #undef MHz
 #undef KHz

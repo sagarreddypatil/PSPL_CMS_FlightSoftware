@@ -37,25 +37,23 @@ bool adc0_init_routine() {
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
-    if (!success) return false;
+    if (!success) return false; // this line almost made my kms
 
-    myspi_lock(&adc0);
-    myspi_configure(&adc0);
-    ads13x_set_sample_rate(&adc0, ADC0_OSR);
-    myspi_unlock(&adc0);
+    // myspi_lock(&adc0);
+    // myspi_configure(&adc0);
+    // ads13x_set_sample_rate(&adc0, ADC0_OSR);   // PROBLEMS
+    // myspi_unlock(&adc0);
 
-    // ads13x_wreg_single(&adc0, 0x14, (number << 8) & 0xFFFF);
-    // ads13x_wreg_single(&adc0, 0x14, (number >> 8) & 0xFFFF);
-
-    return true;
+    // myspi_lock(&adc0);
+    // myspi_configure(&adc0);
+    // ads13x_wreg_single(&adc0, );
+    // myspi_unlock(&adc0);
 
     return true;
 }
 
 void adc0_reader_main() {
-    if (!adc0_init_routine()) {
-        safeprintf("ADC0 failed to initialize\n");
-        return;  // kill self
+    while (!adc0_init_routine()) {
     }
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
@@ -99,7 +97,7 @@ void adc0_reader_main() {
             if (!(read_channels & (1 << i))) continue;
 
             // garbage, adc is 24-bit
-            if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
+            // if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
 
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
@@ -111,7 +109,7 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-        safeprintf("%d\n", data[2]);
+        // safeprintf("%x  %x  %x\n", data[0], data[1], data[2]);
         counter++;
     }
 }

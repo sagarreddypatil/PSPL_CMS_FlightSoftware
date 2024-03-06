@@ -8,6 +8,11 @@
 #pragma once
 #include <myspi.h>
 
+/**
+ * @defgroup w5500 W5500 Driver
+ * @{
+ */
+
 /* Common Register Addresses pg 32 */
 
 static const uint16_t W5500_MR        = 0x00;  // Mode

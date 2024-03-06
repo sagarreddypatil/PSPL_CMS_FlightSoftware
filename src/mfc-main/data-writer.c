@@ -12,8 +12,6 @@ void data_writer_main() {
                   SENSORNET_DEST_PORT);
     myspi_unlock(&eth0);
 
-    uint64_t total = 0;
-
     uint8_t send_buf[1024];
     size_t offset = 0;
 
@@ -28,8 +26,6 @@ void data_writer_main() {
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
-            total++;
-
             continue;
         }
 

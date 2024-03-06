@@ -1,10 +1,3 @@
-/** @file myspi.h
- *  @brief Header file for DMA-based SPI driver for FreeRTOS on RP2040
- *
- * @author Charlie Schoettle (CBL17), Sagar R. Patil (sagarreddypatil)
- *
- */
-
 #pragma once
 
 // FreeRTOS Includes
