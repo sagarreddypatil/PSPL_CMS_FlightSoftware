@@ -109,7 +109,7 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-        // safeprintf("%x  %x  %x\n", data[0], data[1], data[2]);
+        safeprintf("%06x  %06x  %06x  %06x\n", data[0], data[1], data[2], data[3]);
         counter++;
     }
 }

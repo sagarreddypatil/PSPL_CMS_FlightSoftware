@@ -5,8 +5,8 @@
 #include <myspi.h>
 #include <mfc.h>
 
-#define NUM_CHANNELS   5    
-#define WORD_SIZE      4
+#define NUM_CHANNELS   6    
+#define WORD_SIZE      3
 #define WORD_SIZE_INIT 3
 
 #define TRANSFER_WORDS (NUM_CHANNELS + 2)  // status word + crc word
@@ -66,14 +66,17 @@
     ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | \
      (ptr)[3])  // just byte order swapping
 
-#define POLY_CCITT 0x1021
+#define CRC_POLYNOMIAL 0x1021
 
 uint16_t crc_ccitt_byte(uint16_t crc, uint8_t data) {
-    crc = (uint8_t)(crc >> 8) | (crc << 8);
-    crc ^= data;
-    crc ^= (uint8_t)(crc & 0xff) >> 4;
-    crc ^= (crc << 8) << 4;
-    crc ^= ((crc & 0xff) << 4) << 1;
+    crc ^= (uint16_t)data << 8; // XOR CRC with data
+    for (int i = 0; i < 8; i++) {
+        if (crc & 0x8000) {
+            crc = (crc << 1) ^ CRC_POLYNOMIAL; // XOR CRC with polynomial if MSB is set
+        } else {
+            crc <<= 1; // Shift CRC left by 1 bit
+        }
+    }
     return crc;
 }
 
@@ -129,7 +132,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
 
     const uint16_t mode_reg_value =
         // 0x0500 | (0b01 << 8);  // set WLENGTH to 0b01
-        0b0011000100000100;
+        0b0001000100000100;
     {
         // set the mode register
         const uint16_t opcode = REG_OP_SINGLE(WREG, ads13x_mode);
@@ -209,9 +212,10 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
     uint8_t dst[TRANSFER_SIZE];
     SPI_READ(spi, dst, TRANSFER_SIZE);
 
-    uint16_t crc_local = calculate_crc_ccitt(dst, TRANSFER_SIZE - 4);
+    uint16_t crc_local = calculate_crc_ccitt(dst, TRANSFER_SIZE - WORD_SIZE);
 
-    uint16_t crc_spi = (dst[TRANSFER_SIZE - 3]) + (dst[TRANSFER_SIZE - 4] << 8);
+    // first 2 of last 3 bytes
+    uint16_t crc_spi = (dst[TRANSFER_SIZE - WORD_SIZE + 1]) + (dst[TRANSFER_SIZE - WORD_SIZE] << 8);
 
     // for (size_t i = 0; i < TRANSFER_SIZE; i++) {
     //     printf("%02x ", dst[i]);
@@ -219,13 +223,13 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
     // printf("\n");
 
     if (crc_local != crc_spi) {
-        // printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
-        // return false;
+        printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
+        return false;
     }
 
     *status = PTOH16(dst);
     for (int i = 0; i < len; i++) {
-        data[i] = PTOH32(&dst[4 + (i * 4)]);
+        data[i] = PTOH32(&dst[WORD_SIZE + (i * WORD_SIZE)]);
     }
 
     return true;

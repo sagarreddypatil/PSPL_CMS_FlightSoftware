@@ -19,7 +19,7 @@
 #define ADC0_READY_TIMEOUT 100000  // microseconds
 #define ADC0_OSR           SR_1K  // 1 ksps
 #define ADC0_RATE          1000   // samples per second, make sure it's same as above
-#define ADC0_CHANNELS      3      // ADC is 6 channel, we only have 5 wired
+#define ADC0_CHANNELS      4      // ADC is 6 channel, we only have 5 wired
 
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_ADC0_START = 13;  // + ADC0_CHANNELS
