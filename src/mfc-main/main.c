@@ -152,29 +152,18 @@ void init_eth0() {
     myspi_lock(&eth0);
     myspi_configure(&eth0);  // only need to do this once, as it's the only
                              // device on this bus
-
     w5500_reset(&eth0);
     while (!w5500_ready(&eth0)) tight_loop_contents();
-
-    myspi_unlock(&eth0);
 
     {
         uint64_t start = time_us_64();
         uint count     = 0;
         uint delay     = 100;
 
-        safeprintf("no link yet :(\n");
-        while (true) {
-            count++;
-            sleep_ms(delay);
+        while (!w5500_has_link(&eth0)) {
+            count += 1;
             delay += 1;
-
-            myspi_lock(&eth0);
-            if (w5500_has_link(&eth0)) {
-                myspi_unlock(&eth0);
-                break;
-            }
-            myspi_unlock(&eth0);
+            sleep_ms(delay);
         }
 
         safeprintf("W5500 has link, took %d us after %d tries\n",
@@ -182,10 +171,8 @@ void init_eth0() {
     }
 
     ip_t ip;
-    myspi_lock(&eth0);
     w5500_config(&eth0, src_mac, SRC_IP, SUBNET_MASK, GATEWAY_IP);
     w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
-    myspi_unlock(&eth0);
 
     safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
                ip[3]);
@@ -196,9 +183,7 @@ int64_t offset = 0;
 bool ntp_sync() {
     // TODO: make something that'll work in flight
 
-    myspi_lock(&eth0);
     int64_t new_offset = get_server_time(&eth0, NTP_SERVER_IP, NTP_SOCKET);
-    myspi_unlock(&eth0);
 
     if (new_offset > 0) {
         offset = new_offset;
