@@ -175,7 +175,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
 
 bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint8_t src[TRANSFER_SIZE] = {
-        HTOP16(REG_OP_SINGLE(WREG, reg)), 0, 0, HTOP16(data), 0, 0};
+        HTOP16(REG_OP_SINGLE(WREG, reg)), 0, HTOP16(data), 0};
     uint8_t dst[TRANSFER_SIZE];
 
     SPI_WRITE(spi, src, TRANSFER_SIZE);
@@ -183,6 +183,8 @@ bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
 
     uint16_t resp     = (dst[0] << 8) | dst[1];
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
+
+    safeprintf("%x %x\n", resp, expected);
 
     return resp == expected;
 }
@@ -229,7 +231,7 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     *status = PTOH16(dst);
     for (int i = 0; i < len; i++) {
-        data[i] = PTOH32(&dst[WORD_SIZE + (i * WORD_SIZE)]);
+        data[i] = (dst[WORD_SIZE + (i * WORD_SIZE)] << 16) + (dst[WORD_SIZE + (i * WORD_SIZE) + 1] << 8) + (dst[WORD_SIZE + (i * WORD_SIZE) + 2]);
     }
 
     return true;

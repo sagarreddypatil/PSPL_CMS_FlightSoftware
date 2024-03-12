@@ -1,4 +1,4 @@
-#include "mfc.h"
+#include "emu.h"
 #include <ads13x.h>
 #include <hardware/gpio.h>
 
@@ -30,32 +30,31 @@ bool adc0_init_routine() {
         adc_ready = ads13x_ready(&adc0);
         myspi_unlock(&adc0);
 
-        if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
+        if (time_us_64() - start > ADC0_READY_TIMEOUT) {
+            safeprintf("timeout\n");
+            return false;
+        }
     }
 
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
-    if (!success) return false; // this line almost made my kms
-
-    // myspi_lock(&adc0);
-    // myspi_configure(&adc0);
-    // ads13x_set_sample_rate(&adc0, ADC0_OSR);   // PROBLEMS
-    // myspi_unlock(&adc0);
+    if (!success) return false;
 
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-    ads13x_wreg_single(&adc0, 0x13, 0b10);
+    ads13x_set_sample_rate(&adc0, ADC0_OSR);
     myspi_unlock(&adc0);
-
-    safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13));
 
     return true;
 }
 
 void adc0_reader_main() {
-    while (!adc0_init_routine()) {
+    bool success = adc0_init_routine();
+    if (!success) {
+        safeprintf("ADC0 failed to initialize\n");
+        return;  // kill self
     }
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
@@ -99,7 +98,7 @@ void adc0_reader_main() {
             if (!(read_channels & (1 << i))) continue;
 
             // garbage, adc is 24-bit
-            // if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
+            if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
 
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
@@ -108,10 +107,26 @@ void adc0_reader_main() {
                 .value   = data[i],
             };
 
+            // safeprintf("id: %d\tvalue:\t%d\n", packet.id, packet.value);
+
+            // using critical section since we can't take up time
+            switch (i) {
+                case ADC0_OX_CHANNEL:
+                    taskENTER_CRITICAL();
+                    ox_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+                case ADC0_FUEL_CHANNEL:
+                    taskENTER_CRITICAL();
+                    fuel_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+            }
+
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-        // safeprintf("%06x  %06x  %06x  %06x\n", data[0], data[1], data[2], data[3]);
+
         counter++;
     }
 }

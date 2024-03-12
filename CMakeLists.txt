@@ -30,7 +30,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(
     -Wall # Enable all warnings
     # -O3 # I am speed
-    -Os
+    -O0 # dear god
     -Werror # Treat warnings as errors
     -Wno-unused-variable # annoying, don't keep it tho
     -Wno-unused-but-set-variable
