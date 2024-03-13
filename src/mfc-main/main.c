@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <pico/stdlib.h>
-#include <pico/unique_id.h>
 
 #include <myspi.h>
 #include <mydma.h>
@@ -37,7 +36,7 @@ void task_wrapper(void* _task_entrypoint) {
 
 #define CreateTaskCore0(index, entrypoint, name, priority)                    \
     xTaskCreateStatic(task_wrapper, name, TASK_STACK_SIZE, (void*)entrypoint, \
-                      priority, &task_stacks[(index)*TASK_STACK_SIZE],        \
+                      priority, &task_stacks[(index) * TASK_STACK_SIZE],      \
                       &task_buffers[index])
 
 void setup_hardware();
@@ -83,13 +82,9 @@ int main() {
     return EXIT_FAILURE;
 }
 
-void setup_gpio_output(uint pin, uint default_state){
-    gpio_init(pin);
-    gpio_set_dir(pin, GPIO_OUT);
-    gpio_put(pin, default_state);
-}
-
 void setup_hardware() {
+
+    // Initialize RP2040 GPIO pins
     gpio_init(ADC0_RESET);
     gpio_set_dir(ADC0_RESET, GPIO_OUT);
     gpio_put(ADC0_RESET, 1);
@@ -98,8 +93,11 @@ void setup_hardware() {
     gpio_set_dir(ADC0_DRDY, GPIO_IN);
     gpio_set_input_enabled(ADC0_DRDY, true);
 
-    setup_gpio_output(19,  true);
+    gpio_init(19);
+    gpio_set_dir(19, GPIO_OUT);
+    gpio_put(19, true);
 
+    // Enable serial output in debug mode
 #ifndef NDEBUG
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();
@@ -107,10 +105,11 @@ void setup_hardware() {
     for (int i = 0; i < 10; i++) printf("\n");
 #endif
 
-    // --- SPI --- //
-    myspi_bus_init(myspi0, 3, 4, 2);
+    // Initialize SPI busses 
+    myspi_bus_init(myspi0, 3, 4, 2);        // TODO: add function to init pins regardless of bus
     myspi_bus_init(myspi1, 27, 28, 26);
 
+    // Initialize SPI devices
     myspi_device_init(&eth0, myspi1, ETH0_CS, W5500_MODE, ETH0_BAUD);
     myspi_device_init(&flash0, myspi0, FLASH0_CS, W25N01_MODE, FLASH0_BAUD);
     myspi_device_init(&adc0, myspi0, ADC0_CS, ADS13X_MODE, ADC0_BAUD);
@@ -140,44 +139,6 @@ void init_task() {
     adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 3);
 }
 
-void init_eth0() {
-    // --- Ethernet --- //
-
-    pico_unique_board_id_t board_id;
-    pico_get_unique_board_id(&board_id);
-
-    const mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
-                           board_id.id[5], board_id.id[6], board_id.id[7]};
-
-    myspi_lock(&eth0);
-    myspi_configure(&eth0);  // only need to do this once, as it's the only
-                             // device on this bus
-    w5500_reset(&eth0);
-    while (!w5500_ready(&eth0)) tight_loop_contents();
-
-    {
-        uint64_t start = time_us_64();
-        uint count     = 0;
-        uint delay     = 100;
-
-        while (!w5500_has_link(&eth0)) {
-            count += 1;
-            delay += 1;
-            sleep_ms(delay);
-        }
-
-        safeprintf("W5500 has link, took %d us after %d tries\n",
-                   (int)(time_us_64() - start), count);
-    }
-
-    ip_t ip;
-    w5500_config(&eth0, src_mac, SRC_IP, SUBNET_MASK, GATEWAY_IP);
-    w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
-
-    safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
-               ip[3]);
-}
-
 // --- NTP Sync --- //
 int64_t offset = 0;
 bool ntp_sync() {
@@ -192,6 +153,7 @@ bool ntp_sync() {
     return false;
 }
 
+// Debug mode, thread safe print function
 void safeprintf(const char* format, ...) {
 #ifndef NDEBUG
     xSemaphoreTake(print_mutex, portMAX_DELAY);

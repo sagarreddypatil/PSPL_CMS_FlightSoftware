@@ -4,7 +4,7 @@
 
 #define CHANNELS_MASK ((1 << ADC0_CHANNELS) - 1)
 
-bool adc0_init_routine() {
+bool adc0_init() {
     // this exists in case ads13x_init returns a bool in the future
     // for better error handling, so that we can also run this in a delay
     // loop waiting for the ADS13x to start working in the case that
@@ -55,7 +55,7 @@ bool adc0_init_routine() {
 }
 
 void adc0_reader_main() {
-    while (!adc0_init_routine()) {
+    while (!adc0_init()) {
     }
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
@@ -99,7 +99,7 @@ void adc0_reader_main() {
             if (!(read_channels & (1 << i))) continue;
 
             // garbage, adc is 24-bit
-            // if (data[i] > (2 << 24) || data[i] < -(2 << 24)) continue;
+            if (data[i] > 0xFFFFFF) continue;
 
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
