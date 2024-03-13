@@ -126,7 +126,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         uint16_t status = PTOH16(dst);
         safeprintf("1. %x -- %x\n", status, 0x11);
         if (status != RESET_RESP) {
-            // return false;
+            // return false;  // TODO: fix this to compare the correct values
         }
     }
 
@@ -147,7 +147,6 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         uint16_t resp     = PTOH16(dst);
         uint16_t expected = REG_OP_SINGLE(WREG_RESP, ads13x_mode);
 
-        safeprintf("2. %x -- %x\n", resp, expected);
         if (resp != expected) {
             return false;
         }
@@ -165,8 +164,8 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
 
         uint16_t resp = PTOH16(dst);
         safeprintf("3. %x -- %x\n", resp, mode_reg_value);
-        if (resp != mode_reg_value) {
-            // return false;
+        if (resp != mode_reg_value) { 
+            // return false;  // TODO: fix this to compare the correct values
         }
     }
 
@@ -184,7 +183,7 @@ bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint16_t resp     = (dst[0] << 8) | dst[1];
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
 
-    safeprintf("%x %x\n", resp, expected);
+    safeprintf("%x %x\n", resp, expected); // TODO: not returning expected, ever
 
     return resp == expected;
 }
@@ -236,15 +235,3 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     return true;
 }
-
-// void ads13x_set_gain(SPI_DEVICE_PARAM, ads13x_gain_setting gain_setting) {
-//   ads13x_wreg_single(spi, ads13x_mode, GAIN(gain_setting, 0, 0, 0));
-// }
-
-// void ads13x_set_mode(SPI_DEVICE_PARAM, bool ch0, bool ch1, bool ch2, bool
-// ch3,
-//                      ads13x_sample_rate sample_rate,
-//                      ads13x_pwr_setting pwr_setting) {
-//   ads13x_wreg_single(spi, ads13x_mode,
-//                      CLOCK(ch0, ch1, ch2, ch3, 0, sample_rate, pwr_setting));
-// }

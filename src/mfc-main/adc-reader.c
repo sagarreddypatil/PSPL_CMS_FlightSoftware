@@ -23,8 +23,7 @@ bool adc0_init() {
     bool adc_ready = false;
     uint64_t start = time_us_64();
 
-    // TickType_t delay = 1;
-    while (!adc_ready) {
+        while (!adc_ready) {
         myspi_lock(&adc0);
         myspi_configure(&adc0);
         adc_ready = ads13x_ready(&adc0);
@@ -37,11 +36,11 @@ bool adc0_init() {
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
-    if (!success) return false; // this line almost made my kms
+    if (!success) return false; // this line almost made me kms
 
     // myspi_lock(&adc0);
     // myspi_configure(&adc0);
-    // ads13x_set_sample_rate(&adc0, ADC0_OSR);   // PROBLEMS
+    // ads13x_set_sample_rate(&adc0, ADC0_OSR);   // TODO: for some reason, this line breaks everything idek
     // myspi_unlock(&adc0);
 
     myspi_lock(&adc0);
@@ -49,7 +48,8 @@ bool adc0_init() {
     ads13x_wreg_single(&adc0, 0x13, 0b10);
     myspi_unlock(&adc0);
 
-    safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13));
+    // vTaskDelay(10);
+    safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13)); // TODO: this does not appear to be printing the expected value (0b10)
 
     return true;
 }
@@ -111,7 +111,6 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-        // safeprintf("%06x  %06x  %06x  %06x\n", data[0], data[1], data[2], data[3]);
         counter++;
     }
 }

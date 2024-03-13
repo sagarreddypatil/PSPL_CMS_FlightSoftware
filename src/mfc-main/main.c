@@ -115,42 +115,15 @@ void setup_hardware() {
     myspi_device_init(&adc0, myspi0, ADC0_CS, ADS13X_MODE, ADC0_BAUD);
 }
 
-void init_eth0();
-bool ntp_sync();
-
 void init_task() {
+
     safeprintf(psp_logo);
     safeprintf("Program: %s\n", PICO_PROGRAM_NAME);
     safeprintf("Version: %s\n\n", PICO_PROGRAM_VERSION_STRING);
-
-    init_eth0();
-    safeprintf("\n");
-    bool success = ntp_sync();
-
-    if (success) {
-        safeprintf("Time synced, offset: %lld\n", offset);
-    } else {
-        safeprintf("NTP Sync Failed! Halting\n");
-        while (1) tight_loop_contents();
-    }
-
+    
     CreateTaskCore0(1, data_writer_main, "Data Writer", 2);
 
     adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 3);
-}
-
-// --- NTP Sync --- //
-int64_t offset = 0;
-bool ntp_sync() {
-    // TODO: make something that'll work in flight
-
-    int64_t new_offset = get_server_time(&eth0, NTP_SERVER_IP, NTP_SOCKET);
-
-    if (new_offset > 0) {
-        offset = new_offset;
-        return true;
-    }
-    return false;
 }
 
 // Debug mode, thread safe print function

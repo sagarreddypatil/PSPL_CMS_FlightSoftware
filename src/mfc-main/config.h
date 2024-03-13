@@ -28,7 +28,7 @@ static const sensornet_id_t SENSOR_ID_ADC0_START = 13;  // + ADC0_CHANNELS
 //------------Network------------
 static const ip_t GATEWAY_IP  = {192, 168, 2, 1};
 static const ip_t SUBNET_MASK = {255, 255, 255, 0};
-static const ip_t SRC_IP      = {192, 168, 2, 50};
+static const ip_t SRC_IP      = {192, 168, 2, 50}; // TODO: need to be able to change this but ntp gets sad when you do
 
 static const ip_t NTP_SERVER_IP = {192, 168, 2, 114};
 
