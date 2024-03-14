@@ -38,12 +38,6 @@ bool adc0_init() {
     myspi_unlock(&adc0);
     if (!success) return false; // this line almost made me kms
 
-    // Sets OSR to 4096
-    myspi_lock(&adc0);
-    myspi_configure(&adc0);
-    ads13x_wreg_single(&adc0, 0x03, 0b10100);  
-    myspi_unlock(&adc0);
-
     // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
