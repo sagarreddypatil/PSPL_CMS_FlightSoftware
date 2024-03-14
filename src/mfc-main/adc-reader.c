@@ -37,10 +37,17 @@ bool adc0_init() {
     myspi_unlock(&adc0);
     if (!success) return false; // this line almost made me kms
 
-    // Test voltage
+    // Test voltage and offset
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     ads13x_wreg_single(&adc0, 0x13, 0b10);
+    myspi_unlock(&adc0);
+
+    // Channel 2 calibration
+    myspi_lock(&adc0);
+    myspi_configure(&adc0);
+    ads13x_wreg_single(&adc0, 0x14, (0b111111110100000011011011 >> 8));
+    ads13x_wreg_single(&adc0, 0x15, (0b111111110100000011011011 << 8) & 0xFF00);
     myspi_unlock(&adc0);
 
     // vTaskDelay(10);
