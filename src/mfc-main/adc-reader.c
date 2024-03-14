@@ -30,8 +30,7 @@ bool adc0_init() {
         myspi_unlock(&adc0);
 
         if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
-    }
-
+    }    
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
@@ -51,8 +50,7 @@ bool adc0_init() {
 }
 
 void adc0_reader_main() {
-    while (!adc0_init()) {
-    }
+    while (!adc0_init()) tight_loop_contents();
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
                                        &adc0_drdy_isr);
