@@ -38,11 +38,13 @@ bool adc0_init() {
     myspi_unlock(&adc0);
     if (!success) return false; // this line almost made me kms
 
-    // myspi_lock(&adc0);
-    // myspi_configure(&adc0);
-    // ads13x_set_sample_rate(&adc0, ADC0_OSR);   // TODO: for some reason, this line breaks everything idek
-    // myspi_unlock(&adc0);
+    // Sets OSR to 4096
+    myspi_lock(&adc0);
+    myspi_configure(&adc0);
+    ads13x_wreg_single(&adc0, 0x03, 0b10100);  
+    myspi_unlock(&adc0);
 
+    // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     ads13x_wreg_single(&adc0, 0x13, 0b10);
@@ -98,7 +100,7 @@ void adc0_reader_main() {
             // this channel did not DRDY, skip
             if (!(read_channels & (1 << i))) continue;
 
-            // garbage, adc is 24-bit
+            // Check if data is greater than 24 bits 
             if (data[i] > 0xFFFFFF) continue;
 
             sensornet_packet_t packet = {
