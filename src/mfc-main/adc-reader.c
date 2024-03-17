@@ -37,13 +37,14 @@ bool adc0_init() {
     myspi_unlock(&adc0);
     if (!success) return false; // this line almost made me kms
 
-    // Test voltage and offset
+    // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     ads13x_wreg_single(&adc0, 0x13, 0b10);
+    ads13x_wreg_single(&adc0, 0x18, 0b10);
     myspi_unlock(&adc0);
 
-    // Channel 2 calibration
+    // Channel 2 offset calibration
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     ads13x_wreg_single(&adc0, 0x14, (0b111111110100000011011011 >> 8));
@@ -69,6 +70,8 @@ void adc0_reader_main() {
 
     // to safeguard against floating DRDY, for example
     uint64_t min_period = (1000000 / ADC0_RATE) / 2;  // div by 2 just in case
+
+    TickType_t time = xTaskGetTickCount();
 
     while (true) {
         // Wait on DRDY ISR
@@ -113,6 +116,7 @@ void adc0_reader_main() {
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
         counter++;
+        xTaskDelayUntil(&time, 2);
     }
 }
 

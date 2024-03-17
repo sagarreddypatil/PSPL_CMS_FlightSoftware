@@ -60,13 +60,15 @@ static const uint ADC0_BAUD   = MHz(60);
 
 // Network
 static const w5500_socket_t SENSORNET_SOCKET  = W5500_S0;
-static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;
-
-static const w5500_socket_t NTP_SOCKET = W5500_S3;
+static const w5500_socket_t COMMANDNET_SOCKET = W5500_S1;   // not in use on MFC
+static const w5500_socket_t INTERCOM_SOCKET   = W5500_S2;
+static const w5500_socket_t NTP_SOCKET        = W5500_S3;
 
 // GPIO
 
 //------------Tasks------------
+void intercom_main();
+
 void data_writer_main();
 
 extern TaskHandle_t adc0_reader_task;

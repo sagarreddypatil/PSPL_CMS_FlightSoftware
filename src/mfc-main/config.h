@@ -7,7 +7,7 @@
 
 //------------Misc------------
 #define TASK_STACK_SIZE 2048
-#define NUM_TASKS       3      // Initializing task is included
+#define NUM_TASKS       4      // Initializing task is included
 
 #define DATA_WRITER_QUEUE_SIZE 1024
 
@@ -31,8 +31,11 @@ static const ip_t SUBNET_MASK = {255, 255, 255, 0};
 static const ip_t SRC_IP      = {192, 168, 2, 50}; // TODO: need to be able to change this but ntp gets sad when you do
 
 static const ip_t NTP_SERVER_IP = {192, 168, 2, 114};
-
-static const ip_t SENSORNET_IP            = {192, 168, 2, 114};
+static const ip_t SENSORNET_IP  = {192, 168, 2, 114};
+static const ip_t INTERCOM_IP   = {192, 168, 2, 114};
 
 static const uint16_t SENSORNET_SRC_PORT  = 5002; 
 static const uint16_t SENSORNET_DEST_PORT = 3746;
+
+static const uint16_t INTERCOM_SRC_PORT  = 2003; 
+static const uint16_t INTERCOM_DEST_PORT = 1919;
