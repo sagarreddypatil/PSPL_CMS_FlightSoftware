@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <pico/stdlib.h>
+#include <pico/unique_id.h>
 
 #include <myspi.h>
 #include <mydma.h>
@@ -82,6 +83,68 @@ int main() {
     return EXIT_FAILURE;
 }
 
+int64_t offset = 0;
+bool ntp_sync() {
+    // TODO: make something that'll work in flight
+
+    int64_t new_offset = get_server_time(&eth0, NTP_SERVER_IP, NTP_SOCKET);
+
+    if (new_offset > 0) {
+        offset = new_offset;
+        return true;
+    }
+    return false;
+}
+
+bool eth0_init() {
+
+    myspi_lock(&eth0);      // only need to do this once, as it's the only
+    myspi_configure(&eth0); // device on this bus 
+
+    // Acquire and set mac address
+    pico_unique_board_id_t board_id;
+    pico_get_unique_board_id(&board_id);
+
+    const mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
+                           board_id.id[5], board_id.id[6], board_id.id[7]};
+
+    w5500_reset(&eth0);
+    while (!w5500_ready(&eth0)) tight_loop_contents();  // TODO: timeout necessary
+
+#ifndef NDEBUG
+    uint64_t start = time_us_64();
+#endif
+    uint delay     = 100;
+
+    while (!w5500_has_link(&eth0)) {  // TODO: timeout necessary
+        delay += 1;
+        sleep_ms(delay);
+    }
+
+#ifndef NDEBUG
+    safeprintf("W5500 has link, took %d us\n",
+               (int)(time_us_64() - start));
+#endif
+
+    // Configures W5500 with info
+    ip_t ip;
+    w5500_config(&eth0, src_mac, SRC_IP, SUBNET_MASK, GATEWAY_IP);
+    w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
+
+    safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
+               ip[3]);
+    
+    if (ntp_sync()) {
+        safeprintf("Time synced, offset: %lld\n", offset);
+    } else {
+        safeprintf("NTP Sync Failed! Halting, offset: %lld\n", offset);
+        while (1) tight_loop_contents();
+    }
+    
+    myspi_unlock(&eth0);
+    return true;
+}
+
 void setup_hardware() {
 
     // Initialize RP2040 GPIO pins
@@ -120,10 +183,14 @@ void init_task() {
     safeprintf(psp_logo);
     safeprintf("Program: %s\n", PICO_PROGRAM_NAME);
     safeprintf("Version: %s\n\n", PICO_PROGRAM_VERSION_STRING);
+
+    eth0_init();
     
-    CreateTaskCore0(1, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(1, data_writer_main, "Data Writer", 3);
 
     adc0_reader_task = CreateTaskCore0(2, adc0_reader_main, "ADC0 Reader", 3);
+
+    // CreateTaskCore0(3, intercom_main, "intercom", 3);
 }
 
 // Debug mode, thread safe print function

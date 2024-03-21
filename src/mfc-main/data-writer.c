@@ -16,8 +16,6 @@ void data_writer_main() {
     uint8_t send_buf[1024];
     size_t offset_bytes = 0;
 
-    TickType_t time = xTaskGetTickCount();
-
     while (true) {
         sensornet_packet_t packet;
 
@@ -41,6 +39,5 @@ void data_writer_main() {
         else {
             safeprintf("Failed, status = %d", status);
         }
-        xTaskDelayUntil(&time, 2);
     }
 }

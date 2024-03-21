@@ -51,7 +51,6 @@ bool adc0_init() {
     ads13x_wreg_single(&adc0, 0x15, (0b111111110100000011011011 << 8) & 0xFF00);
     myspi_unlock(&adc0);
 
-    // vTaskDelay(10);
     safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13)); // TODO: this does not appear to be printing the expected value (0b10)
 
     return true;
@@ -70,8 +69,6 @@ void adc0_reader_main() {
 
     // to safeguard against floating DRDY, for example
     uint64_t min_period = (1000000 / ADC0_RATE) / 2;  // div by 2 just in case
-
-    TickType_t time = xTaskGetTickCount();
 
     while (true) {
         // Wait on DRDY ISR
@@ -116,7 +113,6 @@ void adc0_reader_main() {
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
         counter++;
-        xTaskDelayUntil(&time, 2);
     }
 }
 
