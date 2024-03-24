@@ -17,7 +17,7 @@ void sm_task_main() {
         const sm_state_t state      = state_machine->state;
         global_unlock();
 
-        // post the time to SensorNet, low latency so don't use the buffer
+        // post the time to SensorNet, low latency (10Hz) so don't use the buffer
         if (loop_counter % T_MINUS_PACKET_DIV == 0) {
             sensornet_packet_t packet = {.id      = SENSOR_ID_VEHICLE_CLOCK,
                                          .counter = packet_counter++,
