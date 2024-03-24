@@ -111,7 +111,9 @@ set(boards
     # adc-test
     # w5500-test
     # ntp-test
-    mfc-main
+    # mfc-main
+    mfc-validation
+    # emu-validation
 )
 
 foreach(board ${boards})

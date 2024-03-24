@@ -124,7 +124,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE_INIT);
 
         uint16_t status = PTOH16(dst);
-        safeprintf("1. %x -- %x\n", status, 0x11);
+        // safeprintf("1. %x -- %x\n", status, 0x11);
         if (status != RESET_RESP) {
             // return false;  // TODO: fix this to compare the correct values
         }
@@ -163,7 +163,7 @@ bool ads13x_init(SPI_DEVICE_PARAM) {
         SPI_READ(spi, dst, TRANSFER_SIZE);
 
         uint16_t resp = PTOH16(dst);
-        safeprintf("3. %x -- %x\n", resp, mode_reg_value);
+        // safeprintf("3. %x -- %x\n", resp, mode_reg_value);
         if (resp != mode_reg_value) { 
             // return false;  // TODO: fix this to compare the correct values
         }
@@ -183,7 +183,7 @@ bool ads13x_wreg_single(SPI_DEVICE_PARAM, ads13x_reg_t reg, uint16_t data) {
     uint16_t resp     = (dst[0] << 8) | dst[1];
     uint16_t expected = REG_OP_SINGLE(WREG_RESP, reg);
 
-    safeprintf("%x %x\n", resp, expected); // TODO: not returning expected, ever
+    // safeprintf("%x %x\n", resp, expected); // TODO: not returning expected, ever
 
     return resp == expected;
 }
@@ -224,7 +224,7 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
     // printf("\n");
 
     if (crc_local != crc_spi) {
-        printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
+        // printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
         return false;
     }
 
