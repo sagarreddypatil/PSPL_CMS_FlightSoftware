@@ -23,14 +23,13 @@ bool adc0_init() {
     bool adc_ready = false;
     uint64_t start = time_us_64();
 
-        while (!adc_ready) {
+    while (!adc_ready) {
         myspi_lock(&adc0);
         myspi_configure(&adc0);
         adc_ready = ads13x_ready(&adc0);
         myspi_unlock(&adc0);
-
         if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
-    }    
+    }
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
@@ -40,8 +39,8 @@ bool adc0_init() {
     // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-    ads13x_wreg_single(&adc0, 0x13, 0b10);
-    ads13x_wreg_single(&adc0, 0x18, 0b10);
+    // ads13x_wreg_single(&adc0, 0x13, 0b10);
+    // ads13x_wreg_single(&adc0, 0x18, 0b10);
     myspi_unlock(&adc0);
 
     // Channel 2 offset calibration
@@ -99,15 +98,16 @@ void adc0_reader_main() {
             // this channel did not DRDY, skip
             if (!(read_channels & (1 << i))) continue;
 
-            // Check if data is greater than 24 bits 
+            // Check if data is greater than 24 bits
             if (data[i] > 0xFFFFFF) continue;
 
             sensornet_packet_t packet = {
                 .id      = SENSOR_ID_ADC0_START + i,
                 .counter = counter,
                 .time_us = sample_time,
-                .value   = data[i],
+                .value   = data[i]
             };
+            // safeprintf("%02x %02x\n", data[2], data[3]);
 
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
