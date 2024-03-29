@@ -14,6 +14,42 @@
 
 #include "config.h"
 
+static const uint PYRO_OFF = 0;
+static const uint PYRO_ON  = 1;
+
+static const uint PYRO_CONT_MUX_ENABLE = 11;
+
+static const uint PYRO_0 = 17;
+static const uint PYRO_1 = 16;
+static const uint PYRO_2 = 15;
+
+static const uint PYRO_CONT_MUX_A = 12;
+static const uint PYRO_CONT_MUX_B = 13;
+static const uint PYRO_CONT_MUX_C = 14;
+
+static inline void pyro_cont_mux_put(uint8_t value) {
+    gpio_put(PYRO_CONT_MUX_A, (value >> 0) & 1);
+    gpio_put(PYRO_CONT_MUX_B, (value >> 1) & 1);
+    gpio_put(PYRO_CONT_MUX_C, (value >> 2) & 1);
+
+    // 139 ns max transition time for the mux
+    // one clock is 8 ns
+    // round trip signal delay < 2 ns
+    // so let's wait 150 ns to be safe
+    // 150 / 8 = 18.75 round up to 20
+
+    for (int i = 0; i < 20; i++) {
+        asm volatile("nop");
+    }
+}
+
+static const uint8_t map_pyro_to_mux[PYRO_CONTS] = {6, 4, 1, 2, 3, 0};
+
+// Power System Sense Lines
+static const uint PS_SENSE_MUX_ENABLE = 8;
+
+static const uint PYRO_POWER_MUX_AI = 29;
+
 //------------Time------------
 extern int64_t offset;
 

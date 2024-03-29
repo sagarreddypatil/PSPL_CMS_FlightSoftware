@@ -48,6 +48,8 @@ static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 
 static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
 
+static const sensornet_id_t SENSOR_ID_PYRO_CONT_START = 9; // + PYRO_CONTS
+
 // Next available: 9
 
 //------------Network------------
@@ -62,6 +64,10 @@ static const uint16_t SENSORNET_SRC_PORT  = 5002;
 static const uint16_t SENSORNET_DEST_PORT = 3746;
 
 static const uint16_t COMMANDNET_PORT = 8080;
+
+//------------Pyros------------
+#define PYRO_CONTS 6
+#define PYRO_CONT_PERIOD 100 // milliseconds, = 10 HZ
 
 //------------State Machine------------
 

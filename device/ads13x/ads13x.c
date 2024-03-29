@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <myspi.h>
-#include <mfc.h>
 
 #define NUM_CHANNELS   6    
 #define WORD_SIZE      3

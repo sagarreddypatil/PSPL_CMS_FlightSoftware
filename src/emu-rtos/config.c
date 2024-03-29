@@ -32,8 +32,6 @@ bool sm_continue_new_t0_handler(PARAM) {
     sm_continue_new_t0(state_machine, new_t0);
     global_unlock();
 
-    safeprintf("Set new T-0 to %" PRId64 "\n", new_t0);
-
     return true;
 }
 
@@ -207,6 +205,38 @@ bool bb_aux_set_lower_setpoint_handler(PARAM) {
     return fluid_system_set_lower_setpoint(BB_SYSTEM_AUX, reader);
 }
 
+bool pyro_set_state(uint pyro, uint state) {
+    uint output = state ? PYRO_ON : PYRO_OFF;
+
+    uint pin;
+    switch (pyro) {
+        case 0:
+            pin = PYRO_0;
+            break;
+        case 1:
+            pin = PYRO_1;
+            break;
+        case 2:
+            pin = PYRO_2;
+            break;
+        default:
+            return false;
+    }
+
+    gpio_put(pin, output); // this is atomic
+    return true;
+}
+
+bool pyro_set_state_handler(PARAM) {
+    uint pyro = mpack_expect_u8(reader);
+    CHECK_ERRORS;
+
+    uint state = mpack_expect_u8(reader);
+    CHECK_ERRORS;
+
+    return pyro_set_state(pyro, state);
+}
+
 #undef PARAM
 
 #define CMDNET_HANDLER(endpoint_name) \
@@ -246,6 +276,8 @@ const cmdnet_endpoint_t endpoints[] = {
 
     CMDNET_HANDLER(bb_aux_set_upper_setpoint),
     CMDNET_HANDLER(bb_aux_set_lower_setpoint),
+
+    CMDNET_HANDLER(pyro_set_state),
 };
 
 const size_t n_endpoints = sizeof(endpoints) / sizeof(cmdnet_endpoint_t);
