@@ -1,6 +1,7 @@
 #include "emu.h"
 
 #include <max31856.h>
+#include <assert.h>
 
 void _tc_reader_main(int dev_index) {
     // slow enough, no need to DRDY
@@ -11,6 +12,8 @@ void _tc_reader_main(int dev_index) {
     sensornet_id_t probe_temp_id;
     sensornet_id_t cj_temp_id;
 
+    static_assert(dev_index == 1 || dev_index == 0, "Parameter must be 0 or 1");
+
     if (dev_index == 0) {
         device        = &tc0;
         probe_temp_id = SENSOR_ID_TC0_PROBE_TEMP;
@@ -19,10 +22,6 @@ void _tc_reader_main(int dev_index) {
         device        = &tc1;
         probe_temp_id = SENSOR_ID_TC1_PROBE_TEMP;
         cj_temp_id    = SENSOR_ID_TC1_CJ_TEMP;
-    } else {
-        // wtf?? we should never be here.
-        safeprintf("you messed up\n");
-        return;
     }
 
     bool success = false;
