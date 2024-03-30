@@ -66,14 +66,14 @@ extern myspi_device_t tc0;     // MAX31856
 extern myspi_device_t tc1;     // MAX31856
 
 // Chip select pin numbers
-static const uint ETH0_CS   = 17;
+static const uint ETH0_CS   = 25;
 static const uint FLASH0_CS = 20;
-static const uint ADC0_CS   = 15;
-static const uint TC0_CS    = 13;
+static const uint ADC0_CS   = 6;
+static const uint TC0_CS    = 1;
 static const uint TC1_CS    = 0;
 
-static const uint ADC0_RESET = 3;
-static const uint ADC0_DRDY  = 0;
+static const uint ADC0_RESET = 7;
+static const uint ADC0_DRDY  = 5;
 
 // SPI Mode (Clock Polarity and Phase setting)
 // Specific to chip model
@@ -119,9 +119,9 @@ static const w5500_socket_t NTP_SOCKET = W5500_S3;
 static const bool SOLENOID_CLOSE = 0;
 static const bool SOLENOID_OPEN  = 1;
 
-static const uint FUEL_SOLENOID = 15;
-static const uint OX_SOLENOID   = 7;
-static const uint AUX_SOLENOID  = 6;
+static const uint FUEL_SOLENOID = 9;
+static const uint OX_SOLENOID   = 10;
+static const uint AUX_SOLENOID  = 10;
 
 //------------Tasks------------
 void cmdnet_task_main();
