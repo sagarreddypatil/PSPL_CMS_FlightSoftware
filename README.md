@@ -1,5 +1,11 @@
 # Flight Software for Crater Maker Special
 
+See write-up on [sagarpatil.me](https://sagarpatil.me/posts/projects/cms-avi-sw)
+
+## Data Sources / Sinks
+
+![data path](https://sagarpatil.me/assets/cms-comm-lines.png)
+
 ## Overview
 
 - MCU: RP2040
