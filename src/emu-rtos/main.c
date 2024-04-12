@@ -114,13 +114,13 @@ void setup_hardware() {
 #endif
 
     // --- SPI --- //
-    myspi_bus_init(myspi0, 28, 27, 26);
-    myspi_bus_init(myspi1, 4, 3, 2);
+    myspi_bus_init(myspi0, 2, 3, 4);
+    myspi_bus_init(myspi1, 28, 27, 26);
 
-    myspi_device_init(&eth0, myspi0, ETH0_CS, W5500_MODE, ETH0_BAUD);
+    myspi_device_init(&eth0, myspi1, ETH0_CS, W5500_MODE, ETH0_BAUD);
     myspi_device_init(&flash0, myspi0, FLASH0_CS, W25N01_MODE, FLASH0_BAUD);
-    myspi_device_init(&adc0, myspi1, ADC0_CS, ADS13X_MODE, ADC0_BAUD);
-    myspi_device_init(&tc0, myspi1, TC0_CS, MAX31856_MODE, TC0_BAUD);
+    myspi_device_init(&adc0, myspi0, ADC0_CS, ADS13X_MODE, ADC0_BAUD);
+    myspi_device_init(&tc0, myspi0, TC0_CS, MAX31856_MODE, TC0_BAUD);
     myspi_device_init(&tc1, myspi0, TC1_CS, MAX31856_MODE, TC1_BAUD);
 }
 
@@ -147,15 +147,13 @@ void init_task() {
 
     CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
 
-    CreateTaskCore0(3, sm_task_main, "State Machine", 10);
+    // CreateTaskCore0(3, sm_task_main, "State Machine", 10);
 
-    CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 3);
+    CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 5);
     CreateTaskCore0(5, tc1_reader_main, "TC1 Reader", 5);
-    adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 10);
+    // adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 5);
 
     CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 9);
-
-    // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
 }
 
 void init_eth0() {
@@ -164,7 +162,8 @@ void init_eth0() {
     pico_unique_board_id_t board_id;
     pico_get_unique_board_id(&board_id);
 
-    const mac_t src_mac = {0x02, board_id.id[3], board_id.id[4], board_id.id[5], board_id.id[6], board_id.id[7]};
+    const mac_t src_mac = {0x02,           board_id.id[3], board_id.id[4],
+                           board_id.id[5], board_id.id[6], board_id.id[7]};
 
     myspi_lock(&eth0);
     myspi_configure(&eth0);  // only need to do this once, as it's the only

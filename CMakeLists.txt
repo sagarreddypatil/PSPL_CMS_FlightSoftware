@@ -107,12 +107,12 @@ psp_lib(lib state-machine)
 
 # ---------- Boards  ----------
 set(boards
-    # emu-rtos
+    emu-rtos
     # adc-test
     # w5500-test
     # ntp-test
     # mfc-main
-    mfc-validation
+    # mfc-validation
     # emu-validation
 )
 

@@ -6,9 +6,11 @@ void bang_bang_loop_main() {
 
     TickType_t prev_wake = xTaskGetTickCount();
 
-    uint64_t fuel_solenoid_last_set = time_us_64();
-    uint64_t ox_solenoid_last_set   = time_us_64();
-    uint64_t aux_solenoid_last_set  = time_us_64();
+    uint64_t last_time_set = time_us_64();
+
+    uint64_t fuel_solenoid_last_set = last_time_set;
+    uint64_t ox_solenoid_last_set   = last_time_set;
+    uint64_t aux_solenoid_last_set  = last_time_set;
 
     bool fuel_solenoid_intended_position = SOLENOID_CLOSE;
     bool ox_solenoid_intended_position   = SOLENOID_CLOSE;
@@ -46,10 +48,9 @@ void bang_bang_loop_main() {
         const bb_state_t my_aux_state  = persistent_globals.aux_state;
 
         // Pressure from ADC
-        const int32_t my_fuel_pressure =
-            ox_pressure;  // Same channel for bang bang test
-        const int32_t my_ox_pressure  = ox_pressure;
-        const int32_t my_aux_pressure = ox_pressure;
+        const int32_t my_fuel_pressure = fuel_pressure;
+        const int32_t my_ox_pressure   = ox_pressure;
+        const int32_t my_aux_pressure  = aux_pressure;
         taskEXIT_CRITICAL();
 
         // Decide intended state
@@ -103,7 +104,7 @@ void bang_bang_loop_main() {
                 break;
         }
 
-        // Apply state according to FUEL_SOLENOID_MIN_PERIOD (70ms)
+        // Apply state according to FUEL_SOLENOID_MIN_PERIOD (50ms)
 
         uint64_t now = time_us_64();
 

@@ -1,7 +1,6 @@
 #include "emu.h"
 
 #include <max31856.h>
-#include <assert.h>
 
 void _tc_reader_main(int dev_index) {
     // slow enough, no need to DRDY
@@ -21,6 +20,7 @@ void _tc_reader_main(int dev_index) {
         probe_temp_id = SENSOR_ID_TC1_PROBE_TEMP;
         cj_temp_id    = SENSOR_ID_TC1_CJ_TEMP;
     } else {
+        // wtf?? we should never be here.
         return;
     }
 

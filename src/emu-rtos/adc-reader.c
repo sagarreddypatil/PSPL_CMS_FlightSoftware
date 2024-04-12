@@ -4,7 +4,7 @@
 
 #define CHANNELS_MASK ((1 << ADC0_CHANNELS) - 1)
 
-bool adc0_init() {
+bool adc0_init_routine() {
     // this exists in case ads13x_init returns a bool in the future
     // for better error handling, so that we can also run this in a delay
     // loop waiting for the ADS13x to start working in the case that
@@ -23,40 +23,39 @@ bool adc0_init() {
     bool adc_ready = false;
     uint64_t start = time_us_64();
 
+    // TickType_t delay = 1;
     while (!adc_ready) {
         myspi_lock(&adc0);
         myspi_configure(&adc0);
         adc_ready = ads13x_ready(&adc0);
         myspi_unlock(&adc0);
-        if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
+
+        if (time_us_64() - start > ADC0_READY_TIMEOUT) {
+            safeprintf("timeout\n");
+            return false;
+        }
     }
+
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
-    if (!success) return false; // this line almost made me kms
+    if (!success) return false;
 
-    // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-    // ads13x_wreg_single(&adc0, 0x13, 0b10);
-    // ads13x_wreg_single(&adc0, 0x18, 0b10);
+    ads13x_set_sample_rate(&adc0, ADC0_OSR);
     myspi_unlock(&adc0);
-
-    // Channel 2 offset calibration
-    myspi_lock(&adc0);
-    myspi_configure(&adc0);
-    ads13x_wreg_single(&adc0, 0x14, (0b111111110100000011011011 >> 8));
-    ads13x_wreg_single(&adc0, 0x15, (0b111111110100000011011011 << 8) & 0xFF00);
-    myspi_unlock(&adc0);
-
-    safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13)); // TODO: this does not appear to be printing the expected value (0b10)
 
     return true;
 }
 
 void adc0_reader_main() {
-    while (!adc0_init()) tight_loop_contents();
+    bool success = adc0_init_routine();
+    if (!success) {
+        safeprintf("ADC0 failed to initialize\n");
+        return;  // kill self
+    }
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
                                        &adc0_drdy_isr);
@@ -105,9 +104,22 @@ void adc0_reader_main() {
                 .id      = SENSOR_ID_ADC0_START + i,
                 .counter = counter,
                 .time_us = sample_time,
-                .value   = data[i]
+                .value   = data[i],
             };
-            // safeprintf("%02x %02x\n", data[2], data[3]);
+
+            // using critical section since we can't take up time
+            switch (i) {
+                case ADC0_OX_CHANNEL:
+                    taskENTER_CRITICAL();
+                    ox_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+                case ADC0_FUEL_CHANNEL:
+                    taskENTER_CRITICAL();
+                    fuel_pressure = data[i];
+                    taskEXIT_CRITICAL();
+                    break;
+            }
 
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);

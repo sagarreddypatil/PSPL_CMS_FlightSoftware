@@ -183,6 +183,7 @@ static sm_t* const state_machine = &persistent_globals.state_machine;
 
 extern int32_t fuel_pressure;
 extern int32_t ox_pressure;
+extern int32_t aux_pressure;
 
 // Saving and Loading Flash Values
 

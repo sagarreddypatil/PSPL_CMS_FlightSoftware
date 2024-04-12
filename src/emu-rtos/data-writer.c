@@ -12,8 +12,6 @@ void data_writer_main() {
                   SENSORNET_DEST_PORT);
     myspi_unlock(&eth0);
 
-    uint64_t total = 0;
-
     uint8_t send_buf[1024];
     size_t offset = 0;
 
@@ -21,16 +19,17 @@ void data_writer_main() {
         sensornet_packet_t packet;
 
         if (offset <= UDP_PACKET_SIZE - sizeof(sensornet_packet_t)) {
-            if (xQueueReceive(data_writer_queue, &packet, portMAX_DELAY) == pdFALSE) {
+            if (xQueueReceive(data_writer_queue, &packet, portMAX_DELAY) ==
+                pdFALSE) {
                 continue;
             }
 
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
-            total++;
 
             continue;
         }
+
         // send the packet
         myspi_lock(&eth0);
         w5500_error_t status =
@@ -38,5 +37,13 @@ void data_writer_main() {
         myspi_unlock(&eth0);
 
         if (status == W5500_SUCCESS) offset = 0;
+        else {
+            safeprintf("Failed, status = %d", status);
+        }
+
+        // if (status < 0) {
+        //     // insufficient space in socket, put the packet back in the queue
+        //     xQueueSendToFront(data_writer_queue, &packet, portMAX_DELAY);
+        // }
     }
 }
