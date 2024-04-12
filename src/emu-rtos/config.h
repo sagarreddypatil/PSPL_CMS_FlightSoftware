@@ -42,13 +42,14 @@
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
 
 static const sensornet_id_t SENSOR_ID_TC0_PROBE_TEMP = 2;
-static const sensornet_id_t SENSOR_ID_TC0_CJ_TEMP    = 3;   
+static const sensornet_id_t SENSOR_ID_TC0_CJ_TEMP    = 3;
 static const sensornet_id_t SENSOR_ID_TC1_PROBE_TEMP = 4;
 static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 
 static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
 
 static const sensornet_id_t SENSOR_ID_PYRO_CONT_START = 9; // + PYRO_CONTS
+
 
 // Next available: 9
 

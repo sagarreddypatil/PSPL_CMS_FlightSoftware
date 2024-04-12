@@ -151,9 +151,9 @@ void init_task() {
 
     CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 5);
     CreateTaskCore0(5, tc1_reader_main, "TC1 Reader", 5);
-    // adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 5);
+    adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 4);
 
-    CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 9);
+    // CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 9);
 }
 
 void init_eth0() {

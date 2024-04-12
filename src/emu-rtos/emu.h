@@ -14,6 +14,13 @@
 
 #include "config.h"
 
+void task_wrapper(void* _task_entrypoint);
+
+#define CreateTaskCore0(index, entrypoint, name, priority)                    \
+    xTaskCreateStatic(task_wrapper, name, TASK_STACK_SIZE, (void*)entrypoint, \
+                      priority, &task_stacks[(index) * TASK_STACK_SIZE],      \
+                      &task_buffers[index])
+
 static const uint PYRO_OFF = 0;
 static const uint PYRO_ON  = 1;
 
@@ -50,6 +57,9 @@ static const uint PS_SENSE_MUX_ENABLE = 8;
 
 static const uint PYRO_POWER_MUX_AI = 29;
 
+extern StackType_t task_stacks[TASK_STACK_SIZE * NUM_TASKS];
+extern StaticTask_t task_buffers[NUM_TASKS];
+
 //------------Time------------
 extern int64_t offset;
 
@@ -75,7 +85,7 @@ static const uint TC1_CS    = 0;
 static const uint ADC0_RESET = 7;
 static const uint ADC0_DRDY  = 5;
 
-// SPI Mode (Clock Polarity and Phase setting)
+// SPI Mode (Clock Polarity and Phase setting)F
 // Specific to chip model
 #define W5500_MODE    SPI_CPOL_1, SPI_CPHA_1
 #define W25N01_MODE   SPI_CPOL_1, SPI_CPHA_1
@@ -121,7 +131,7 @@ static const bool SOLENOID_OPEN  = 1;
 
 static const uint FUEL_SOLENOID = 9;
 static const uint OX_SOLENOID   = 10;
-static const uint AUX_SOLENOID  = 10;
+static const uint AUX_SOLENOID  = 15;
 
 //------------Tasks------------
 void cmdnet_task_main();

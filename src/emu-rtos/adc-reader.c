@@ -74,7 +74,7 @@ void adc0_reader_main() {
 
         if (time_us_64() - prev_time < min_period) {
             // something's wrong, shouldn't DRDY this fast
-            continue;
+            taskYIELD();
         }
         prev_time = time_us_64();
 
@@ -92,6 +92,14 @@ void adc0_reader_main() {
         // if ((read_channels) != CHANNELS_MASK) {
         //     safeprintf("ADC0: All channels not DRDYd!\n");
         // }
+
+
+        // TEST VOLTAGES FOR CH0 AND CH1
+        myspi_lock(&adc0);
+        myspi_configure(&adc0);
+        // ads13x_wreg_single(&adc0, 0x9, 0b10);
+        // ads13x_wreg_single(&adc0, 0xE, 0b10);
+        myspi_unlock(&adc0);
 
         for (int i = 0; i < ADC0_CHANNELS; i++) {
             // this channel did not DRDY, skip
@@ -124,6 +132,8 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
+        // safeprintf("%d %d\n", data[0], data[1]);
+
         counter++;
     }
 }
