@@ -142,7 +142,7 @@ void bang_bang_loop_main() {
         // Set the solenoid state on the GPIO pins
         gpio_put(FUEL_SOLENOID, fuel_solenoid_position);
         gpio_put(OX_SOLENOID, ox_solenoid_position);
-        gpio_put(AUX_SOLENOID, aux_solenoid_position);
+        // gpio_put(AUX_SOLENOID, aux_solenoid_position);
 
         // Wait until the next period (1ms)
         vTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(BB_LOOP_PERIOD));
