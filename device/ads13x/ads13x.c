@@ -4,7 +4,7 @@
 #include <string.h>
 #include <myspi.h>
 
-#define NUM_CHANNELS   6    
+#define NUM_CHANNELS   6
 #define WORD_SIZE      3
 #define WORD_SIZE_INIT 3
 

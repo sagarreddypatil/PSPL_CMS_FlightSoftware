@@ -74,7 +74,8 @@ void adc0_reader_main() {
 
         if (time_us_64() - prev_time < min_period) {
             // something's wrong, shouldn't DRDY this fast
-            taskYIELD();
+            // taskYIELD();
+            continue;
         }
         prev_time = time_us_64();
 
@@ -89,10 +90,6 @@ void adc0_reader_main() {
 
         // checking if all channels are DRDY'd (they should be)
         uint16_t read_channels = status_reg & CHANNELS_MASK;
-        // if ((read_channels) != CHANNELS_MASK) {
-        //     safeprintf("ADC0: All channels not DRDYd!\n");
-        // }
-
 
         // TEST VOLTAGES FOR CH0 AND CH1
         myspi_lock(&adc0);
