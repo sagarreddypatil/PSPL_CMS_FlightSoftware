@@ -137,7 +137,7 @@ void init_task() {
     bool success = ntp_sync();
 
     if (success) {
-        safeprintf("Time synced, offset: %" PRId64 "\n", offset);
+        safeprintf("Time synced, offset: %lld\n", offset);
     } else {
         safeprintf("NTP Sync Failed! Halting\n");
         while (1) tight_loop_contents();
