@@ -23,7 +23,6 @@ void data_writer_main() {
                 pdFALSE) {
                 continue;
             }
-
             dmacpy(send_buf + offset, &packet, sizeof(sensornet_packet_t));
             offset += sizeof(sensornet_packet_t);
 
@@ -37,9 +36,6 @@ void data_writer_main() {
         myspi_unlock(&eth0);
 
         if (status == W5500_SUCCESS) offset = 0;
-        else {
-            safeprintf("Failed, status = %d", status);
-        }
 
         // if (status < 0) {
         //     // insufficient space in socket, put the packet back in the queue

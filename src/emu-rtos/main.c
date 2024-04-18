@@ -110,7 +110,7 @@ void setup_hardware() {
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();
     stdio_flush();
-    for (int i = 0; i < 10; i++) printf("\n");
+    for (int i = 0; i < 5; i++) printf("\n");
 #endif
 
     // --- SPI --- //

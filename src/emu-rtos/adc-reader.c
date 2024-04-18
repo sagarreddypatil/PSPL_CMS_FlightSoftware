@@ -23,7 +23,6 @@ bool adc0_init_routine() {
     bool adc_ready = false;
     uint64_t start = time_us_64();
 
-    // TickType_t delay = 1;
     while (!adc_ready) {
         myspi_lock(&adc0);
         myspi_configure(&adc0);
@@ -31,7 +30,6 @@ bool adc0_init_routine() {
         myspi_unlock(&adc0);
 
         if (time_us_64() - start > ADC0_READY_TIMEOUT) {
-            safeprintf("timeout\n");
             return false;
         }
     }
@@ -70,16 +68,13 @@ void adc0_reader_main() {
 
     TickType_t prev_wake = xTaskGetTickCount();
     
-    uint8_t valves[3] = {FUEL_SOLENOID, OX_SOLENOID, AUX_SOLENOID};
-
     while (true) {
         // Wait on DRDY ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         if (time_us_64() - prev_time < min_period) {
             // something's wrong, shouldn't DRDY this fast
-            // taskYIELD();
-            continue;
+            taskYIELD();
         }
         prev_time = time_us_64();
 
