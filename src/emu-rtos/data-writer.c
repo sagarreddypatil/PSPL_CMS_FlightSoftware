@@ -36,8 +36,6 @@ void data_writer_main() {
             w5500_write_data(&eth0, SENSORNET_SOCKET, &send_buf, offset);
         myspi_unlock(&eth0);
 
-        // w5500_error_t status = W5500_SUCCESS;
-
         if (status == W5500_SUCCESS) offset = 0;
         else {
             safeprintf("Failed, status = %d", status);

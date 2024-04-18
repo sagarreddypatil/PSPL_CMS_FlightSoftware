@@ -68,6 +68,10 @@ void adc0_reader_main() {
     // to safeguard against floating DRDY, for example
     uint64_t min_period = (1000000 / ADC0_RATE) / 2;  // div by 2 just in case
 
+    TickType_t prev_wake = xTaskGetTickCount();
+    
+    uint8_t valves[3] = {FUEL_SOLENOID, OX_SOLENOID, AUX_SOLENOID};
+
     while (true) {
         // Wait on DRDY ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
@@ -129,9 +133,9 @@ void adc0_reader_main() {
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-        // safeprintf("%d %d\n", data[0], data[1]);
 
         counter++;
+        vTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(2));
     }
 }
 

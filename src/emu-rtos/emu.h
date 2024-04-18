@@ -138,6 +138,8 @@ void tc1_reader_main();
 extern TaskHandle_t adc0_reader_task;
 void adc0_reader_main();
 
+void bang_bang_writer_main();
+
 void w5500_drdy_handler();
 void adc0_drdy_isr();
 

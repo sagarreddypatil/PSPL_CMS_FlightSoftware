@@ -8,9 +8,9 @@
 
 //------------Misc------------
 #define TASK_STACK_SIZE 2048
-#define NUM_TASKS       8
+#define NUM_TASKS       9
 
-#define DATA_WRITER_QUEUE_SIZE 1024
+#define DATA_WRITER_QUEUE_SIZE 2048
 
 //------------Thermocouples------------
 
@@ -32,7 +32,7 @@
 #define ADC0_CHAMBER_CHANNEL 2
 
 //------------Bang Bang------------
-#define BB_LOOP_PERIOD 1  // milliseconds
+#define BB_LOOP_PERIOD 5  // milliseconds
 
 #define FUEL_SOLENOID_MIN_PERIOD 50000  // microseconds
 #define OX_SOLENOID_MIN_PERIOD   50000  // microseconds
@@ -49,6 +49,7 @@ static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
 
 static const sensornet_id_t SENSOR_ID_PYRO_CONT_START = 9; // + PYRO_CONTS
+static const sensornet_id_t SENSOR_ID_BB_VALVES_START = 16; 
 
 
 // Next available: 9
