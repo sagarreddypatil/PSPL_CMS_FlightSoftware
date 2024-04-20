@@ -30,7 +30,7 @@ outfile = open(output_location, "w+")
 while True:
     try:
         # Attempt to open the serial port
-        with serial.Serial(path, 9600) as ser:
+        with serial.Serial(path, 36000) as ser:
             while True:
                 if ser.in_waiting:
                     data = ser.readline().decode("utf-8").rstrip()

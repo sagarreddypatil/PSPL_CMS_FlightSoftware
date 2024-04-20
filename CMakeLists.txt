@@ -29,8 +29,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(
     -Wall # Enable all warnings
-    # -O3 # I am speed
-    -Os
+    -O3 # I am speed
     -Werror # Treat warnings as errors
     -Wno-unused-variable # annoying, don't keep it tho
     -Wno-unused-but-set-variable
@@ -112,6 +111,9 @@ set(boards
     # adc-test
     # w5500-test
     # ntp-test
+    # mfc-main
+    # mfc-validation
+    # emu-validation
 )
 
 foreach(board ${boards})
@@ -122,6 +124,7 @@ foreach(board ${boards})
 
     add_executable(${board} ${srcs} ${hdrs})
     target_include_directories(${board} PUBLIC src/${board}/)
+    target_link_directories(${board} PUBLIC src/${board}/)
     pico_set_program_name(${board} "${board}")
     pico_set_program_version(${board} "${GIT_DESCRIBE_STRING} (build ${CMAKE_BUILD_TYPE})")
 

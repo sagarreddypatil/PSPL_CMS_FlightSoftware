@@ -1,10 +1,10 @@
-#include "emu.h"
+#include "mfc.h"
 #include <ads13x.h>
 #include <hardware/gpio.h>
 
 #define CHANNELS_MASK ((1 << ADC0_CHANNELS) - 1)
 
-bool adc0_init_routine() {
+bool adc0_init() {
     // this exists in case ads13x_init returns a bool in the future
     // for better error handling, so that we can also run this in a delay
     // loop waiting for the ADS13x to start working in the case that
@@ -28,32 +28,35 @@ bool adc0_init_routine() {
         myspi_configure(&adc0);
         adc_ready = ads13x_ready(&adc0);
         myspi_unlock(&adc0);
-
-        if (time_us_64() - start > ADC0_READY_TIMEOUT) {
-            return false;
-        }
+        if (time_us_64() - start > ADC0_READY_TIMEOUT) return false;
     }
-
     myspi_lock(&adc0);
     myspi_configure(&adc0);
     bool success = ads13x_init(&adc0);
     myspi_unlock(&adc0);
-    if (!success) return false;
+    if (!success) return false; // this line almost made me kms
 
+    // Test voltage
     myspi_lock(&adc0);
     myspi_configure(&adc0);
-    ads13x_set_sample_rate(&adc0, ADC0_OSR);
+    // ads13x_wreg_single(&adc0, 0x13, 0b10);
+    // ads13x_wreg_single(&adc0, 0x18, 0b10);
     myspi_unlock(&adc0);
+
+    // Channel 2 offset calibration
+    myspi_lock(&adc0);
+    myspi_configure(&adc0);
+    ads13x_wreg_single(&adc0, 0x14, (0b111111110100000011011011 >> 8));
+    ads13x_wreg_single(&adc0, 0x15, (0b111111110100000011011011 << 8) & 0xFF00);
+    myspi_unlock(&adc0);
+
+    safeprintf("\n\n%x\n\n", ads13x_rreg_single(&adc0, 0x13)); // TODO: this does not appear to be printing the expected value (0b10)
 
     return true;
 }
 
 void adc0_reader_main() {
-    bool success = adc0_init_routine();
-    if (!success) {
-        safeprintf("ADC0 failed to initialize\n");
-        return;  // kill self
-    }
+    while (!adc0_init()) tight_loop_contents();
 
     gpio_set_irq_enabled_with_callback(ADC0_DRDY, GPIO_IRQ_EDGE_FALL, true,
                                        &adc0_drdy_isr);
@@ -66,15 +69,13 @@ void adc0_reader_main() {
     // to safeguard against floating DRDY, for example
     uint64_t min_period = (1000000 / ADC0_RATE) / 2;  // div by 2 just in case
 
-    TickType_t prev_wake = xTaskGetTickCount();
-    
     while (true) {
         // Wait on DRDY ISR
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         if (time_us_64() - prev_time < min_period) {
             // something's wrong, shouldn't DRDY this fast
-            taskYIELD();
+            continue;
         }
         prev_time = time_us_64();
 
@@ -89,13 +90,9 @@ void adc0_reader_main() {
 
         // checking if all channels are DRDY'd (they should be)
         uint16_t read_channels = status_reg & CHANNELS_MASK;
-
-        // TEST VOLTAGES FOR CH0 AND CH1
-        myspi_lock(&adc0);
-        myspi_configure(&adc0);
-        // ads13x_wreg_single(&adc0, 0x9, 0b10);
-        // ads13x_wreg_single(&adc0, 0xE, 0b10);
-        myspi_unlock(&adc0);
+        // if ((read_channels) != CHANNELS_MASK) {
+        //     safeprintf("ADC0: All channels not DRDYd!\n");
+        // }
 
         for (int i = 0; i < ADC0_CHANNELS; i++) {
             // this channel did not DRDY, skip
@@ -108,29 +105,14 @@ void adc0_reader_main() {
                 .id      = SENSOR_ID_ADC0_START + i,
                 .counter = counter,
                 .time_us = sample_time,
-                .value   = data[i],
+                .value   = data[i]
             };
-
-            // using critical section since we can't take up time
-            switch (i) {
-                case ADC0_OX_CHANNEL:
-                    taskENTER_CRITICAL();
-                    ox_pressure = data[i];
-                    taskEXIT_CRITICAL();
-                    break;
-                case ADC0_FUEL_CHANNEL:
-                    taskENTER_CRITICAL();
-                    fuel_pressure = data[i];
-                    taskEXIT_CRITICAL();
-                    break;
-            }
+            // safeprintf("%02x %02x\n", data[2], data[3]);
 
             // this CAN NOT take up time
             bool success = xQueueSend(data_writer_queue, &packet, 0);
         }
-
         counter++;
-        vTaskDelayUntil(&prev_wake, pdMS_TO_TICKS(2));
     }
 }
 

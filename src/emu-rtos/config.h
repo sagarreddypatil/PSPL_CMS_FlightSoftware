@@ -8,9 +8,9 @@
 
 //------------Misc------------
 #define TASK_STACK_SIZE 2048
-#define NUM_TASKS       8
+#define NUM_TASKS       9
 
-#define DATA_WRITER_QUEUE_SIZE 1024
+#define DATA_WRITER_QUEUE_SIZE 2048
 
 //------------Thermocouples------------
 
@@ -31,15 +31,12 @@
 #define ADC0_OX_CHANNEL      1
 #define ADC0_CHAMBER_CHANNEL 2
 
-//------------Pyros------------
-#define PYRO_CONTS 6
-#define PYRO_CONT_PERIOD 100 // milliseconds, = 10 HZ
-
 //------------Bang Bang------------
-#define BB_LOOP_PERIOD 1  // milliseconds
+#define BB_LOOP_PERIOD 5  // milliseconds
 
-#define FUEL_SOLENOID_MIN_PERIOD 70000  // microseconds
-#define OX_SOLENOID_MIN_PERIOD   70000  // microseconds
+#define FUEL_SOLENOID_MIN_PERIOD 50000  // microseconds
+#define OX_SOLENOID_MIN_PERIOD   50000  // microseconds
+#define AUX_SOLENOID_MIN_PERIOD  50000  // microseconds
 
 //------------SensorNet IDs------------
 static const sensornet_id_t SENSOR_ID_VEHICLE_CLOCK = 1;
@@ -50,28 +47,33 @@ static const sensornet_id_t SENSOR_ID_TC1_PROBE_TEMP = 4;
 static const sensornet_id_t SENSOR_ID_TC1_CJ_TEMP    = 5;
 
 static const sensornet_id_t SENSOR_ID_ADC0_START = 6;  // + ADC0_CHANNELS
-// Next available: 9
 
 static const sensornet_id_t SENSOR_ID_PYRO_CONT_START = 9; // + PYRO_CONTS
-// Next available: 15
+static const sensornet_id_t SENSOR_ID_BB_VALVES_START = 16; 
 
+
+// Next available: 9
 
 //------------Network------------
 static const ip_t GATEWAY_IP  = {192, 168, 2, 1};
 static const ip_t SUBNET_MASK = {255, 255, 255, 0};
 static const ip_t SRC_IP      = {192, 168, 2, 50};
 
-static const ip_t NTP_SERVER_IP = {192, 168, 2, 1};
+static const ip_t NTP_SERVER_IP = {192, 168, 2, 114};
 
-static const ip_t SENSORNET_IP            = {192, 168, 2, 1};
+static const ip_t SENSORNET_IP            = {192, 168, 2, 114};
+static const uint16_t SENSORNET_SRC_PORT  = 5002;
 static const uint16_t SENSORNET_DEST_PORT = 3746;
-static const uint16_t SENSORNET_SRC_PORT = 14499; // meaningless, doesn't matter
 
-static const uint16_t COMMANDNET_PORT = 8106;
+static const uint16_t COMMANDNET_PORT = 8080;
+
+//------------Pyros------------
+#define PYRO_CONTS 6
+#define PYRO_CONT_PERIOD 100 // milliseconds, = 10 HZ
 
 //------------State Machine------------
 
-#define MICROS(x) ((x)*1000000)
+#define MICROS(x) ((x) * 1000000)
 
 void test_event();
 

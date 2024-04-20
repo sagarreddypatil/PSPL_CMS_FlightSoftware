@@ -36,7 +36,7 @@ void task_wrapper(void* _task_entrypoint) {
 
 #define CreateTaskCore0(index, entrypoint, name, priority)                    \
     xTaskCreateStatic(task_wrapper, name, TASK_STACK_SIZE, (void*)entrypoint, \
-                      priority, &task_stacks[(index)*TASK_STACK_SIZE],        \
+                      priority, &task_stacks[(index) * TASK_STACK_SIZE],      \
                       &task_buffers[index])
 
 void setup_hardware();
@@ -85,12 +85,6 @@ int main() {
     return EXIT_FAILURE;
 }
 
-void setup_gpio_output(uint pin, uint default_state){
-    gpio_init(pin);
-    gpio_set_dir(pin, GPIO_OUT);
-    gpio_put(pin, default_state);
-}
-
 void setup_hardware() {
     gpio_init(ADC0_RESET);
     gpio_set_dir(ADC0_RESET, GPIO_OUT);
@@ -112,33 +106,16 @@ void setup_hardware() {
     gpio_set_dir(AUX_SOLENOID, GPIO_OUT);
     gpio_put(AUX_SOLENOID, SOLENOID_CLOSE);
 
-    setup_gpio_output(PYRO_0, PYRO_OFF);
-    setup_gpio_output(PYRO_1, PYRO_OFF);
-    setup_gpio_output(PYRO_2, PYRO_OFF);
-
-    setup_gpio_output(PYRO_CONT_MUX_A, 0);
-    setup_gpio_output(PYRO_CONT_MUX_B, 0);
-    setup_gpio_output(PYRO_CONT_MUX_C, 0);
-
-    // TODO: make both of these zero and switch them as needed
-    setup_gpio_output(PYRO_CONT_MUX_ENABLE, 1);
-    setup_gpio_output(PS_SENSE_MUX_ENABLE, 0);
-
-    adc_init();
-    adc_gpio_init(PYRO_POWER_MUX_AI);
-    adc_select_input(PYRO_POWER_MUX_AI - 26); // 26...29 is 0...3
-
-
 #ifndef NDEBUG
     stdio_usb_init();
     while (!stdio_usb_connected()) tight_loop_contents();
     stdio_flush();
-    for (int i = 0; i < 10; i++) printf("\n");
+    for (int i = 0; i < 5; i++) printf("\n");
 #endif
 
     // --- SPI --- //
     myspi_bus_init(myspi0, 2, 3, 4);
-    myspi_bus_init(myspi1, 27, 26, 28);
+    myspi_bus_init(myspi1, 28, 27, 26);
 
     myspi_device_init(&eth0, myspi1, ETH0_CS, W5500_MODE, ETH0_BAUD);
     myspi_device_init(&flash0, myspi0, FLASH0_CS, W25N01_MODE, FLASH0_BAUD);
@@ -166,21 +143,18 @@ void init_task() {
         while (1) tight_loop_contents();
     }
 
-    CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 1);
+    CreateTaskCore0(1, cmdnet_task_main, "CommandNet", 5);
 
-    CreateTaskCore0(2, data_writer_main, "Data Writer", 2);
+    CreateTaskCore0(2, data_writer_main, "Data Writer", 4);
 
     // CreateTaskCore0(3, sm_task_main, "State Machine", 10);
 
-    CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 3);
+    // CreateTaskCore0(4, tc0_reader_main, "TC0 Reader", 5);
     // CreateTaskCore0(5, tc1_reader_main, "TC1 Reader", 5);
-    adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 10);
+    adc0_reader_task = CreateTaskCore0(6, adc0_reader_main, "ADC0 Reader", 5);
 
     CreateTaskCore0(7, bang_bang_loop_main, "Bang Bang Loop", 9);
-
-    CreateTaskCore0(8, pyro_cont_reader_main, "Pyro Cont Reader", 5);
-
-    // CreateTaskCore0(4, ntp_test_main, "NTP Test", 1);
+    CreateTaskCore0(3, bang_bang_writer_main, "bang bang valve writer", 10);
 }
 
 void init_eth0() {
@@ -209,7 +183,7 @@ void init_eth0() {
         while (true) {
             count++;
             vTaskDelay(pdMS_TO_TICKS(delay));
-            delay *= 2;
+            delay += 1;
 
             myspi_lock(&eth0);
             if (w5500_has_link(&eth0)) {
@@ -229,8 +203,11 @@ void init_eth0() {
     w5500_read(&eth0, W5500_COMMON, W5500_SIPR0, ip, sizeof(ip));
     myspi_unlock(&eth0);
 
-    safeprintf("Ethernet Connected, IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2],
-               ip[3]);
+    safeprintf(
+        "Ethernet Connected, IP: %d.%d.%d.%d, MAC: "
+        "%02X:%02X:%02X:%02X:%02X:%02X\n",
+        ip[0], ip[1], ip[2], ip[3], src_mac[0], src_mac[1], src_mac[2],
+        src_mac[3], src_mac[4], src_mac[5]);
 }
 
 // --- NTP Sync --- //

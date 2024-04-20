@@ -19,5 +19,7 @@
         "assert.h": "c"
     },
     "C_Cpp.autoAddFileAssociations": false,
-    "debug.internalConsoleOptions": "neverOpen"
+    "debug.internalConsoleOptions": "neverOpen",
+    "C_Cpp.default.compilerPath": "/usr/bin/arm-none-eabi-gcc",
+    "C_Cpp.intelliSenseEngineFallback": "enabled"
 }

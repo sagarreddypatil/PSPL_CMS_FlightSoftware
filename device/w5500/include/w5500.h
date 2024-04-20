@@ -8,6 +8,11 @@
 #pragma once
 #include <myspi.h>
 
+/**
+ * @defgroup w5500 W5500 Driver
+ * @{
+ */
+
 /* Common Register Addresses pg 32 */
 
 static const uint16_t W5500_MR        = 0x00;  // Mode
@@ -336,7 +341,7 @@ w5500_error_t w5500_create_tcp_socket(myspi_device_t *spi, w5500_socket_t s,
  * @param len Length of the data to read
  * @return The number of bytes read
  */
-size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, uint8_t *data,
+size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, void *data,
                        size_t len);
 
 /**

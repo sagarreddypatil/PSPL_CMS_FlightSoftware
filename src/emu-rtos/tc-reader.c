@@ -21,7 +21,6 @@ void _tc_reader_main(int dev_index) {
         cj_temp_id    = SENSOR_ID_TC1_CJ_TEMP;
     } else {
         // wtf?? we should never be here.
-        safeprintf("you messed up\n");
         return;
     }
 

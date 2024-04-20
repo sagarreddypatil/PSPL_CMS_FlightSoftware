@@ -1,10 +1,3 @@
-/** @file w25n01.h
- *  @brief W25N01 NAND Flash SPI Driver
- *
- * @author Sagar R. Patil (sagarreddypatil)
- *
- */
-
 #pragma once
 
 #include <myspi.h>

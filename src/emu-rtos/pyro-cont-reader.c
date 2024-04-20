@@ -1,5 +1,6 @@
 #include "emu.h"
 #include "config.h"
+#include <hardware/adc.h>
 
 void pyro_cont_reader_main() {
     uint64_t packet_counter = 0;

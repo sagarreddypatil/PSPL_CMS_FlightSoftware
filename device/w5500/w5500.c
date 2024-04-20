@@ -112,7 +112,7 @@ w5500_error_t w5500_create_tcp_socket(myspi_device_t *spi, w5500_socket_t s,
     return W5500_SUCCESS;
 }
 
-size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, uint8_t *data,
+size_t w5500_read_data(myspi_device_t *spi, w5500_socket_t s, void *data,
                        size_t len) {
     uint16_t avail = w5500_read16(spi, s, W5500_Sn_RX_RSR0);
     if (avail < len) {

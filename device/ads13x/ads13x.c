@@ -23,7 +23,7 @@
 #define WREG    0b0110000000000000
 
 // Command Responses
-#define RESET_RESP   0xff26
+#define RESET_RESP   (0xff20 + NUM_CHANNELS)
 #define STANDBY_RESP 0b0000000000100010
 #define WAKEUP_RESP  0b0000000000110011
 #define LOCK_RESP    0b0000010101010101
@@ -64,6 +64,25 @@
 #define PTOH32(ptr)                                    \
     ((ptr)[0] << 24 | (ptr)[1] << 16 | (ptr)[2] << 8 | \
      (ptr)[3])  // just byte order swapping
+
+#define POLY_CCITT 0x1021
+
+uint16_t crc_ccitt_byte(uint16_t crc, uint8_t data) {
+    crc = (uint8_t)(crc >> 8) | (crc << 8);
+    crc ^= data;
+    crc ^= (uint8_t)(crc & 0xff) >> 4;
+    crc ^= (crc << 8) << 4;
+    crc ^= ((crc & 0xff) << 4) << 1;
+    return crc;
+}
+
+uint16_t calculate_crc_ccitt(const uint8_t *data, size_t length) {
+    uint16_t crc = 0xFFFF;  // Seed value
+    while (length--) {
+        crc = crc_ccitt_byte(crc, *data++);
+    }
+    return crc;
+}
 
 void ads13x_reset(SPI_DEVICE_PARAM) {
     // try both 24-bit and 32-bit word size
@@ -178,6 +197,21 @@ bool ads13x_read_data(SPI_DEVICE_PARAM, uint16_t *status, int32_t *data,
 
     uint8_t dst[TRANSFER_SIZE];
     SPI_READ(spi, dst, TRANSFER_SIZE);
+
+    uint16_t crc_local = calculate_crc_ccitt(dst, TRANSFER_SIZE - 4);
+
+    uint16_t crc_spi = (dst[TRANSFER_SIZE - 3]) + (dst[TRANSFER_SIZE - 4] << 8);
+
+    // for (size_t i = 0; i < TRANSFER_SIZE; i++) {
+    //     printf("%02x ", dst[i]);
+    // }
+    // printf("\n");
+
+    if (crc_local != crc_spi) {
+        //  printf("crc mismatch: %04x != %04x\n", crc_local, crc_spi);
+        return false;
+    }
+
 
     *status = PTOH16(dst);
     for (int i = 0; i < len; i++) {

@@ -9,6 +9,13 @@
         return false;                             \
     }
 
+bool sanity_cmd_handler(PARAM) {
+    static int ncheck = 0;
+    safeprintf("cmdnet sanity check %d\n", ncheck++);
+
+    return true;
+}
+
 bool sm_hold_handler(PARAM) {
     global_lock();
     sm_hold(state_machine, unix_time_us());
@@ -25,12 +32,7 @@ bool sm_continue_new_t0_handler(PARAM) {
     sm_continue_new_t0(state_machine, new_t0);
     global_unlock();
 
-    safeprintf(
-        "Set new T-0 to %"
-        "ll"
-        "d"
-        "\n",
-        new_t0);
+    safeprintf("Set new T-0 to %lld \n", new_t0);
 
     return true;
 }
@@ -70,6 +72,7 @@ bool sm_poll_answer_nogo_handler(PARAM) {
 typedef enum {
     BB_SYSTEM_FUEL,
     BB_SYSTEM_OX,
+    BB_SYSTEM_AUX,
 } bb_system_t;
 
 bool fluid_system_set_state(bb_system_t system, bb_state_t state) {
@@ -82,6 +85,11 @@ bool fluid_system_set_state(bb_system_t system, bb_state_t state) {
         case BB_SYSTEM_OX:
             global_lock();
             persistent_globals.ox_state = state;
+            global_unlock();
+            return true;
+        case BB_SYSTEM_AUX:
+            global_lock();
+            persistent_globals.aux_state = state;
             global_unlock();
             return true;
         default:
@@ -104,6 +112,11 @@ bool fluid_system_set_upper_setpoint(bb_system_t system, PARAM) {
             persistent_globals.ox_upper_setpoint = setpoint;
             global_unlock();
             return true;
+        case BB_SYSTEM_AUX:
+            global_lock();
+            persistent_globals.aux_upper_setpoint = setpoint;
+            global_unlock();
+            return true;
         default:
             return false;
     }
@@ -124,9 +137,38 @@ bool fluid_system_set_lower_setpoint(bb_system_t system, PARAM) {
             persistent_globals.ox_lower_setpoint = setpoint;
             global_unlock();
             return true;
+        case BB_SYSTEM_AUX:
+            global_lock();
+            persistent_globals.aux_lower_setpoint = setpoint;
+            global_unlock();
+            return true;
         default:
             return false;
     }
+}
+
+bool bb_isolate_all_handler(PARAM) {
+    fluid_system_set_state(BB_SYSTEM_OX, BB_ISOLATE);
+    fluid_system_set_state(BB_SYSTEM_FUEL, BB_ISOLATE);
+    fluid_system_set_state(BB_SYSTEM_AUX, BB_ISOLATE);
+
+    return true;
+}
+
+bool bb_open_all_handler(PARAM) {
+    fluid_system_set_state(BB_SYSTEM_OX, BB_OPEN);
+    fluid_system_set_state(BB_SYSTEM_FUEL, BB_OPEN);
+    fluid_system_set_state(BB_SYSTEM_AUX, BB_OPEN);
+
+    return true;
+}
+
+bool bb_regulate_all_handler(PARAM) {
+    fluid_system_set_state(BB_SYSTEM_OX, BB_REGULATE);
+    fluid_system_set_state(BB_SYSTEM_FUEL, BB_REGULATE);
+    fluid_system_set_state(BB_SYSTEM_AUX, BB_REGULATE);
+
+    return true;
 }
 
 bool bb_ox_isolate_handler(PARAM) {
@@ -169,36 +211,33 @@ bool bb_fu_set_lower_setpoint_handler(PARAM) {
     return fluid_system_set_lower_setpoint(BB_SYSTEM_FUEL, reader);
 }
 
-bool pyro_set_state(uint pyro, uint state) {
-    uint output = state ? PYRO_ON : PYRO_OFF;
-
-    uint pin;
-    switch (pyro) {
-        case 0:
-            pin = PYRO_0;
-            break;
-        case 1:
-            pin = PYRO_1;
-            break;
-        case 2:
-            pin = PYRO_2;
-            break;
-        default:
-            return false;
-    }
-
-    gpio_put(pin, output); // this is atomic
-    return true;
+bool bb_aux_isolate_handler(PARAM) {
+    return fluid_system_set_state(BB_SYSTEM_AUX, BB_ISOLATE);
 }
 
-bool pyro_set_state_handler(PARAM) {
-    uint pyro = mpack_expect_u8(reader);
-    CHECK_ERRORS;
+bool bb_aux_open_handler(PARAM) {
+    return fluid_system_set_state(BB_SYSTEM_AUX, BB_OPEN);
+}
 
-    uint state = mpack_expect_u8(reader);
-    CHECK_ERRORS;
+bool bb_aux_regulate_handler(PARAM) {
+    return fluid_system_set_state(BB_SYSTEM_AUX, BB_REGULATE);
+}
 
-    return pyro_set_state(pyro, state);
+bool bb_aux_set_upper_setpoint_handler(PARAM) {
+    return fluid_system_set_upper_setpoint(BB_SYSTEM_AUX, reader);
+}
+
+bool bb_aux_set_lower_setpoint_handler(PARAM) {
+    return fluid_system_set_lower_setpoint(BB_SYSTEM_AUX, reader);
+}
+
+bool set_multi_setpoints_handler(PARAM) {
+    fluid_system_set_upper_setpoint(BB_SYSTEM_FUEL, reader);
+    fluid_system_set_lower_setpoint(BB_SYSTEM_FUEL, reader);
+    fluid_system_set_upper_setpoint(BB_SYSTEM_OX, reader);
+    fluid_system_set_lower_setpoint(BB_SYSTEM_OX, reader);
+
+    return true;
 }
 
 #undef PARAM
@@ -207,6 +246,8 @@ bool pyro_set_state_handler(PARAM) {
     { .name = #endpoint_name, .handler = endpoint_name##_handler }
 
 const cmdnet_endpoint_t endpoints[] = {
+    CMDNET_HANDLER(sanity_cmd),
+
     CMDNET_HANDLER(sm_hold),
     CMDNET_HANDLER(sm_continue_new_t0),
     CMDNET_HANDLER(sm_continue),
@@ -215,19 +256,35 @@ const cmdnet_endpoint_t endpoints[] = {
     CMDNET_HANDLER(sm_poll_answer_go),
     CMDNET_HANDLER(sm_poll_answer_nogo),
 
+    // Oxygen
     CMDNET_HANDLER(bb_ox_isolate),
     CMDNET_HANDLER(bb_ox_open),
     CMDNET_HANDLER(bb_ox_regulate),
+
+    // Fuel
     CMDNET_HANDLER(bb_fu_isolate),
     CMDNET_HANDLER(bb_fu_open),
     CMDNET_HANDLER(bb_fu_regulate),
 
+    // Auxiliary
+    CMDNET_HANDLER(bb_aux_isolate),
+    CMDNET_HANDLER(bb_aux_open),
+    CMDNET_HANDLER(bb_aux_regulate),
+
     CMDNET_HANDLER(bb_ox_set_upper_setpoint),
     CMDNET_HANDLER(bb_ox_set_lower_setpoint),
+
     CMDNET_HANDLER(bb_fu_set_upper_setpoint),
     CMDNET_HANDLER(bb_fu_set_lower_setpoint),
 
-    CMDNET_HANDLER(pyro_set_state),
+    CMDNET_HANDLER(bb_aux_set_upper_setpoint),
+    CMDNET_HANDLER(bb_aux_set_lower_setpoint),
+
+    CMDNET_HANDLER(set_multi_setpoints), // FUEL UP, FUEL LOW, OX UP, OX LOW
+    
+    CMDNET_HANDLER(bb_regulate_all),
+    CMDNET_HANDLER(bb_isolate_all),
+    CMDNET_HANDLER(bb_open_all),
 };
 
 const size_t n_endpoints = sizeof(endpoints) / sizeof(cmdnet_endpoint_t);

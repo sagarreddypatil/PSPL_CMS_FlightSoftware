@@ -60,6 +60,32 @@ PSPL_CMS_Avionics_Code/
 └── Makefile <- User-friendly build script, calls CMake
 ```
 
+### Explaining the Contents of `device/` and `/lib`
+
+#### `device/`
+This folder contains abstractions for interacting with external hardware
+(drivers), and also contains low level RP2040 specific stuff, such as a custom
+implementation of `spi` under `myspi/`.
+
+All of the subfolders explained
+- `myspi/` - This exists solely due to FreeRTOS. It uses
+  FreeRTOS mutexes so that multiple tasks can communicate with devices over SPI. For a brief summary of how it works:
+    - Start a DMA transfer when myspi_transfer is called
+    - Yield the current process and wait for a task notification
+    - When the DMA transfer completes, it raises an interrupt
+    - Interrupt sends a notification to the task owning the transfer
+    - Task continues execution
+- `mydma/` - Contains a `memcpy` implementation which uses RP2040's DMA to copy
+  memory without using the CPU. Operation is similar to `myspi`, but instead of
+  data being copied to a peripheral, it's copied across memory on the RP2040.
+- `myuart/` - FreeRTOS supporting UART driver
+
+All subsequent drivers use the above three drivers. Most of them use `myspi`
+- `ads13x/` - Driver for the ADS13xMXX ADCs
+- `max31856/` - Thermocouple amplifier and ADC driver
+- `w25n01/` - Flash driver
+- `w5500/` - Ethernet driver
+
 ## Usage
 
 ### Dependencies

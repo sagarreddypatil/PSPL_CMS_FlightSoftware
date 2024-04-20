@@ -3,7 +3,7 @@
 PROG_NAME=$1
 
 make
-./scripts/pico.py C bootsel
+./scripts/pico.py A bootsel
 
 echo
 echo
